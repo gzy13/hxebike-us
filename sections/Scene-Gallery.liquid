@@ -1,0 +1,451 @@
+{% comment %}
+  Scene Gallery Section - Masonry Layout with Lightbox
+  用于展示骑行/越野实拍场景
+{% endcomment %}
+
+<style>
+  .scene-gallery-{{ section.id }} {
+    padding: 60px 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .scene-gallery-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  .scene-gallery-heading {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    color: #1a1a1a;
+  }
+
+  .scene-gallery-subheading {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Desktop Masonry Grid Layout */
+  .scene-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    grid-auto-rows: 220px;
+
+    /* ✅ 关键：让 grid 尽量“回填空洞”，避免右下出现大留白 */
+    grid-auto-flow: dense;
+  }
+
+  .scene-gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .scene-gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+
+  /* ✅ 更“好填洞”的错落节奏：仍然有高低错落，但更不容易形成大空白 */
+  .scene-gallery-item { grid-row: span 2; } /* 默认稍大一点，整体更饱满 */
+  .scene-gallery-item:nth-child(8n+2) { grid-row: span 3; }
+  .scene-gallery-item:nth-child(8n+5) { grid-row: span 3; }
+  .scene-gallery-item:nth-child(8n+8) { grid-row: span 3; }
+  .scene-gallery-item:nth-child(8n+3) { grid-row: span 1; } /* 偶尔插入小块，增加错落与填洞机会 */
+
+  .scene-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Lightbox Styles */
+  .scene-lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .scene-lightbox.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .lightbox-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox-image {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+    transition: background 0.2s;
+    z-index: 10001;
+  }
+
+  .lightbox-close:hover {
+    background: #fff;
+  }
+
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    color: #333;
+    transition: background 0.2s;
+    z-index: 10001;
+  }
+
+  .lightbox-nav:hover {
+    background: #fff;
+  }
+
+  .lightbox-prev {
+    left: 30px;
+  }
+
+  .lightbox-next {
+    right: 30px;
+  }
+
+  /* Tablet Layout */
+  @media (max-width: 1024px) {
+    .scene-gallery-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 200px;
+      grid-auto-flow: dense; /* 保持回填 */
+    }
+    
+    .scene-gallery-heading {
+      font-size: 2rem;
+    }
+  }
+
+  /* Mobile Layout - 类似截图的不规则拼贴布局 */
+  @media (max-width: 768px) {
+    .scene-gallery-{{ section.id }} {
+      padding: 40px 12px;
+    }
+
+    .scene-gallery-header {
+      margin-bottom: 30px;
+    }
+
+    .scene-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      grid-auto-rows: 80px;
+      grid-auto-flow: row; /* 手机端你原本就刚刚好，这里保持简单 */
+    }
+
+    /* 左大右小的不规则布局模式 */
+    .scene-gallery-item:nth-child(8n+1) { 
+      grid-column: span 4;
+      grid-row: span 3;
+    }
+    .scene-gallery-item:nth-child(8n+2) { 
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+    .scene-gallery-item:nth-child(8n+3) { 
+      grid-column: span 2;
+      grid-row: span 1;
+    }
+    .scene-gallery-item:nth-child(8n+4) { 
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+    .scene-gallery-item:nth-child(8n+5) { 
+      grid-column: span 4;
+      grid-row: span 2;
+    }
+    .scene-gallery-item:nth-child(8n+6) { 
+      grid-column: span 3;
+      grid-row: span 2;
+    }
+    .scene-gallery-item:nth-child(8n+7) { 
+      grid-column: span 3;
+      grid-row: span 2;
+    }
+    .scene-gallery-item:nth-child(8n+8) { 
+      grid-column: span 6;
+      grid-row: span 2;
+    }
+
+    .scene-gallery-heading {
+      font-size: 1.75rem;
+    }
+
+    .scene-gallery-subheading {
+      font-size: 1rem;
+    }
+
+    .lightbox-nav {
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+    }
+
+    .lightbox-prev {
+      left: 10px;
+    }
+
+    .lightbox-next {
+      right: 10px;
+    }
+
+    .lightbox-close {
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+    }
+  }
+</style>
+
+<div class="scene-gallery-{{ section.id }}">
+  {% if section.settings.heading != blank or section.settings.subheading != blank %}
+    <div class="scene-gallery-header">
+      {% if section.settings.heading != blank %}
+        <h2 class="scene-gallery-heading">{{ section.settings.heading }}</h2>
+      {% endif %}
+      {% if section.settings.subheading != blank %}
+        <p class="scene-gallery-subheading">{{ section.settings.subheading }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if section.blocks.size > 0 %}
+    <div class="scene-gallery-grid">
+      {% for block in section.blocks %}
+        <div class="scene-gallery-item" 
+             data-index="{{ forloop.index0 }}"
+             {{ block.shopify_attributes }}>
+          {% if block.settings.image != blank %}
+            <img 
+              src="{{ block.settings.image | image_url: width: 800 }}"
+              srcset="{{ block.settings.image | image_url: width: 400 }} 400w,
+                      {{ block.settings.image | image_url: width: 600 }} 600w,
+                      {{ block.settings.image | image_url: width: 800 }} 800w,
+                      {{ block.settings.image | image_url: width: 1200 }} 1200w"
+              sizes="(max-width: 768px) 90vw, 33vw"
+              alt="{{ block.settings.alt_text | default: section.settings.heading }}"
+              loading="lazy"
+              data-full-src="{{ block.settings.image | image_url: width: 1600 }}">
+          {% else %}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Lightbox -->
+    <div class="scene-lightbox" id="lightbox-{{ section.id }}">
+      <button class="lightbox-close" aria-label="关闭">&times;</button>
+      <button class="lightbox-nav lightbox-prev" aria-label="上一张">‹</button>
+      <div class="lightbox-content">
+        <img class="lightbox-image" src="" alt="">
+      </div>
+      <button class="lightbox-nav lightbox-next" aria-label="下一张">›</button>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+(function() {
+  const sectionId = '{{ section.id }}';
+  const lightbox = document.getElementById('lightbox-' + sectionId);
+  const lightboxImg = lightbox.querySelector('.lightbox-image');
+  const closeBtn = lightbox.querySelector('.lightbox-close');
+  const prevBtn = lightbox.querySelector('.lightbox-prev');
+  const nextBtn = lightbox.querySelector('.lightbox-next');
+  const items = document.querySelectorAll('.scene-gallery-' + sectionId + ' .scene-gallery-item');
+  
+  let currentIndex = 0;
+  const images = [];
+
+  // 收集所有图片
+  items.forEach((item, index) => {
+    const img = item.querySelector('img');
+    if (img && img.dataset.fullSrc) {
+      images.push({
+        src: img.dataset.fullSrc,
+        alt: img.alt
+      });
+      
+      // 点击打开 lightbox
+      item.addEventListener('click', () => {
+        openLightbox(index);
+      });
+    }
+  });
+
+  function openLightbox(index) {
+    currentIndex = index;
+    updateLightboxImage();
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function updateLightboxImage() {
+    if (images[currentIndex]) {
+      lightboxImg.src = images[currentIndex].src;
+      lightboxImg.alt = images[currentIndex].alt;
+    }
+  }
+
+  function showNext() {
+    currentIndex = (currentIndex + 1) % images.length;
+    updateLightboxImage();
+  }
+
+  function showPrev() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    updateLightboxImage();
+  }
+
+  // 事件监听
+  closeBtn.addEventListener('click', closeLightbox);
+  nextBtn.addEventListener('click', showNext);
+  prevBtn.addEventListener('click', showPrev);
+
+  // 点击背景关闭
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) {
+      closeLightbox();
+    }
+  });
+
+  // 键盘控制
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('active')) return;
+    
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') showNext();
+    if (e.key === 'ArrowLeft') showPrev();
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "场景展示 Scene Gallery",
+  "tag": "section",
+  "class": "scene-gallery-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "标题",
+      "default": "骑行场景"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "副标题（可选）",
+      "default": "真实骑行场景，感受越野魅力"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "图片",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "图片"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "图片描述（Alt Text）",
+          "info": "用于无障碍访问和 SEO"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "场景展示 Scene Gallery",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

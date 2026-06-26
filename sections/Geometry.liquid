@@ -1,0 +1,234 @@
+{% comment %}
+  Geometry (NO blocks)
+{% endcomment %}
+
+<section id="geo-{{ section.id }}" class="geoWrap">
+  <div class="geoContainer">
+    <div class="geoGrid">
+      <!-- Block 1: Parameters (built-in) -->
+      <div class="geoBlock geoBlock--params">
+        <h3 class="geoTitle">{{ section.settings.title }}</h3>
+
+        <div class="geoTable" role="table" aria-label="Geometry parameters">
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Frame Size</div>
+            <div class="geoCell geoCell--v" role="cell">Standard</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Wheel Size</div>
+            <div class="geoCell geoCell--v" role="cell">27.5&quot; × 2.25&quot;</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Seat Tube Length</div>
+            <div class="geoCell geoCell--v" role="cell">12.6&quot; / 32 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Top Tube Length (Horizontal)</div>
+            <div class="geoCell geoCell--v" role="cell">7.9&quot; / 20 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Bottom Bracket Drop</div>
+            <div class="geoCell geoCell--v" role="cell">1.6&quot; / 4 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Head Tube Length</div>
+            <div class="geoCell geoCell--v" role="cell">4.3&quot; / 11 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Head Tube Angle</div>
+            <div class="geoCell geoCell--v" role="cell">71°</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Seat Tube Angle</div>
+            <div class="geoCell geoCell--v" role="cell">73°</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Rear Chainstay Length</div>
+            <div class="geoCell geoCell--v" role="cell">6.9&quot; / 17.5 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Front Wheel Center</div>
+            <div class="geoCell geoCell--v" role="cell">10.6&quot; / 27 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Wheelbase</div>
+            <div class="geoCell geoCell--v" role="cell">48.8&quot; / 124 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Reach</div>
+            <div class="geoCell geoCell--v" role="cell">18.1&quot; / 46 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Stack Height</div>
+            <div class="geoCell geoCell--v" role="cell">8.5&quot; / 21.5 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Fork Length</div>
+            <div class="geoCell geoCell--v" role="cell">7.5&quot; / 19 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Fork Offset</div>
+            <div class="geoCell geoCell--v" role="cell">1.6&quot; / 4 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Trail</div>
+            <div class="geoCell geoCell--v" role="cell">3.1&quot; / 7.97 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Standover Height</div>
+            <div class="geoCell geoCell--v" role="cell">28.7&quot; / 73 cm</div>
+          </div>
+
+          <div class="geoRow" role="row">
+            <div class="geoCell geoCell--k" role="cell">Rider Height</div>
+            <div class="geoCell geoCell--v" role="cell">5'5&quot; ~ 6'5&quot; (165 ~ 190 cm)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block 2: Image -->
+      <div class="geoBlock geoBlock--image">
+        {%- assign default_geo_img = "https://cdn.shopify.com/s/files/1/0940/2590/8589/files/hxebike-shark-mako-parameter_1.png?v=1769506013" -%}
+
+        {% if section.settings.image != blank %}
+          <img
+            class="geoImg"
+            src="{{ section.settings.image | image_url: width: 2400 }}"
+            alt="{{ section.settings.image_alt | escape }}"
+            loading="lazy"
+          >
+        {% else %}
+          <img
+            class="geoImg"
+            src="{{ default_geo_img }}"
+            alt="{{ section.settings.image_alt | escape }}"
+            loading="lazy"
+          >
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #geo-{{ section.id }}{
+      padding: 32px 0;
+      background: transparent;
+      color: #111;
+      font-family: var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
+    }
+    #geo-{{ section.id }} *{ box-sizing: border-box; }
+
+    /* Wide like fig1 */
+    #geo-{{ section.id }} .geoContainer{
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 0 clamp(16px, 3vw, 64px);
+    }
+
+    #geo-{{ section.id }} .geoGrid{
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: clamp(18px, 3vw, 56px);
+      align-items: start;
+    }
+
+    #geo-{{ section.id }} .geoTitle{
+      margin: 0 0 18px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    /* Params (NOT bold) */
+    #geo-{{ section.id }} .geoTable{
+      border-top: 1px solid rgba(0,0,0,.10);
+    }
+    #geo-{{ section.id }} .geoRow{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+    #geo-{{ section.id }} .geoCell{
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 400;
+      color: rgba(0,0,0,.78);
+    }
+    #geo-{{ section.id }} .geoCell--k{ color: rgba(0,0,0,.86); }
+    #geo-{{ section.id }} .geoCell--v{ text-align: right; color: rgba(0,0,0,.62); }
+
+    #geo-{{ section.id }} .geoImg{
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    /* Mobile: image full width */
+    @media (max-width: 990px){
+      #geo-{{ section.id }}{ padding: 20px 0; }
+
+      #geo-{{ section.id }} .geoContainer{
+        max-width: 100%;
+        padding: 0; /* edge-to-edge image */
+      }
+
+      #geo-{{ section.id }} .geoGrid{
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      #geo-{{ section.id }} .geoBlock--image{ order: 0; }
+      #geo-{{ section.id }} .geoBlock--params{
+        order: 1;
+        padding: 0 clamp(16px, 3vw, 24px);
+      }
+
+      #geo-{{ section.id }} .geoTitle{
+        font-size: 22px;
+        margin: 6px 0 14px;
+      }
+
+      #geo-{{ section.id }} .geoImg{
+        width: 100%;
+        border-radius: 0;
+      }
+
+      #geo-{{ section.id }} .geoRow{ padding: 14px 0; }
+      #geo-{{ section.id }} .geoCell{ font-size: 14px; }
+    }
+  </style>
+</section>
+
+{% schema %}
+{
+  "name": "Geometry",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Title", "default": "Geometry" },
+    { "type": "image_picker", "id": "image", "label": "Geometry image (optional override)" },
+    { "type": "text", "id": "image_alt", "label": "Image alt text", "default": "Geometry diagram" }
+  ],
+  "presets": [
+    { "name": "Geometry" }
+  ]
+}
+{% endschema %}

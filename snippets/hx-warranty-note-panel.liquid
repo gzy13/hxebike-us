@@ -1,0 +1,131 @@
+{% comment %}
+  Snippet: hx-warranty-note-panel
+  Usage:
+  {% render 'hx-warranty-note-panel', title: 'Warranty & Note' %}
+{% endcomment %}
+
+{%- assign w_title = title | default: 'Warranty & Note' -%}
+
+<section class="hxWarranty">
+  <div class="hxWarranty__container">
+
+    <div class="hxWarranty__grid" role="table" aria-label="Warranty and notes">
+      <!-- Left column -->
+      <div class="hxWarranty__col" role="rowgroup">
+        <div class="hxWarranty__row" role="row">
+          <div class="hxWarranty__k" role="cell">Terms &amp; Conditions</div>
+          <div class="hxWarranty__v" role="cell">
+            Warranty applies only to the original HX owner and covers replacement of faulty components.
+            <br><br>
+            Replacement costs are covered by HX, while the buyer is responsible for shipping fees.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="hxWarranty__col" role="rowgroup">
+        <div class="hxWarranty__row" role="row">
+          <div class="hxWarranty__k" role="cell">Parts</div>
+          <div class="hxWarranty__v" role="cell">2 years</div>
+        </div>
+        <div class="hxWarranty__row" role="row">
+          <div class="hxWarranty__k" role="cell">Battery</div>
+          <div class="hxWarranty__v" role="cell">2 years</div>
+        </div>
+        <div class="hxWarranty__row" role="row">
+          <div class="hxWarranty__k" role="cell">Frame</div>
+          <div class="hxWarranty__v" role="cell">2 years</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .hxWarranty{
+      padding: 32px 0;
+      color: #111;
+      font-family: var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
+    }
+    .hxWarranty *{ box-sizing: border-box; }
+
+    /* Full width style like other panels */
+    .hxWarranty__container{
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 0 clamp(16px, 3vw, 64px);
+    }
+
+    .hxWarranty__title{
+      margin: 0 0 18px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .hxWarranty__grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(18px, 3vw, 56px);
+      border-top: 1px solid rgba(0,0,0,.10);
+    }
+
+    .hxWarranty__row{
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      align-items: start;
+    }
+
+    /* NOT bold */
+    .hxWarranty__k,
+    .hxWarranty__v{
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 400;
+    }
+    .hxWarranty__k{ color: rgba(0,0,0,.86); }
+    .hxWarranty__v{ color: rgba(0,0,0,.62); }
+
+    @media (max-width: 990px){
+      .hxWarranty{ padding: 20px 0; }
+      .hxWarranty__container{
+        max-width: 100%;
+        padding: 0 clamp(16px, 3vw, 24px);
+      }
+      .hxWarranty__title{
+        font-size: 22px;
+        margin: 6px 0 14px;
+      }
+
+      .hxWarranty__grid{
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .hxWarranty__row{
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding: 14px 0;
+      }
+      .hxWarranty__k,
+      .hxWarranty__v{
+        font-size: 14px;
+      }
+      .hxWarranty__v{
+        text-align: right;
+      }
+
+      /* For the long Terms paragraph: make it readable on mobile */
+      .hxWarranty__row:first-child{
+        grid-template-columns: 1fr;
+      }
+      .hxWarranty__row:first-child .hxWarranty__v{
+        text-align: left;
+        margin-top: 6px;
+      }
+    }
+  </style>
+</section>

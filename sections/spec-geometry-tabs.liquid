@@ -1,0 +1,929 @@
+{% comment %}
+  Section: Spec Tabs
+  Optimized version:
+  1) fixed image container height to avoid layout shift
+  2) ratio: 5'0" => 1.3x, 6'8" => 1.6x (linear)
+  3) cleaner slider logic
+  4) corrected copy: inseam -> height
+{% endcomment %}
+
+<section id="sgtabs-{{ section.id }}" class="sgTabs">
+  <div class="sgTabs__header">
+    <div class="sgTabs__title">{{ section.settings.title }}</div>
+
+    <div class="sgTabs__navWrap">
+      <div class="sgTabs__navLine" aria-hidden="true"></div>
+
+      <div class="sgTabs__nav" role="tablist" aria-label="Specification & Geometry Tabs">
+        <button class="sgTabs__tab is-active" type="button" role="tab" aria-selected="true" aria-controls="sgpanel-{{ section.id }}-fit" id="sgtab-{{ section.id }}-fit" data-tab="fit">
+          Size &amp; Fit
+        </button>
+        <button class="sgTabs__tab" type="button" role="tab" aria-selected="false" aria-controls="sgpanel-{{ section.id }}-geo" id="sgtab-{{ section.id }}-geo" data-tab="geo">
+          Geometry
+        </button>
+        <button class="sgTabs__tab" type="button" role="tab" aria-selected="false" aria-controls="sgpanel-{{ section.id }}-tech" id="sgtab-{{ section.id }}-tech" data-tab="tech">
+          Technical
+        </button>
+        <button class="sgTabs__tab" type="button" role="tab" aria-selected="false" aria-controls="sgpanel-{{ section.id }}-war" id="sgtab-{{ section.id }}-war" data-tab="war">
+          Warranty &amp; Note
+        </button>
+        <button class="sgTabs__tab" type="button" role="tab" aria-selected="false" aria-controls="sgpanel-{{ section.id }}-asm" id="sgtab-{{ section.id }}-asm" data-tab="asm">
+          Assembly Video
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sgTabs__panels">
+    <!-- Panel: Size & Fit -->
+    <div class="sgTabs__panel is-active" id="sgpanel-{{ section.id }}-fit" role="tabpanel" aria-labelledby="sgtab-{{ section.id }}-fit" data-panel="fit">
+      <section
+        id="sf-{{ section.id }}"
+        class="sfWrap"
+        style="
+          --sf-accent: {{ section.settings.accent }};
+          --sf-text: {{ section.settings.text }};
+          --sf-max: {{ section.settings.max_width }}px;
+        "
+      >
+        <div class="sfContainer">
+          <div class="sf" data-sf-root data-sf-state="ok">
+            <div class="sf__grid">
+              <!-- Slider -->
+              <div class="sf__sliderCol">
+                <div class="sf__sliderBox" data-sf-slider>
+                  <div class="sf__track" aria-hidden="true"></div>
+                  <div class="sf__fitBand" aria-hidden="true"></div>
+                  <div class="sf__ticks" aria-hidden="true"></div>
+
+                  <div class="sf__knob" data-sf-knob>
+                    <span class="sf__knobTxt" data-sf-knob-txt>6'0"</span>
+                  </div>
+
+                  <button class="sf__hit" type="button" data-sf-hit aria-label="Drag to select height"></button>
+                </div>
+              </div>
+
+              <!-- Text -->
+              <div class="sf__textCol">
+                <div class="sf__headline">
+                  <div class="sf__hLine">
+                    <span class="sf__hVal" data-sf-display>6'0"</span>
+                    <span class="sf__hUnit">Height</span>
+                  </div>
+                  <div class="sf__sub">Move the slider to match your height</div>
+                </div>
+
+                <div class="sf__divider"></div>
+
+                <div class="sf__result">
+                  <div class="sf__row">
+                    <span class="sf__statusIcon" aria-hidden="true"></span>
+                    <div class="sf__copy">
+                      <div class="sf__desc" data-sf-desc>
+                        {{ section.settings.ok_text }}
+                      </div>
+                      <div class="sf__rangeHint">Recommended height: 5'5" – 6'5"</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image -->
+              <div class="sf__imageCol">
+                <div class="sf__imageBox">
+                  {% if section.settings.silhouette != blank %}
+                    <img class="sf__sil" src="{{ section.settings.silhouette | image_url: width: 1400 }}" alt="Silhouette" loading="lazy">
+                  {% endif %}
+
+                  {% if section.settings.bike_image != blank %}
+                    <img class="sf__bike" src="{{ section.settings.bike_image | image_url: width: 2200 }}" alt="Bike" loading="lazy">
+                  {% elsif product.featured_image != blank %}
+                    <img class="sf__bike" src="{{ product.featured_image | image_url: width: 2200 }}" alt="{{ product.title | escape }}" loading="lazy">
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <style>
+          #sf-{{ section.id }}{
+            padding:40px 0;
+            color:var(--sf-text);
+          }
+
+          #sf-{{ section.id }} *{
+            box-sizing:border-box;
+          }
+
+          #sf-{{ section.id }} .sfContainer{
+            max-width:var(--sf-max);
+            margin:0 auto;
+            padding:0 clamp(16px,3vw,56px);
+            font-family: var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
+          }
+
+          #sf-{{ section.id }} .sf__grid{
+            display:grid;
+            grid-template-columns:140px 1fr 1fr;
+            gap:clamp(18px,3vw,44px);
+            align-items:center;
+            padding:clamp(18px,4vw,38px) 0;
+            border-top:1px solid rgba(0,0,0,.12);
+          }
+
+          #sf-{{ section.id }} .sf__sliderBox{
+            position:relative;
+            width:110px;
+            height:300px;
+            margin:0 auto;
+            user-select:none;
+            --sf-fill-top: 50%;
+            --sf-fit-top: 25%;
+            --sf-fit-bottom: 75%;
+          }
+
+          #sf-{{ section.id }} .sf__track{
+            position:absolute;
+            left:50%;
+            top:0;
+            bottom:0;
+            width:6px;
+            transform:translateX(-50%);
+            background:rgba(0,0,0,.16);
+            border-radius:999px;
+            z-index:1;
+          }
+
+          #sf-{{ section.id }} .sf__fitBand{
+            position:absolute;
+            left:50%;
+            transform:translateX(-50%);
+            width:14px;
+            top:var(--sf-fit-top);
+            bottom:var(--sf-fit-bottom);
+            background:rgba(34,197,94,.14);
+            border-radius:999px;
+            z-index:2;
+            pointer-events:none;
+          }
+
+          #sf-{{ section.id }} .sf__ticks{
+            position:absolute;
+            left:50%;
+            top:0;
+            bottom:0;
+            width:64px;
+            transform:translateX(-50%);
+            pointer-events:none;
+            opacity:.45;
+            z-index:2;
+            background:
+              repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 16px,
+                rgba(0,0,0,.26) 16px,
+                rgba(0,0,0,.26) 18px
+              );
+          }
+
+          #sf-{{ section.id }} .sf__sliderBox::before{
+            content:"";
+            position:absolute;
+            left:50%;
+            transform:translateX(-50%);
+            width:6px;
+            top:0;
+            bottom:0;
+            background:rgba(0,0,0,.12);
+            background:color-mix(in srgb, var(--sf-accent) 26%, transparent);
+            border-radius:999px;
+            z-index:3;
+            pointer-events:none;
+          }
+
+          #sf-{{ section.id }} .sf__sliderBox::after{
+            content:"";
+            position:absolute;
+            left:50%;
+            transform:translateX(-50%);
+            width:6px;
+            top:var(--sf-fill-top);
+            bottom:0;
+            background:var(--sf-accent);
+            border-radius:999px;
+            z-index:4;
+            pointer-events:none;
+            min-height:10px;
+          }
+
+          #sf-{{ section.id }} .sf__knob{
+            position:absolute;
+            left:50%;
+            top:50%;
+            transform:translate(-50%,-50%);
+            width:66px;
+            height:66px;
+            border-radius:999px;
+            background:var(--sf-accent);
+            display:grid;
+            place-items:center;
+            box-shadow:none;
+            z-index:7;
+            pointer-events:none;
+            transition:top .04s linear;
+          }
+
+          #sf-{{ section.id }} .sf__knobTxt{
+            color:#fff;
+            font-size:15px;
+            font-weight:500;
+          }
+
+          #sf-{{ section.id }} .sf__hit{
+            position:absolute;
+            inset:-10px;
+            z-index:10;
+            touch-action:none;
+            cursor:grab;
+            appearance:none !important;
+            -webkit-appearance:none !important;
+            background:transparent !important;
+            border:0 !important;
+            box-shadow:none !important;
+            outline:none !important;
+            padding:0 !important;
+            margin:0 !important;
+            border-radius:0 !important;
+          }
+
+          #sf-{{ section.id }} .sf__hit:active{
+            cursor:grabbing;
+          }
+
+          #sf-{{ section.id }} .sf__headline{
+            min-height:74px;
+          }
+
+          #sf-{{ section.id }} .sf__hLine{
+            display:flex;
+            align-items:baseline;
+            gap:10px;
+            color:#111;
+          }
+
+          #sf-{{ section.id }} .sf__hVal{
+            font-size:40px;
+            display:inline-block;
+            width:3.2em;
+            font-variant-numeric:tabular-nums;
+            font-weight:500;
+          }
+
+          #sf-{{ section.id }} .sf__hUnit{
+            font-size:30px;
+            font-weight:500;
+          }
+
+          #sf-{{ section.id }} .sf__sub{
+            margin-top:8px;
+            font-size:14px;
+            color:rgba(0,0,0,.62);
+            min-height:2.6em;
+          }
+
+          #sf-{{ section.id }} .sf__divider{
+            margin:22px 0;
+            height:1px;
+            width:min(560px,100%);
+            background:rgba(0,0,0,.12);
+          }
+
+          #sf-{{ section.id }} .sf__row{
+            display:flex;
+            gap:12px;
+            max-width:560px;
+          }
+
+          #sf-{{ section.id }} .sf__copy{
+            min-height:86px;
+            overflow:hidden;
+          }
+
+          #sf-{{ section.id }} .sf__statusIcon{
+            width:18px;
+            height:18px;
+            border-radius:999px;
+            margin-top:6px;
+            position:relative;
+            flex:0 0 auto;
+            background:#16a34a;
+          }
+
+          #sf-{{ section.id }} .sf[data-sf-state="bad"] .sf__statusIcon{
+            background:#ef4444;
+          }
+
+          #sf-{{ section.id }} .sf__statusIcon:after{
+            content:"";
+            position:absolute;
+            left:5px;
+            top:4px;
+            width:7px;
+            height:4px;
+            border-left:2px solid #fff;
+            border-bottom:2px solid #fff;
+            transform:rotate(-45deg);
+          }
+
+          #sf-{{ section.id }} .sf[data-sf-state="bad"] .sf__statusIcon:after{
+            left:4px;
+            top:4px;
+            width:10px;
+            height:10px;
+            border:none;
+            background:
+              linear-gradient(45deg, transparent 46%, #fff 46%, #fff 54%, transparent 54%),
+              linear-gradient(-45deg, transparent 46%, #fff 46%, #fff 54%, transparent 54%);
+          }
+
+          #sf-{{ section.id }} .sf__desc{
+            font-size:14px;
+            line-height:1.55;
+            min-height:3.2em;
+            color:rgba(22,163,74,.95);
+            overflow:hidden;
+          }
+
+          #sf-{{ section.id }} .sf[data-sf-state="bad"] .sf__desc{
+            color:rgba(239,68,68,.95);
+          }
+
+          #sf-{{ section.id }} .sf__rangeHint{
+            margin-top:10px;
+            font-size:13px;
+            color:rgba(0,0,0,.55);
+            min-height:1.4em;
+            overflow:hidden;
+          }
+
+          /* fixed container height to avoid shifting while sliding */
+          #sf-{{ section.id }} .sf__imageBox{
+            position:relative;
+            width:100%;
+            height:max(clamp(360px, 30vw, 560px), var(--sf-imgbox-h, 0px));
+            overflow:hidden;
+            --img-bottom: 6%;
+          }
+
+          #sf-{{ section.id }} .sf__sil{
+            position:absolute !important;
+            left:50% !important;
+            top:auto !important;
+            right:auto !important;
+            bottom:var(--img-bottom) !important;
+            height:var(--sf-sil-h, 86%) !important;
+            width:auto !important;
+            max-width:78% !important;
+            transform:translateX(-50%) !important;
+            transform-origin:50% 100% !important;
+            opacity:.22;
+            filter:grayscale(1);
+            pointer-events:none;
+            user-select:none;
+            z-index:1;
+            object-fit:contain;
+          }
+
+          #sf-{{ section.id }} .sf__bike{
+            position:absolute;
+            left:50%;
+            bottom:var(--img-bottom);
+            transform:translateX(-50%);
+            width:min(760px, 110%);
+            height:auto;
+            z-index:2;
+            object-fit:contain;
+          }
+
+          @media (max-width: 990px){
+            #sf-{{ section.id }} .sf__grid{
+              grid-template-columns:92px 1fr;
+              grid-template-areas:
+                "slider text"
+                "image image";
+              align-items:start;
+              gap:14px;
+              padding:18px 0 6px;
+            }
+
+            #sf-{{ section.id }} .sf__sliderCol{ grid-area:slider; }
+            #sf-{{ section.id }} .sf__textCol{ grid-area:text; }
+            #sf-{{ section.id }} .sf__imageCol{
+              grid-area:image;
+              margin-top:10px;
+            }
+
+            #sf-{{ section.id }} .sf__sliderBox{
+              height:150px;
+              width:86px;
+            }
+
+            #sf-{{ section.id }} .sf__knob{
+              width:44px;
+              height:44px;
+            }
+
+            #sf-{{ section.id }} .sf__knobTxt{
+              font-size:13px;
+            }
+
+            #sf-{{ section.id }} .sf__headline{
+              min-height:66px;
+            }
+
+            #sf-{{ section.id }} .sf__hVal{
+              font-size:22px;
+              width:3.4em;
+              font-weight:500;
+            }
+
+            #sf-{{ section.id }} .sf__hUnit{
+              font-size:18px;
+              font-weight:500;
+            }
+
+            #sf-{{ section.id }} .sf__sub{
+              font-size:13px;
+              margin-top:6px;
+              min-height:2.6em;
+            }
+
+            #sf-{{ section.id }} .sf__copy{
+              min-height:92px;
+            }
+
+            #sf-{{ section.id }} .sf__desc{
+              font-size:13px;
+              min-height:3.4em;
+            }
+
+            #sf-{{ section.id }} .sf__rangeHint{
+              font-size:12px;
+            }
+
+            #sf-{{ section.id }} .sf__sil{
+              max-width:58% !important;
+              opacity:.18;
+            }
+
+            #sf-{{ section.id }} .sf__bike{
+              width:min(640px, 110%);
+              bottom:var(--img-bottom);
+            }
+          }
+        </style>
+
+        <script>
+          (function(){
+            const wrap = document.getElementById('sf-{{ section.id }}');
+            if (!wrap) return;
+
+            const root = wrap.querySelector('[data-sf-root]');
+            const slider = wrap.querySelector('[data-sf-slider]');
+            const hit = wrap.querySelector('[data-sf-hit]');
+            const knob = wrap.querySelector('[data-sf-knob]');
+            const knobTxt = wrap.querySelector('[data-sf-knob-txt]');
+            const display = wrap.querySelector('[data-sf-display]');
+            const desc = wrap.querySelector('[data-sf-desc]');
+            const silEl = wrap.querySelector('.sf__sil');
+            const bikeEl = wrap.querySelector('.sf__bike');
+
+            if (!root || !slider || !hit || !knob) return;
+
+            const MIN = 60;      // 5'0"
+            const MAX = 80;      // 6'8"
+            const DEFAULT = 72;  // 6'0"
+            const OK_MIN = 65;   // 5'5"
+            const OK_MAX = 77;   // 6'5"
+
+            const okText = {{ section.settings.ok_text | json }};
+            const badText = {{ section.settings.bad_text | json }};
+
+            const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+            const fmt = (inches) => {
+              const ft = Math.floor(inches / 12);
+              const inch = inches % 12;
+              return ft + "'" + inch + '"';
+            };
+
+            let raf = null;
+            let pending = null;
+            let dragging = false;
+            let currentVal = DEFAULT;
+            let resizeObserver = null;
+
+            function getKnobHalf(){
+              const h = knob.getBoundingClientRect().height || 0;
+              return Math.max(10, h / 2);
+            }
+
+            function updateImageScale(p){
+              if (!root || !bikeEl || !silEl) return;
+
+              const bikeRect = bikeEl.getBoundingClientRect();
+              const bikeH = bikeRect.height || 0;
+              if (bikeH <= 0) return;
+
+              const ratio = 1.3 + p * (1.6 - 1.3);
+              const silH = bikeH * ratio;
+
+              root.style.setProperty('--sf-sil-h', Math.round(silH) + 'px');
+
+              const maxSilH = bikeH * 1.6;
+              const boxH = maxSilH + bikeH * 0.12;
+              root.style.setProperty('--sf-imgbox-h', Math.round(boxH) + 'px');
+            }
+
+            function updateState(val){
+              const t = fmt(val);
+
+              if (knobTxt) knobTxt.textContent = t;
+              if (display) display.textContent = t;
+
+              const ok = val >= OK_MIN && val <= OK_MAX;
+              root.setAttribute('data-sf-state', ok ? 'ok' : 'bad');
+              if (desc) desc.textContent = ok ? okText : badText;
+            }
+
+            function updateSliderVisual(val){
+              const p = (val - MIN) / (MAX - MIN || 1);
+
+              const knobHalf = getKnobHalf();
+              const h = slider.getBoundingClientRect().height || 1;
+              const travel = Math.max(1, h - knobHalf * 2);
+
+              const topPx = knobHalf + (1 - p) * travel;
+              const topPct = (topPx / h) * 100;
+
+              knob.style.top = topPct + '%';
+              slider.style.setProperty('--sf-fill-top', topPct + '%');
+
+              const pOkMax = (OK_MAX - MIN) / (MAX - MIN || 1);
+              const pOkMin = (OK_MIN - MIN) / (MAX - MIN || 1);
+
+              const topPxOkMax = knobHalf + (1 - clamp(pOkMax, 0, 1)) * travel;
+              const topPxOkMin = knobHalf + (1 - clamp(pOkMin, 0, 1)) * travel;
+
+              slider.style.setProperty('--sf-fit-top', (topPxOkMax / h) * 100 + '%');
+              slider.style.setProperty('--sf-fit-bottom', (1 - (topPxOkMin / h)) * 100 + '%');
+
+              updateImageScale(p);
+            }
+
+            function apply(val){
+              val = clamp(val, MIN, MAX);
+              currentVal = val;
+
+              updateSliderVisual(val);
+              updateState(val);
+            }
+
+            function schedule(val){
+              pending = clamp(val, MIN, MAX);
+              if (raf) return;
+
+              raf = requestAnimationFrame(() => {
+                raf = null;
+                apply(pending);
+              });
+            }
+
+            function valueFromY(clientY){
+              const r = slider.getBoundingClientRect();
+              const knobHalf = getKnobHalf();
+              const y = clamp(clientY - r.top, knobHalf, r.height - knobHalf);
+              const travel = Math.max(1, r.height - knobHalf * 2);
+              const ratio = 1 - ((y - knobHalf) / travel);
+              return Math.round(MIN + ratio * (MAX - MIN));
+            }
+
+            function onDown(e){
+              dragging = true;
+              e.preventDefault();
+              hit.setPointerCapture?.(e.pointerId);
+              schedule(valueFromY(e.clientY));
+            }
+
+            function onMove(e){
+              if (!dragging) return;
+              e.preventDefault();
+              schedule(valueFromY(e.clientY));
+            }
+
+            function onUp(e){
+              dragging = false;
+              try { hit.releasePointerCapture?.(e.pointerId); } catch(_) {}
+            }
+
+            hit.addEventListener('pointerdown', onDown, { passive:false });
+            hit.addEventListener('pointermove', onMove, { passive:false });
+            hit.addEventListener('pointerup', onUp, { passive:true });
+            hit.addEventListener('pointercancel', onUp, { passive:true });
+            hit.addEventListener('click', (e) => schedule(valueFromY(e.clientY)));
+
+            [silEl, bikeEl].forEach((el) => {
+              if (!el) return;
+              el.addEventListener('load', () => apply(currentVal));
+            });
+
+            window.addEventListener('resize', () => apply(currentVal));
+
+            if ('ResizeObserver' in window && bikeEl) {
+              resizeObserver = new ResizeObserver(() => apply(currentVal));
+              resizeObserver.observe(bikeEl);
+            }
+
+            apply(DEFAULT);
+          })();
+        </script>
+      </section>
+    </div>
+
+    <!-- Panel: Geometry -->
+    <div class="sgTabs__panel" id="sgpanel-{{ section.id }}-geo" role="tabpanel" aria-labelledby="sgtab-{{ section.id }}-geo" data-panel="geo" hidden>
+      {% render 'hx-geometry-panel', title: 'Geometry', image_alt: 'Geometry diagram' %}
+    </div>
+
+    <!-- Panel: Technical -->
+    <div class="sgTabs__panel" id="sgpanel-{{ section.id }}-tech" role="tabpanel" aria-labelledby="sgtab-{{ section.id }}-tech" data-panel="tech" hidden>
+      {% render 'hx-technical-panel', title: 'Technical' %}
+    </div>
+
+    <!-- Panel: Warranty -->
+    <div class="sgTabs__panel" id="sgpanel-{{ section.id }}-war" role="tabpanel" aria-labelledby="sgtab-{{ section.id }}-war" data-panel="war" hidden>
+      {% render 'hx-warranty-note-panel', title: 'Warranty & Note' %}
+    </div>
+
+    <!-- Panel: Assembly -->
+    <div class="sgTabs__panel" id="sgpanel-{{ section.id }}-asm" role="tabpanel" aria-labelledby="sgtab-{{ section.id }}-asm" data-panel="asm" hidden>
+      {% render 'hx-assembly-video-panel', title: 'Assembly Video', youtube_url: section.settings.youtube_url %}
+    </div>
+  </div>
+
+  <style>
+    #sgtabs-{{ section.id }}{
+      padding:34px 0 0;
+      background:transparent;
+      font-family:var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
+      color:#111;
+    }
+
+    #sgtabs-{{ section.id }} *{
+      box-sizing:border-box;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__header{
+      max-width:1680px;
+      margin:0 auto;
+      padding:0 clamp(16px,3vw,64px);
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__title{
+      text-align:center;
+      font-size:clamp(28px, 3.6vw, 52px);
+      font-weight:500;
+      letter-spacing:-0.02em;
+      margin-bottom:18px;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__navWrap{
+      position:relative;
+      padding-bottom:10px;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__navLine{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:1px;
+      background:rgba(0,0,0,.35);
+      pointer-events:none;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__nav{
+      display:flex;
+      justify-content:center;
+      gap:28px;
+      align-items:flex-end;
+      padding:0 0 10px;
+      overflow:visible;
+      flex-wrap:nowrap;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__tab{
+      border:0;
+      background:transparent;
+      color:#111;
+      font-size:16px;
+      font-weight:500;
+      padding:14px 22px;
+      cursor:pointer;
+      line-height:1;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__tab.is-active{
+      background:#111;
+      color:#fff;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__panels{
+      margin-top:8px;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__panel{
+      width:100%;
+    }
+
+    @media (max-width: 990px){
+      #sgtabs-{{ section.id }}{
+        padding-top:18px;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__header{
+        max-width:100%;
+        padding:0 clamp(16px,3vw,24px);
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__title{
+        text-align:left;
+        font-size:22px;
+        margin-bottom:10px;
+        font-weight:500;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__navWrap{
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;
+        touch-action:pan-x;
+        overscroll-behavior-x:contain;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__navWrap::-webkit-scrollbar{
+        display:none;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__nav{
+        justify-content:flex-start;
+        gap:10px;
+        width:max-content;
+        min-width:100%;
+        padding-bottom:10px;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__tab{
+        font-size:13px;
+        padding:10px 12px;
+      }
+    }
+  </style>
+
+  <script>
+    (function(){
+      const root = document.getElementById('sgtabs-{{ section.id }}');
+      if (!root) return;
+
+      const tabs = Array.from(root.querySelectorAll('[data-tab]'));
+      const panels = Array.from(root.querySelectorAll('[data-panel]'));
+
+      function activate(name){
+        tabs.forEach((t) => {
+          const isOn = t.getAttribute('data-tab') === name;
+          t.classList.toggle('is-active', isOn);
+          t.setAttribute('aria-selected', isOn ? 'true' : 'false');
+          t.tabIndex = isOn ? 0 : -1;
+        });
+
+        panels.forEach((p) => {
+          const isOn = p.getAttribute('data-panel') === name;
+          p.classList.toggle('is-active', isOn);
+          if (isOn) p.removeAttribute('hidden');
+          else p.setAttribute('hidden', 'hidden');
+        });
+
+        if (name === 'fit') {
+          requestAnimationFrame(() => {
+            window.dispatchEvent(new Event('resize'));
+          });
+        }
+      }
+
+      tabs.forEach((t, index) => {
+        t.addEventListener('click', () => activate(t.getAttribute('data-tab')));
+
+        t.addEventListener('keydown', (e) => {
+          let next = null;
+
+          if (e.key === 'ArrowRight') next = tabs[index + 1] || tabs[0];
+          if (e.key === 'ArrowLeft') next = tabs[index - 1] || tabs[tabs.length - 1];
+          if (e.key === 'Home') next = tabs[0];
+          if (e.key === 'End') next = tabs[tabs.length - 1];
+
+          if (!next) return;
+
+          e.preventDefault();
+          next.focus();
+          activate(next.getAttribute('data-tab'));
+        });
+      });
+
+      activate('fit');
+
+      const wrap = root.querySelector('.sgTabs__navWrap');
+      if (!wrap) return;
+
+      let isDown = false;
+      let startX = 0;
+      let scrollLeft = 0;
+      let moved = false;
+
+      wrap.addEventListener('mousedown', (e) => {
+        isDown = true;
+        moved = false;
+        startX = e.pageX;
+        scrollLeft = wrap.scrollLeft;
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDown = false;
+      });
+
+      wrap.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const dx = e.pageX - startX;
+        if (Math.abs(dx) > 3) moved = true;
+        wrap.scrollLeft = scrollLeft - dx;
+      });
+
+      wrap.addEventListener('touchstart', (e) => {
+        if (!e.touches || !e.touches[0]) return;
+        isDown = true;
+        moved = false;
+        startX = e.touches[0].pageX;
+        scrollLeft = wrap.scrollLeft;
+      }, { passive:true });
+
+      wrap.addEventListener('touchmove', (e) => {
+        if (!isDown || !e.touches || !e.touches[0]) return;
+        const dx = e.touches[0].pageX - startX;
+        if (Math.abs(dx) > 3) moved = true;
+        wrap.scrollLeft = scrollLeft - dx;
+      }, { passive:true });
+
+      wrap.addEventListener('touchend', () => {
+        isDown = false;
+      }, { passive:true });
+
+      root.querySelectorAll('.sgTabs__tab').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          if (moved) {
+            e.preventDefault();
+            e.stopPropagation();
+            moved = false;
+          }
+        }, true);
+      });
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Spec Tabs",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Main title", "default": "Specification & Geometry" },
+
+    { "type": "color", "id": "accent", "label": "Accent color (Size & Fit)", "default": "#ff4a12" },
+    { "type": "color", "id": "text", "label": "Text color (Size & Fit)", "default": "#111111" },
+    { "type": "range", "id": "max_width", "label": "Size & Fit max width", "min": 960, "max": 1600, "step": 20, "default": 1280 },
+
+    { "type": "text", "id": "ok_text", "label": "Size & Fit OK text", "default": "You will be able to pedal and stand over the frame comfortably." },
+    { "type": "text", "id": "bad_text", "label": "Size & Fit Bad text", "default": "You may experience discomfort on extended riding periods." },
+
+    { "type": "image_picker", "id": "silhouette", "label": "Size & Fit silhouette image" },
+    { "type": "image_picker", "id": "bike_image", "label": "Size & Fit bike image (optional)" },
+
+    { "type": "text", "id": "youtube_url", "label": "Assembly video URL", "default": "https://www.youtube.com/watch?v=z56akSPBqJQ" }
+  ],
+  "presets": [
+    { "name": "Spec Tabs" }
+  ]
+}
+{% endschema %}

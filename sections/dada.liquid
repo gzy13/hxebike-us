@@ -1,0 +1,724 @@
+{% liquid
+  assign section_id = 'q5-spec-compare-' | append: section.id
+%}
+
+<section
+  id="{{ section_id }}"
+  class="q5-spec-compare"
+  style="
+    --q5-page-width: {{ section.settings.desktop_width }}%;
+    --q5-max-width: {{ section.settings.max_width }}px;
+    --q5-feature-width: {{ section.settings.feature_width }}%;
+    --q5-mobile-feature-width: {{ section.settings.mobile_feature_width | default: 58 }}%;
+    --q5-radius: {{ section.settings.card_radius }}px;
+    --q5-heading-size-desktop: {{ section.settings.heading_size_desktop }}px;
+    --q5-heading-size-mobile: {{ section.settings.heading_size_mobile }}px;
+    --q5-heading-gap-desktop: {{ section.settings.heading_gap_desktop }}px;
+    --q5-heading-gap-mobile: {{ section.settings.heading_gap_mobile }}px;
+    --q5-top-desktop: {{ section.settings.margin_top_desktop }}px;
+    --q5-bottom-desktop: {{ section.settings.margin_bottom_desktop }}px;
+    --q5-top-mobile: {{ section.settings.margin_top_mobile }}px;
+    --q5-bottom-mobile: {{ section.settings.margin_bottom_mobile }}px;
+  "
+>
+  <div class="q5-spec-compare__wrap">
+    {% if section.settings.heading != blank %}
+      <div class="q5-spec-compare__heading-wrap">
+        <h2 class="q5-spec-compare__heading">{{ section.settings.heading | escape }}</h2>
+      </div>
+    {% endif %}
+
+    <div class="q5-spec-compare__shell">
+      <div class="q5-spec-compare__feature-bg"></div>
+
+      <div class="q5-spec-compare__media-row">
+        <div class="q5-spec-compare__media q5-spec-compare__media--feature">
+          {% if section.settings.feature_image != blank %}
+            {{
+              section.settings.feature_image
+              | image_url: width: 1300
+              | image_tag:
+                class: 'q5-spec-compare__bike',
+                widths: '480, 720, 960, 1200, 1300',
+                sizes: '(min-width: 990px) 48vw, 92vw',
+                alt: section.settings.feature_title,
+                loading: 'lazy'
+            }}
+          {% elsif section.settings.feature_image_url != blank %}
+            <img
+              class="q5-spec-compare__bike"
+              src="{{ section.settings.feature_image_url | escape }}"
+              alt="{{ section.settings.feature_title | escape }}"
+              loading="lazy"
+            >
+          {% else %}
+            {{ 'product-1' | placeholder_svg_tag: 'q5-spec-compare__placeholder' }}
+          {% endif %}
+
+          <h2 class="q5-spec-compare__title">{{ section.settings.feature_title | escape }}</h2>
+        </div>
+
+        <div class="q5-spec-compare__media q5-spec-compare__media--other">
+          {% if section.settings.other_image != blank %}
+            {{
+              section.settings.other_image
+              | image_url: width: 900
+              | image_tag:
+                class: 'q5-spec-compare__bike q5-spec-compare__bike--other',
+                widths: '360, 540, 720, 900',
+                sizes: '(min-width: 990px) 32vw, 76vw',
+                alt: section.settings.other_title,
+                loading: 'lazy'
+            }}
+          {% elsif section.settings.other_image_url != blank %}
+            <img
+              class="q5-spec-compare__bike q5-spec-compare__bike--other"
+              src="{{ section.settings.other_image_url | escape }}"
+              alt="{{ section.settings.other_title | escape }}"
+              loading="lazy"
+            >
+          {% else %}
+            {{ 'product-2' | placeholder_svg_tag: 'q5-spec-compare__placeholder q5-spec-compare__placeholder--other' }}
+          {% endif %}
+
+          <h2 class="q5-spec-compare__title q5-spec-compare__title--other">{{ section.settings.other_title | escape }}</h2>
+        </div>
+      </div>
+
+      <div class="q5-spec-compare__rule"></div>
+
+      <div class="q5-spec-compare__rows">
+        {% for block in section.blocks %}
+          <div class="q5-spec-compare__row" {{ block.shopify_attributes }}>
+            <div class="q5-spec-compare__label">{{ block.settings.label | escape }}</div>
+            <div class="q5-spec-compare__value q5-spec-compare__value--feature">
+              <span class="q5-spec-compare__mobile-caption">{{ section.settings.feature_title | escape }}</span>
+              {{ block.settings.feature_value | escape }}
+            </div>
+            <div class="q5-spec-compare__value q5-spec-compare__value--other">
+              <span class="q5-spec-compare__mobile-caption">{{ section.settings.other_title | escape }}</span>
+              {{ block.settings.other_value | escape }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  #{{ section_id }} {
+    position: relative;
+    left: 50%;
+    right: 50%;
+    width: 100vw;
+    margin-top: var(--q5-top-mobile);
+    margin-right: -50vw;
+    margin-bottom: var(--q5-bottom-mobile);
+    margin-left: -50vw;
+    color: #28282c;
+    font-family: var(--font-body-family, inherit);
+  }
+
+  #{{ section_id }} * {
+    box-sizing: border-box;
+  }
+
+  #{{ section_id }} .q5-spec-compare__wrap {
+    width: 100%;
+    padding: 0 14px;
+  }
+
+  #{{ section_id }} .q5-spec-compare__heading-wrap {
+    max-width: 430px;
+    margin: 0 auto var(--q5-heading-gap-mobile);
+    text-align: center;
+  }
+
+  #{{ section_id }} .q5-spec-compare__heading {
+    margin: 0;
+    color: #28282c;
+    font-size: clamp(22px, 6vw, var(--q5-heading-size-mobile));
+    line-height: 1.14;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  #{{ section_id }} .q5-spec-compare__shell {
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow: visible;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #{{ section_id }} .q5-spec-compare__feature-bg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    display: block;
+    width: var(--q5-mobile-feature-width);
+    border-radius: min(var(--q5-radius), 8px);
+    background: linear-gradient(180deg, #ffffff 0%, #eaf3ff 43%, #abcaff 100%);
+    box-shadow: 0 0 11px rgba(0, 0, 0, 0.2);
+  }
+
+  #{{ section_id }} .q5-spec-compare__media-row {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: var(--q5-mobile-feature-width) 1fr;
+    gap: 0;
+    padding: 13px 0 10px;
+  }
+
+  #{{ section_id }} .q5-spec-compare__media {
+    min-width: 0;
+    padding: 0 12px;
+    text-align: center;
+  }
+
+  #{{ section_id }} .q5-spec-compare__media--other {
+    padding-right: 10px;
+    padding-left: 18px;
+  }
+
+  #{{ section_id }} .q5-spec-compare__bike,
+  #{{ section_id }} .q5-spec-compare__placeholder {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  #{{ section_id }} .q5-spec-compare__bike {
+    max-height: 118px;
+  }
+
+  #{{ section_id }} .q5-spec-compare__bike--other,
+  #{{ section_id }} .q5-spec-compare__placeholder--other {
+    opacity: 0.42;
+    filter: grayscale(0.25);
+  }
+
+  #{{ section_id }} .q5-spec-compare__title {
+    margin: 7px 0 0;
+    font-size: clamp(15px, 4vw, 18px);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  #{{ section_id }} .q5-spec-compare__title--other {
+    max-width: 72px;
+    margin-right: auto;
+    margin-left: auto;
+    font-size: clamp(14px, 3.8vw, 17px);
+  }
+
+  #{{ section_id }} .q5-spec-compare__rule {
+    position: relative;
+    z-index: 1;
+    height: 1px;
+    margin: 0 12px;
+    background: rgba(42, 42, 42, 0.52);
+  }
+
+  #{{ section_id }} .q5-spec-compare__rows {
+    position: relative;
+    z-index: 1;
+    padding: 0 12px 10px;
+  }
+
+  #{{ section_id }} .q5-spec-compare__row {
+    display: grid;
+    grid-template-columns: 24% calc(var(--q5-mobile-feature-width) - 24%) 1fr;
+    column-gap: 0;
+    row-gap: 0;
+    align-items: center;
+    min-height: 41px;
+    padding: 11px 0;
+    border-bottom: 1px dashed rgba(42, 42, 42, 0.48);
+  }
+
+  #{{ section_id }} .q5-spec-compare__row:last-child {
+    border-bottom: 0;
+  }
+
+  #{{ section_id }} .q5-spec-compare__label,
+  #{{ section_id }} .q5-spec-compare__value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: clamp(10px, 2.85vw, 12px);
+    line-height: 1.15;
+    letter-spacing: 0;
+  }
+
+  #{{ section_id }} .q5-spec-compare__label,
+  #{{ section_id }} .q5-spec-compare__value--feature {
+    font-weight: 600;
+  }
+
+  #{{ section_id }} .q5-spec-compare__label {
+    padding-right: 6px;
+  }
+
+  #{{ section_id }} .q5-spec-compare__value--feature {
+    padding-right: 8px;
+    padding-left: 6px;
+  }
+
+  #{{ section_id }} .q5-spec-compare__value--other {
+    padding-left: 12px;
+  }
+
+  #{{ section_id }} .q5-spec-compare__value--other {
+    grid-column: auto;
+    color: #2e2e32;
+    font-weight: 500;
+    opacity: 0.82;
+  }
+
+  #{{ section_id }} .q5-spec-compare__mobile-caption {
+    display: none;
+  }
+
+  #{{ section_id }} .q5-spec-compare__value {
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ section_id }} {
+      left: auto;
+      right: auto;
+      width: 100%;
+      margin-top: var(--q5-top-desktop);
+      margin-right: 0;
+      margin-bottom: var(--q5-bottom-desktop);
+      margin-left: 0;
+    }
+
+    #{{ section_id }} .q5-spec-compare__wrap {
+      width: var(--q5-page-width);
+      max-width: var(--q5-max-width);
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+
+    #{{ section_id }} .q5-spec-compare__heading-wrap {
+      max-width: 900px;
+      margin-bottom: var(--q5-heading-gap-desktop);
+    }
+
+    #{{ section_id }} .q5-spec-compare__heading {
+      font-size: clamp(32px, 3.2vw, var(--q5-heading-size-desktop));
+      line-height: 1.12;
+    }
+
+    #{{ section_id }} .q5-spec-compare__shell {
+      max-width: none;
+      overflow: visible;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    #{{ section_id }} .q5-spec-compare__feature-bg {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 0;
+      display: block;
+      width: var(--q5-feature-width);
+      border-radius: var(--q5-radius);
+      background: linear-gradient(180deg, #ffffff 0%, #eaf3ff 42%, #abcaff 100%);
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.18);
+    }
+
+    #{{ section_id }} .q5-spec-compare__media-row {
+      grid-template-columns: var(--q5-feature-width) 1fr;
+      gap: 0;
+      padding: 28px 0 22px;
+    }
+
+    #{{ section_id }} .q5-spec-compare__media {
+      display: flex;
+      min-height: 390px;
+      padding: 0 42px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    #{{ section_id }} .q5-spec-compare__media--other {
+      padding-right: 30px;
+      padding-left: 54px;
+      justify-content: flex-end;
+    }
+
+    #{{ section_id }} .q5-spec-compare__bike {
+      max-height: 300px;
+    }
+
+    #{{ section_id }} .q5-spec-compare__media--feature .q5-spec-compare__bike {
+      max-height: 330px;
+    }
+
+    #{{ section_id }} .q5-spec-compare__title {
+      margin-top: 20px;
+      font-size: clamp(30px, 3vw, 44px);
+      font-weight: 700;
+    }
+
+    #{{ section_id }} .q5-spec-compare__title--other {
+      max-width: 260px;
+      margin-right: 0;
+      margin-left: 0;
+      font-size: clamp(28px, 2.7vw, 40px);
+      text-align: left;
+      align-self: center;
+    }
+
+    #{{ section_id }} .q5-spec-compare__rule {
+      margin: 0 44px;
+    }
+
+    #{{ section_id }} .q5-spec-compare__rows {
+      padding: 0 44px 18px;
+    }
+
+    #{{ section_id }} .q5-spec-compare__row {
+      grid-template-columns: 20% calc(var(--q5-feature-width) - 20% - 88px) 1fr;
+      column-gap: 44px;
+      min-height: 108px;
+      padding: 24px 0;
+    }
+
+    #{{ section_id }} .q5-spec-compare__label,
+    #{{ section_id }} .q5-spec-compare__value {
+      font-size: clamp(21px, 1.85vw, 32px);
+    }
+
+    #{{ section_id }} .q5-spec-compare__label,
+    #{{ section_id }} .q5-spec-compare__value--feature {
+      font-weight: 600;
+    }
+
+    #{{ section_id }} .q5-spec-compare__label,
+    #{{ section_id }} .q5-spec-compare__value--feature,
+    #{{ section_id }} .q5-spec-compare__value--other {
+      padding-right: 0;
+      padding-left: 0;
+    }
+
+    #{{ section_id }} .q5-spec-compare__value {
+      text-align: center;
+    }
+
+    #{{ section_id }} .q5-spec-compare__label {
+      text-align: left;
+    }
+
+    #{{ section_id }} .q5-spec-compare__value--other {
+      grid-column: auto;
+    }
+
+    #{{ section_id }} .q5-spec-compare__mobile-caption {
+      display: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Q5 specs comparison",
+  "tag": "section",
+  "class": "section-q5-spec-compare",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Q5 Shark vs Other Brand"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "min": 32,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading size on desktop",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 22,
+      "max": 42,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading size on mobile",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "heading_gap_desktop",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading bottom spacing on desktop",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "heading_gap_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading bottom spacing on mobile",
+      "default": 28
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "feature_image",
+      "label": "Q5 Shark image"
+    },
+    {
+      "type": "text",
+      "id": "feature_image_url",
+      "label": "Q5 Shark fallback image URL",
+      "default": "https://cdn.shopify.com/s/files/1/0940/2590/8589/files/q5-shark-config__1.jpg?v=1778239424"
+    },
+    {
+      "type": "image_picker",
+      "id": "other_image",
+      "label": "Other brand image"
+    },
+    {
+      "type": "text",
+      "id": "other_image_url",
+      "label": "Other brand fallback image URL"
+    },
+    {
+      "type": "text",
+      "id": "feature_title",
+      "label": "Q5 title",
+      "default": "Q5 Shark"
+    },
+    {
+      "type": "textarea",
+      "id": "other_title",
+      "label": "Other brand title",
+      "default": "Other Brand"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width",
+      "min": 50,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Desktop section width",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 900,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "label": "Desktop max width",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "feature_width",
+      "min": 52,
+      "max": 72,
+      "step": 1,
+      "unit": "%",
+      "label": "Blue card width on desktop",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "mobile_feature_width",
+      "min": 54,
+      "max": 68,
+      "step": 1,
+      "unit": "%",
+      "label": "Blue card width on mobile",
+      "default": 58
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 0,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Card corner radius",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "margin_top_desktop",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop top spacing",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_desktop",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Desktop bottom spacing",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile top spacing",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile bottom spacing",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "spec",
+      "name": "Spec row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Motor"
+        },
+        {
+          "type": "text",
+          "id": "feature_value",
+          "label": "Q5 Shark value",
+          "default": "1500W"
+        },
+        {
+          "type": "text",
+          "id": "other_value",
+          "label": "Other brand value",
+          "default": "1000W"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Q5 specs comparison",
+      "blocks": [
+        {
+          "type": "spec",
+          "settings": {
+            "label": "Motor",
+            "feature_value": "1500W",
+            "other_value": "1000W"
+          }
+        },
+        {
+          "type": "spec",
+          "settings": {
+            "label": "Battery",
+            "feature_value": "48V 20A",
+            "other_value": "36V 13A"
+          }
+        },
+        {
+          "type": "spec",
+          "settings": {
+            "label": "Brakes",
+            "feature_value": "180mm Hydraulic Disc Brakes",
+            "other_value": "110mm Spring Brakes"
+          }
+        },
+        {
+          "type": "spec",
+          "settings": {
+            "label": "Front Fork",
+            "feature_value": "100mm travel with lockout",
+            "other_value": "80mm travel NO lockout"
+          }
+        },
+        {
+          "type": "spec",
+          "settings": {
+            "label": "Tires",
+            "feature_value": "Anti-puncture Mountain Tires",
+            "other_value": "Regular Tires"
+          }
+        },
+        {
+          "type": "spec",
+          "settings": {
+            "label": "IP Rating",
+            "feature_value": "IPX6",
+            "other_value": "IPX5"
+          }
+        },
+        {
+          "type": "spec",
+          "settings": {
+            "label": "Chain",
+            "feature_value": "KMC Z9 Stainless Steel",
+            "other_value": "KMC Z8.3"
+          }
+        },
+        {
+          "type": "spec",
+          "settings": {
+            "label": "Price",
+            "feature_value": "$1399",
+            "other_value": "$1499"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

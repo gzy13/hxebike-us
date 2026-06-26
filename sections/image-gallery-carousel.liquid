@@ -1,0 +1,368 @@
+{% comment %}
+  Gallery Carousel (Centered + Side Peek) - Final (Desktop bigger like screenshot)
+  - 兼容不支持 number/小数 range：slidesPerView 用 select
+  - 桌面端默认更大：slides=1.4、height=600、side_padding=0
+  - centeredSlides + 两侧露出
+  - 非激活变暗/缩小，active 略放大（更像你截图）
+{% endcomment %}
+
+{{ 'swiper-bundle.min.css' | asset_url | stylesheet_tag }}
+
+<style>
+  .gallery-carousel-{{ section.id }} {
+    background-color: {{ section.settings.background_color }};
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+  }
+
+  .gallery-carousel-{{ section.id }} .gallery-carousel-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 {{ section.settings.side_padding }}px;
+  }
+
+  .gallery-carousel-{{ section.id }} .gallery-carousel-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: {{ section.settings.title_color }};
+  }
+
+  .gallery-carousel-{{ section.id }} .gallery-swiper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* 非激活变暗/缩小 */
+  .gallery-carousel-{{ section.id }} .swiper-slide {
+    transition: opacity .35s ease, transform .35s ease;
+    opacity: .30;
+    transform: scale(0.90);
+  }
+  .gallery-carousel-{{ section.id }} .swiper-slide-prev,
+  .gallery-carousel-{{ section.id }} .swiper-slide-next {
+    opacity: .60;
+    transform: scale(0.94);
+  }
+  .gallery-carousel-{{ section.id }} .swiper-slide-active {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+
+  .gallery-carousel-{{ section.id }} .gallery-slide-link {
+    display: block;
+    position: relative;
+  }
+
+  .gallery-carousel-{{ section.id }} .gallery-slide-image {
+    width: 100%;
+    display: block;
+    border-radius: {{ section.settings.image_radius }}px;
+    object-fit: cover;
+  }
+
+  /* 桌面端：更像截图（更大、更“画廊”） */
+  @media (min-width: 769px) {
+    .gallery-carousel-{{ section.id }} .gallery-swiper {
+      padding: 0 40px; /* 让左右露边更自然 */
+    }
+    .gallery-carousel-{{ section.id }} .gallery-slide-image {
+      height: {{ section.settings.desktop_image_height }}px;
+    }
+    .gallery-carousel-{{ section.id }} .desktop-image { display: block !important; }
+    .gallery-carousel-{{ section.id }} .mobile-image { display: none !important; }
+  }
+
+  @media (max-width: 768px) {
+    .gallery-carousel-{{ section.id }} .gallery-carousel-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .gallery-carousel-{{ section.id }} .gallery-slide-image {
+      height: {{ section.settings.mobile_image_height }}px;
+    }
+    .gallery-carousel-{{ section.id }} .desktop-image { display: none !important; }
+    .gallery-carousel-{{ section.id }} .mobile-image { display: block !important; }
+  }
+
+  /* 箭头 */
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-prev,
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    user-select: none;
+  }
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-prev:hover,
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-next:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-prev { left: 20px; }
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-next { right: 20px; }
+
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-prev::after,
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-next::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid #333;
+    border-right: 2px solid #333;
+  }
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-prev::after {
+    transform: rotate(-135deg);
+    margin-left: 4px;
+  }
+  .gallery-carousel-{{ section.id }} .gallery-swiper-button-next::after {
+    transform: rotate(45deg);
+    margin-right: 4px;
+  }
+
+  @media (max-width: 768px) {
+    .gallery-carousel-{{ section.id }} .gallery-swiper-button-prev,
+    .gallery-carousel-{{ section.id }} .gallery-swiper-button-next {
+      width: 36px;
+      height: 36px;
+    }
+    .gallery-carousel-{{ section.id }} .gallery-swiper-button-prev { left: 10px; }
+    .gallery-carousel-{{ section.id }} .gallery-swiper-button-next { right: 10px; }
+  }
+
+  /* 分页 */
+  .gallery-carousel-{{ section.id }} .gallery-swiper-pagination {
+    position: relative;
+    margin-top: 24px;
+    text-align: center;
+  }
+  .gallery-carousel-{{ section.id }} .gallery-swiper-pagination .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: #ccc;
+    opacity: 1;
+    margin: 0 6px;
+    transition: all 0.3s ease;
+  }
+  .gallery-carousel-{{ section.id }} .gallery-swiper-pagination .swiper-pagination-bullet-active {
+    background: {{ section.settings.pagination_color }};
+    width: 24px;
+    border-radius: 5px;
+  }
+</style>
+
+<div class="gallery-carousel-{{ section.id }}">
+  <div class="gallery-carousel-container">
+    {% if section.settings.title != blank %}
+      <h2 class="gallery-carousel-title">{{ section.settings.title }}</h2>
+    {% endif %}
+
+    <div class="gallery-swiper gallery-swiper-{{ section.id }} swiper">
+      <div class="swiper-wrapper">
+        {% for block in section.blocks %}
+          <div class="swiper-slide" {{ block.shopify_attributes }}>
+            {% if block.settings.link != blank %}
+              <a href="{{ block.settings.link }}" class="gallery-slide-link">
+            {% else %}
+              <div class="gallery-slide-link">
+            {% endif %}
+
+              {%- if block.settings.desktop_image != blank -%}
+                <img
+                  class="gallery-slide-image desktop-image"
+                  src="{{ block.settings.desktop_image | image_url: width: 3000 }}"
+                  srcset="
+                    {{ block.settings.desktop_image | image_url: width: 1600 }} 1600w,
+                    {{ block.settings.desktop_image | image_url: width: 2400 }} 2400w,
+                    {{ block.settings.desktop_image | image_url: width: 3000 }} 3000w"
+                  alt="{{ block.settings.image_alt | escape }}"
+                  loading="lazy"
+                  width="{{ block.settings.desktop_image.width }}"
+                  height="{{ block.settings.desktop_image.height }}"
+                >
+              {%- endif -%}
+
+              {%- if block.settings.mobile_image != blank -%}
+                <img
+                  class="gallery-slide-image mobile-image"
+                  src="{{ block.settings.mobile_image | image_url: width: 1800 }}"
+                  srcset="
+                    {{ block.settings.mobile_image | image_url: width: 900 }} 900w,
+                    {{ block.settings.mobile_image | image_url: width: 1400 }} 1400w,
+                    {{ block.settings.mobile_image | image_url: width: 1800 }} 1800w"
+                  alt="{{ block.settings.image_alt | escape }}"
+                  loading="lazy"
+                  width="{{ block.settings.mobile_image.width }}"
+                  height="{{ block.settings.mobile_image.height }}"
+                >
+              {%- elsif block.settings.desktop_image != blank -%}
+                <img
+                  class="gallery-slide-image mobile-image"
+                  src="{{ block.settings.desktop_image | image_url: width: 1800 }}"
+                  alt="{{ block.settings.image_alt | escape }}"
+                  loading="lazy"
+                >
+              {%- endif -%}
+
+            {% if block.settings.link != blank %}
+              </a>
+            {% else %}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if section.settings.show_arrows %}
+        <div class="gallery-swiper-button-prev gallery-swiper-button-prev-{{ section.id }}"></div>
+        <div class="gallery-swiper-button-next gallery-swiper-button-next-{{ section.id }}"></div>
+      {% endif %}
+
+      {% if section.settings.show_pagination %}
+        <div class="gallery-swiper-pagination gallery-swiper-pagination-{{ section.id }}"></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'swiper-bundle.min.js' | asset_url }}" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Swiper === 'undefined') return;
+
+    var selector = '.gallery-swiper-{{ section.id }}';
+    var el = document.querySelector(selector);
+    if (!el) return;
+
+    var mobileSlides = parseFloat('{{ section.settings.mobile_slides }}');
+    var desktopSlides = parseFloat('{{ section.settings.desktop_slides }}');
+
+    var swiper_{{ section.id | replace: '-', '_' }} = new Swiper(selector, {
+      centeredSlides: true,
+      slidesPerView: mobileSlides,
+      spaceBetween: {{ section.settings.slide_spacing }},
+      loop: {{ section.settings.loop }},
+      watchOverflow: true,
+      speed: 450,
+
+      {% if section.settings.autoplay %}
+      autoplay: {
+        delay: {{ section.settings.autoplay_delay | times: 1000 }},
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true
+      },
+      {% endif %}
+
+      {% if section.settings.show_pagination %}
+      pagination: {
+        el: '.gallery-swiper-pagination-{{ section.id }}',
+        clickable: true
+      },
+      {% endif %}
+
+      {% if section.settings.show_arrows %}
+      navigation: {
+        nextEl: '.gallery-swiper-button-next-{{ section.id }}',
+        prevEl: '.gallery-swiper-button-prev-{{ section.id }}'
+      },
+      {% endif %}
+
+      breakpoints: {
+        769: {
+          slidesPerView: desktopSlides,
+          spaceBetween: {{ section.settings.slide_spacing }}
+        }
+      }
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "图片轮播 Gallery",
+  "tag": "section",
+  "class": "gallery-carousel-section",
+  "settings": [
+    { "type": "text", "id": "title", "label": "标题", "default": "Ace the Streets" },
+    { "type": "color", "id": "title_color", "label": "标题颜色", "default": "#ffffff" },
+    { "type": "color", "id": "background_color", "label": "背景颜色", "default": "#000000" },
+
+    { "type": "range", "id": "padding_top", "label": "上边距", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "下边距", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 40 },
+
+    { "type": "range", "id": "side_padding", "label": "左右边距（建议 0）", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 0 },
+
+    {
+      "type": "select",
+      "id": "desktop_slides",
+      "label": "PC 每屏显示数量（中心更大推荐 1.4）",
+      "default": "1.4",
+      "options": [
+        { "value": "1.2", "label": "1.2（中心最大）" },
+        { "value": "1.3", "label": "1.3（中心更大）" },
+        { "value": "1.4", "label": "1.4（推荐）" },
+        { "value": "1.5", "label": "1.5（露边更多）" },
+        { "value": "1.6", "label": "1.6（露边更多）" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "mobile_slides",
+      "label": "移动端每屏显示数量（推荐 1.05）",
+      "default": "1.05",
+      "options": [
+        { "value": "1.01", "label": "1.01（几乎全屏）" },
+        { "value": "1.03", "label": "1.03（轻微露边）" },
+        { "value": "1.05", "label": "1.05（推荐）" },
+        { "value": "1.08", "label": "1.08（露边更多）" },
+        { "value": "1.12", "label": "1.12（露边更多）" }
+      ]
+    },
+
+    { "type": "range", "id": "slide_spacing", "label": "图片间距", "min": 0, "max": 60, "step": 2, "unit": "px", "default": 28 },
+    { "type": "range", "id": "image_radius", "label": "图片圆角", "min": 0, "max": 30, "step": 2, "unit": "px", "default": 12 },
+
+    { "type": "range", "id": "desktop_image_height", "label": "PC 图片展示高度（建议 600）", "min": 320, "max": 900, "step": 10, "unit": "px", "default": 600 },
+    { "type": "range", "id": "mobile_image_height", "label": "移动端图片展示高度", "min": 260, "max": 900, "step": 10, "unit": "px", "default": 420 },
+
+    { "type": "checkbox", "id": "loop", "label": "无限循环", "default": true },
+    { "type": "checkbox", "id": "autoplay", "label": "自动播放", "default": false },
+    { "type": "range", "id": "autoplay_delay", "label": "自动播放间隔（秒）", "min": 2, "max": 10, "step": 1, "default": 5 },
+
+    { "type": "checkbox", "id": "show_arrows", "label": "显示左右箭头", "default": true },
+    { "type": "checkbox", "id": "show_pagination", "label": "显示分页圆点", "default": true },
+    { "type": "color", "id": "pagination_color", "label": "分页圆点激活颜色", "default": "#ffffff" }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "图片滑块",
+      "settings": [
+        { "type": "image_picker", "id": "desktop_image", "label": "PC 图片" },
+        { "type": "image_picker", "id": "mobile_image", "label": "移动端图片" },
+        { "type": "text", "id": "image_alt", "label": "图片 Alt 文本" },
+        { "type": "url", "id": "link", "label": "链接地址" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "图片轮播 Gallery",
+      "blocks": [
+        { "type": "slide" },
+        { "type": "slide" },
+        { "type": "slide" }
+      ]
+    }
+  ]
+}
+{% endschema %}

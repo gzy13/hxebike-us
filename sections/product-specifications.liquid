@@ -1,0 +1,373 @@
+{% comment %}
+  Product Specifications Section (Accordion Style)
+  - 所有折叠项同一套样式（Size & Fit 也做成折叠项）
+  - 默认全部收起（无默认展开项）
+  - 桌面端宽度可控
+  - 移动端自适应
+  - 内容支持手动填 + Liquid/HTML（type: liquid）
+{% endcomment %}
+
+<section class="product-specs-accordion" id="section-{{ section.id }}">
+  <div class="psa-wrap">
+    {% if section.settings.show_section_heading and section.settings.section_heading != blank %}
+      <h2 class="psa-heading">{{ section.settings.section_heading }}</h2>
+    {% endif %}
+
+    <div class="psa-accordion">
+      {%- comment -%} 1) Size & Fit（同样是折叠项） {%- endcomment -%}
+      {% assign has_spec_rows = false %}
+      {% for block in section.blocks %}
+        {% if block.type == 'spec_row' %}
+          {% if block.settings.label != blank or block.settings.value != blank %}
+            {% assign has_spec_rows = true %}
+            {% break %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      {% if has_spec_rows or section.settings.dimension_image != blank %}
+        <details class="psa-item">
+          <summary class="psa-summary">
+            <span class="psa-title">{{ section.settings.sizefit_title }}</span>
+            <span class="psa-icon" aria-hidden="true">+</span>
+          </summary>
+
+          <div class="psa-content">
+            <div class="psa-grid">
+              {%- comment -%} 左侧参数表 {%- endcomment -%}
+              {% if has_spec_rows %}
+                <div class="psa-card psa-table" role="table" aria-label="{{ section.settings.sizefit_title }}">
+                  {% for block in section.blocks %}
+                    {% if block.type == 'spec_row' %}
+                      {% if block.settings.label != blank or block.settings.value != blank %}
+                        <div class="psa-row" {{ block.shopify_attributes }} role="row">
+                          <div class="psa-label" role="cell">{{ block.settings.label }}</div>
+                          <div class="psa-value" role="cell">{{ block.settings.value }}</div>
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              {%- comment -%} 右侧尺寸图 {%- endcomment -%}
+              {% if section.settings.dimension_image != blank %}
+                <div class="psa-card psa-image">
+                  <img
+                    src="{{ section.settings.dimension_image | image_url: width: 1200 }}"
+                    alt="{{ section.settings.dimension_image.alt | default: 'Product dimensions' }}"
+                    loading="lazy"
+                    class="psa-dimension-image"
+                    width="{{ section.settings.dimension_image.width }}"
+                    height="{{ section.settings.dimension_image.height }}"
+                  >
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </details>
+      {% endif %}
+
+      {%- comment -%} 2) 其它折叠项（Electronic / Mechanical / Warranty...） {%- endcomment -%}
+      {% for block in section.blocks %}
+        {% if block.type == 'accordion_item' %}
+          {% if block.settings.heading != blank and block.settings.content != blank %}
+            <details class="psa-item" {{ block.shopify_attributes }}>
+              <summary class="psa-summary">
+                <span class="psa-title">{{ block.settings.heading }}</span>
+                <span class="psa-icon" aria-hidden="true">+</span>
+              </summary>
+              <div class="psa-content">
+                <div class="psa-rte">
+                  {{ block.settings.content }}
+                </div>
+              </div>
+            </details>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ========= Layout ========= */
+  #section-{{ section.id }}.product-specs-accordion {
+    padding: 64px 20px;
+  }
+
+  #section-{{ section.id }} .psa-wrap {
+    max-width: {{ section.settings.content_max_width }}px;
+    margin: 0 auto;
+  }
+
+  #section-{{ section.id }} .psa-heading {
+    margin: 0 0 18px;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #111;
+  }
+
+  /* ========= Accordion (统一样式) ========= */
+  #section-{{ section.id }} .psa-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  #section-{{ section.id }} .psa-item {
+    border: 1px solid #ececec;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  #section-{{ section.id }} .psa-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 22px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  #section-{{ section.id }} .psa-summary::-webkit-details-marker { display: none; }
+
+  #section-{{ section.id }} .psa-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #111;
+  }
+
+  #section-{{ section.id }} .psa-icon {
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 400;
+    color: #111;
+    transition: transform 0.25s ease;
+  }
+
+  #section-{{ section.id }} .psa-item[open] .psa-icon {
+    transform: rotate(45deg);
+  }
+
+  #section-{{ section.id }} .psa-content {
+    border-top: 1px solid #f0f0f0;
+    padding: 22px;
+  }
+
+  /* ========= Size & Fit 内容区 ========= */
+  #section-{{ section.id }} .psa-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  #section-{{ section.id }} .psa-card {
+    border: 1px solid #efefef;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  /* table */
+  #section-{{ section.id }} .psa-table .psa-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid #efefef;
+  }
+  #section-{{ section.id }} .psa-table .psa-row:last-child { border-bottom: none; }
+
+  #section-{{ section.id }} .psa-label,
+  #section-{{ section.id }} .psa-value {
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  #section-{{ section.id }} .psa-label {
+    background: #f8f8f8;
+    border-right: 1px solid #efefef;
+    font-weight: 600;
+    color: #111;
+  }
+
+  #section-{{ section.id }} .psa-value {
+    color: #333;
+    background: #fff;
+  }
+
+  /* image */
+  #section-{{ section.id }} .psa-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  #section-{{ section.id }} .psa-dimension-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ========= RTE ========= */
+  #section-{{ section.id }} .psa-rte {
+    color: #333;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  #section-{{ section.id }} .psa-rte p { margin: 0 0 12px; }
+  #section-{{ section.id }} .psa-rte p:last-child { margin-bottom: 0; }
+  #section-{{ section.id }} .psa-rte ul,
+  #section-{{ section.id }} .psa-rte ol { margin: 0 0 12px 18px; }
+  #section-{{ section.id }} .psa-rte li { margin: 6px 0; }
+
+  /* ========= Responsive ========= */
+  @media (max-width: 1024px) {
+    #section-{{ section.id }}.product-specs-accordion { padding: 48px 18px; }
+    #section-{{ section.id }} .psa-heading { font-size: 24px; }
+    #section-{{ section.id }} .psa-title { font-size: 20px; }
+  }
+
+  @media (max-width: 768px) {
+    #section-{{ section.id }}.product-specs-accordion { padding: 28px 16px; }
+
+    #section-{{ section.id }} .psa-summary { padding: 16px 16px; }
+    #section-{{ section.id }} .psa-title { font-size: 18px; }
+    #section-{{ section.id }} .psa-content { padding: 16px; }
+
+    #section-{{ section.id }} .psa-grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    #section-{{ section.id }} .psa-label,
+    #section-{{ section.id }} .psa-value {
+      font-size: 13px;
+      padding: 10px 12px;
+    }
+
+    #section-{{ section.id }} .psa-rte { font-size: 14px; }
+  }
+
+  @media (max-width: 480px) {
+    #section-{{ section.id }} .psa-table .psa-row {
+      grid-template-columns: 1fr;
+    }
+    #section-{{ section.id }} .psa-label {
+      border-right: none;
+      border-bottom: 1px solid #efefef;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Product Specs (Accordion)",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_section_heading",
+      "label": "显示区块标题",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "区块标题",
+      "default": "Specifications"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "桌面端内容最大宽度(px)",
+      "min": 960,
+      "max": 1600,
+      "step": 20,
+      "default": 1240
+    },
+    {
+      "type": "text",
+      "id": "sizefit_title",
+      "label": "Size & Fit 标题",
+      "default": "Size & Fit"
+    },
+    {
+      "type": "image_picker",
+      "id": "dimension_image",
+      "label": "尺寸图片"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "spec_row",
+      "name": "Size & Fit 参数行",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "参数名称",
+          "default": "Frame Size"
+        },
+        {
+          "type": "liquid",
+          "id": "value",
+          "label": "参数值（支持Liquid/HTML）",
+          "default": "Standard"
+        }
+      ]
+    },
+    {
+      "type": "accordion_item",
+      "name": "折叠项",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "标题",
+          "default": "Electronic"
+        },
+        {
+          "type": "liquid",
+          "id": "content",
+          "label": "内容（支持Liquid/HTML）",
+          "default": "<p>添加详细参数内容</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Specs (Accordion)",
+      "blocks": [
+        { "type": "spec_row", "settings": { "label": "Frame Size", "value": "Standard" } },
+        { "type": "spec_row", "settings": { "label": "Reach", "value": "17.7\\\"/45cm" } },
+        {
+          "type": "accordion_item",
+          "settings": {
+            "heading": "Electronic",
+            "content": "<ul><li>Motor: 750W (1500W peak)</li><li>Battery: 48V 20Ah</li></ul>"
+          }
+        },
+        {
+          "type": "accordion_item",
+          "settings": {
+            "heading": "Mechanical",
+            "content": "<ul><li>Brakes: Hydraulic disc</li><li>Fork: 100mm travel</li></ul>"
+          }
+        },
+        {
+          "type": "accordion_item",
+          "settings": {
+            "heading": "Warranty & Note",
+            "content": "<p>Warranty details and important notes go here.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

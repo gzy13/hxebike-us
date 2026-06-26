@@ -1,0 +1,164 @@
+<section class="product-spec-icons">
+  <div class="spec-icons-container">
+
+    <div class="spec-icons-grid">
+      {% for block in section.blocks %}
+        <div class="spec-item" {{ block.shopify_attributes }}>
+
+          {% if block.settings.icon != blank %}
+            <div class="spec-icon">
+              <img
+                src="{{ block.settings.icon | image_url: width: 200 }}"
+                loading="lazy"
+                alt="{{ block.settings.label }}"
+              >
+            </div>
+          {% endif %}
+
+          <div class="spec-value">
+            {{ block.settings.value }}
+          </div>
+
+          <div class="spec-label">
+            {{ block.settings.label }}
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+<style>
+
+.product-spec-icons{
+  width:100%;
+}
+
+.spec-icons-container{
+  max-width:1280px;
+  margin:auto;
+  padding:0 40px;
+}
+
+.spec-icons-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:30px;
+  text-align:center;
+  align-items:start;
+}
+
+/* 单个参数 */
+.spec-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+}
+
+/* 图标 */
+.spec-icon img{
+  width:70px;
+  height:70px;
+  object-fit:contain;
+}
+
+/* 数值 */
+.spec-value{
+  font-size:18px;
+  font-weight:600;
+  line-height:1.2;
+}
+
+/* 描述 */
+.spec-label{
+  font-size:14px;
+  color:#555;
+}
+
+/* 平板 */
+@media screen and (max-width:990px){
+
+.spec-icons-grid{
+  grid-template-columns:repeat(3,1fr);
+}
+
+}
+
+/* 手机 */
+@media screen and (max-width:749px){
+
+.spec-icons-container{
+  padding:0 20px;
+}
+
+.spec-icons-grid{
+  grid-template-columns:repeat(2,1fr);
+  gap:26px;
+}
+
+.spec-icon img{
+  width:60px;
+  height:60px;
+}
+
+.spec-value{
+  font-size:16px;
+}
+
+.spec-label{
+  font-size:13px;
+}
+
+}
+
+</style>
+
+{% schema %}
+{
+  "name": "Product Spec Icons",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "spec",
+      "name": "Spec Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon"
+        },
+        {
+          "type": "text",
+          "id": "value",
+          "label": "Value",
+          "default": "500W"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Motor Capacity"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Product Spec Icons",
+      "blocks": [
+        {"type": "spec"},
+        {"type": "spec"},
+        {"type": "spec"},
+        {"type": "spec"},
+        {"type": "spec"},
+        {"type": "spec"}
+      ]
+    }
+  ]
+}
+{% endschema %}

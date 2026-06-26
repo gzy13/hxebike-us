@@ -1,0 +1,288 @@
+{% comment %}
+  Section: Spec Tabs
+  Removed: Size & Fit
+  Kept: Geometry / Technical / Warranty & Note / Assembly Video
+{% endcomment %}
+
+<section id="sgtabs-{{ section.id }}" class="sgTabs">
+  <div class="sgTabs__header">
+    <div class="sgTabs__title">{{ section.settings.title }}</div>
+
+    <div class="sgTabs__navWrap">
+      <div class="sgTabs__navLine" aria-hidden="true"></div>
+
+      <div class="sgTabs__nav" role="tablist" aria-label="Specification & Geometry Tabs">
+        <button class="sgTabs__tab is-active" type="button" role="tab" aria-selected="true" aria-controls="sgpanel-{{ section.id }}-geo" id="sgtab-{{ section.id }}-geo" data-tab="geo">
+          Geometry
+        </button>
+        <button class="sgTabs__tab" type="button" role="tab" aria-selected="false" aria-controls="sgpanel-{{ section.id }}-tech" id="sgtab-{{ section.id }}-tech" data-tab="tech">
+          Technical
+        </button>
+        <button class="sgTabs__tab" type="button" role="tab" aria-selected="false" aria-controls="sgpanel-{{ section.id }}-war" id="sgtab-{{ section.id }}-war" data-tab="war">
+          Warranty &amp; Note
+        </button>
+        <button class="sgTabs__tab" type="button" role="tab" aria-selected="false" aria-controls="sgpanel-{{ section.id }}-asm" id="sgtab-{{ section.id }}-asm" data-tab="asm">
+          Assembly Video
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sgTabs__panels">
+    <!-- Panel: Geometry -->
+    <div class="sgTabs__panel is-active" id="sgpanel-{{ section.id }}-geo" role="tabpanel" aria-labelledby="sgtab-{{ section.id }}-geo" data-panel="geo">
+      {% render 'HX-q3-geometry', title: 'Geometry', image_alt: 'Geometry diagram' %}
+    </div>
+
+    <!-- Panel: Technical -->
+    <div class="sgTabs__panel" id="sgpanel-{{ section.id }}-tech" role="tabpanel" aria-labelledby="sgtab-{{ section.id }}-tech" data-panel="tech" hidden>
+      {% render 'HX-q3-technical', title: 'Technical' %}
+    </div>
+
+    <!-- Panel: Warranty -->
+    <div class="sgTabs__panel" id="sgpanel-{{ section.id }}-war" role="tabpanel" aria-labelledby="sgtab-{{ section.id }}-war" data-panel="war" hidden>
+      {% render 'hx-warranty-note-panel', title: 'Warranty & Note' %}
+    </div>
+
+    <!-- Panel: Assembly -->
+    <div class="sgTabs__panel" id="sgpanel-{{ section.id }}-asm" role="tabpanel" aria-labelledby="sgtab-{{ section.id }}-asm" data-panel="asm" hidden>
+      {% render 'HX-q3-assembly-video', title: 'Assembly Video' %}
+    </div>
+  </div>
+
+  <style>
+    #sgtabs-{{ section.id }}{
+      padding:34px 0 0;
+      background:transparent;
+      font-family:var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
+      color:#111;
+    }
+
+    #sgtabs-{{ section.id }} *{
+      box-sizing:border-box;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__header{
+      max-width:1680px;
+      margin:0 auto;
+      padding:0 clamp(16px,3vw,64px);
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__title{
+      text-align:center;
+      font-size:clamp(28px, 3.6vw, 52px);
+      font-weight:500;
+      letter-spacing:-0.02em;
+      margin-bottom:18px;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__navWrap{
+      position:relative;
+      padding-bottom:10px;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__navLine{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:1px;
+      background:rgba(0,0,0,.35);
+      pointer-events:none;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__nav{
+      display:flex;
+      justify-content:center;
+      gap:28px;
+      align-items:flex-end;
+      padding:0 0 10px;
+      overflow:visible;
+      flex-wrap:nowrap;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__tab{
+      border:0;
+      background:transparent;
+      color:#111;
+      font-size:16px;
+      font-weight:500;
+      padding:14px 22px;
+      cursor:pointer;
+      line-height:1;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__tab.is-active{
+      background:#111;
+      color:#fff;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__panels{
+      margin-top:8px;
+    }
+
+    #sgtabs-{{ section.id }} .sgTabs__panel{
+      width:100%;
+    }
+
+    @media (max-width: 990px){
+      #sgtabs-{{ section.id }}{
+        padding-top:18px;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__header{
+        max-width:100%;
+        padding:0 clamp(16px,3vw,24px);
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__title{
+        text-align:left;
+        font-size:22px;
+        margin-bottom:10px;
+        font-weight:500;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__navWrap{
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;
+        touch-action:pan-x;
+        overscroll-behavior-x:contain;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__navWrap::-webkit-scrollbar{
+        display:none;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__nav{
+        justify-content:flex-start;
+        gap:10px;
+        width:max-content;
+        min-width:100%;
+        padding-bottom:10px;
+      }
+
+      #sgtabs-{{ section.id }} .sgTabs__tab{
+        font-size:13px;
+        padding:10px 12px;
+      }
+    }
+  </style>
+
+  <script>
+    (function(){
+      const root = document.getElementById('sgtabs-{{ section.id }}');
+      if (!root) return;
+
+      const tabs = Array.from(root.querySelectorAll('[data-tab]'));
+      const panels = Array.from(root.querySelectorAll('[data-panel]'));
+
+      function activate(name){
+        tabs.forEach((t) => {
+          const isOn = t.getAttribute('data-tab') === name;
+          t.classList.toggle('is-active', isOn);
+          t.setAttribute('aria-selected', isOn ? 'true' : 'false');
+          t.tabIndex = isOn ? 0 : -1;
+        });
+
+        panels.forEach((p) => {
+          const isOn = p.getAttribute('data-panel') === name;
+          p.classList.toggle('is-active', isOn);
+
+          if (isOn) p.removeAttribute('hidden');
+          else p.setAttribute('hidden', 'hidden');
+        });
+      }
+
+      tabs.forEach((t, index) => {
+        t.addEventListener('click', () => activate(t.getAttribute('data-tab')));
+
+        t.addEventListener('keydown', (e) => {
+          let next = null;
+
+          if (e.key === 'ArrowRight') next = tabs[index + 1] || tabs[0];
+          if (e.key === 'ArrowLeft') next = tabs[index - 1] || tabs[tabs.length - 1];
+          if (e.key === 'Home') next = tabs[0];
+          if (e.key === 'End') next = tabs[tabs.length - 1];
+
+          if (!next) return;
+
+          e.preventDefault();
+          next.focus();
+          activate(next.getAttribute('data-tab'));
+        });
+      });
+
+      activate('geo');
+
+      const wrap = root.querySelector('.sgTabs__navWrap');
+      if (!wrap) return;
+
+      let isDown = false;
+      let startX = 0;
+      let scrollLeft = 0;
+      let moved = false;
+
+      wrap.addEventListener('mousedown', (e) => {
+        isDown = true;
+        moved = false;
+        startX = e.pageX;
+        scrollLeft = wrap.scrollLeft;
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDown = false;
+      });
+
+      wrap.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const dx = e.pageX - startX;
+        if (Math.abs(dx) > 3) moved = true;
+        wrap.scrollLeft = scrollLeft - dx;
+      });
+
+      wrap.addEventListener('touchstart', (e) => {
+        if (!e.touches || !e.touches[0]) return;
+        isDown = true;
+        moved = false;
+        startX = e.touches[0].pageX;
+        scrollLeft = wrap.scrollLeft;
+      }, { passive:true });
+
+      wrap.addEventListener('touchmove', (e) => {
+        if (!isDown || !e.touches || !e.touches[0]) return;
+        const dx = e.touches[0].pageX - startX;
+        if (Math.abs(dx) > 3) moved = true;
+        wrap.scrollLeft = scrollLeft - dx;
+      }, { passive:true });
+
+      wrap.addEventListener('touchend', () => {
+        isDown = false;
+      }, { passive:true });
+
+      root.querySelectorAll('.sgTabs__tab').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          if (moved) {
+            e.preventDefault();
+            e.stopPropagation();
+            moved = false;
+          }
+        }, true);
+      });
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Spec Tabs - No Fit",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Main title", "default": "Specification & Geometry" }
+  ],
+  "presets": [
+    { "name": "Spec Tabs - No Fit" }
+  ]
+}
+{% endschema %}

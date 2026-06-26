@@ -1,0 +1,192 @@
+{% doc %}
+  @prompt
+    帮我生成一个标题模块，位置、大小可调
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-heading-block-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    padding: {{ block.settings.padding_top }}px 0 {{ block.settings.padding_bottom }}px;
+  }
+
+  .ai-heading-container-{{ ai_gen_id }} {
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: {{ block.settings.text_alignment }};
+  }
+
+  .ai-heading-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    color: {{ block.settings.heading_color }};
+    margin: 0;
+    line-height: 1.2;
+    font-weight: {{ block.settings.heading_weight }};
+    {% if block.settings.heading_capitalize %}
+      text-transform: uppercase;
+    {% endif %}
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-heading-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.7 }}px;
+    }
+
+    .ai-heading-container-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<heading-block-{{ ai_gen_id }}
+  class="ai-heading-block-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-heading-container-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank %}
+      <h2 class="ai-heading-title-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+    {% else %}
+      <h2 class="ai-heading-title-{{ ai_gen_id }}" style="color: #999;">添加标题文本</h2>
+    {% endif %}
+  </div>
+</heading-block-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class HeadingBlock{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+    }
+    customElements.define('heading-block-{{ ai_gen_id }}', HeadingBlock{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "标题",
+  "settings": [
+    {
+      "type": "header",
+      "content": "内容"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "标题文本",
+      "default": "欢迎来到我们的商店"
+    },
+    {
+      "type": "header",
+      "content": "样式"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "标题大小",
+      "min": 20,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "字体粗细",
+      "options": [
+        {
+          "value": "400",
+          "label": "正常"
+        },
+        {
+          "value": "500",
+          "label": "中等"
+        },
+        {
+          "value": "700",
+          "label": "粗体"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "标题颜色",
+      "default": "#171717"
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_capitalize",
+      "label": "大写字母",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "布局"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "文本对齐",
+      "options": [
+        {
+          "value": "left",
+          "label": "左对齐"
+        },
+        {
+          "value": "center",
+          "label": "居中"
+        },
+        {
+          "value": "right",
+          "label": "右对齐"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "桌面宽度",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "间距"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "上边距",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "下边距",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "标题"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,634 @@
+{% liquid
+  assign section_id = 'review-stream-' | append: section.id
+  assign speed = section.settings.scroll_speed | default: 38
+%}
+
+<section
+  id="{{ section_id }}"
+  class="review-stream"
+  style="
+    --rs-bg: {{ section.settings.background_color }};
+    --rs-card-bg: {{ section.settings.card_background }};
+    --rs-heading: {{ section.settings.heading_color }};
+    --rs-text: {{ section.settings.text_color }};
+    --rs-muted: {{ section.settings.muted_color }};
+    --rs-accent: {{ section.settings.accent_color }};
+    --rs-star: {{ section.settings.star_color }};
+    --rs-radius: {{ section.settings.card_radius }}px;
+    --rs-speed: {{ speed }}s;
+    --rs-desktop-height: {{ section.settings.desktop_height }}px;
+    --rs-mobile-height: {{ section.settings.mobile_height }}px;
+  "
+>
+  <div class="review-stream__media" aria-hidden="true">
+    {% liquid
+      assign desktop_background = section.settings.background_image | default: section.settings.mobile_background_image
+      assign mobile_background = section.settings.mobile_background_image | default: section.settings.background_image
+    %}
+
+    {% if desktop_background != blank %}
+      {{
+        desktop_background
+        | image_url: width: 2400
+        | image_tag:
+          loading: 'lazy',
+          widths: '750, 1100, 1500, 2000, 2400',
+          sizes: '100vw',
+          class: 'review-stream__image review-stream__image--desktop'
+      }}
+    {% endif %}
+
+    {% if mobile_background != blank %}
+      {{
+        mobile_background
+        | image_url: width: 1200
+        | image_tag:
+          loading: 'lazy',
+          widths: '375, 550, 750, 1000, 1200',
+          sizes: '100vw',
+          class: 'review-stream__image review-stream__image--mobile'
+      }}
+    {% endif %}
+  </div>
+
+  <div class="review-stream__inner page-width">
+    <div class="review-stream__panel">
+      <div class="review-stream__header">
+        {% if section.settings.heading != blank %}
+          <h2 class="review-stream__title">{{ section.settings.heading | escape }}</h2>
+        {% endif %}
+
+        {% if section.settings.button_label != blank %}
+          <a class="review-stream__link" href="{{ section.settings.button_link | default: '#' }}">
+            {{ section.settings.button_label | escape }}
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="review-stream__viewport" data-review-viewport>
+        <div class="review-stream__track" data-review-track>
+          <div class="review-stream__group" data-review-group>
+            {% for block in section.blocks %}
+              <article class="review-stream__item" {{ block.shopify_attributes }}>
+                <div class="review-stream__avatar">
+                  {% if block.settings.avatar != blank %}
+                    {{
+                      block.settings.avatar
+                      | image_url: width: 144
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '72, 96, 144',
+                        sizes: '72px',
+                        alt: block.settings.name
+                    }}
+                  {% else %}
+                    <span>{{ block.settings.name | default: 'R' | slice: 0 | upcase }}</span>
+                  {% endif %}
+                </div>
+
+                <div class="review-stream__body">
+                  <div class="review-stream__meta">
+                    {% if block.settings.name != blank %}
+                      <h3 class="review-stream__name">{{ block.settings.name | escape }}</h3>
+                    {% endif %}
+
+                    <div class="review-stream__rating" aria-label="{{ block.settings.rating }} out of 5 stars">
+                      <span class="review-stream__stars" aria-hidden="true">
+                        {% for index in (1..5) %}
+                          {% if index <= block.settings.rating %}
+                            &#9733;
+                          {% else %}
+                            &#9734;
+                          {% endif %}
+                        {% endfor %}
+                      </span>
+                    </div>
+                  </div>
+
+                  {% if block.settings.review != blank %}
+                    <div class="review-stream__copy">
+                      {{ block.settings.review }}
+                    </div>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  #{{ section_id }} {
+    position: relative;
+    overflow: hidden;
+    background: var(--rs-bg);
+    color: var(--rs-text);
+  }
+
+  #{{ section_id }} .review-stream__media {
+    position: absolute;
+    inset: 0;
+  }
+
+  #{{ section_id }} .review-stream__image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  #{{ section_id }} .review-stream__image--mobile {
+    display: none;
+  }
+
+  #{{ section_id }} .review-stream__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.34));
+  }
+
+  #{{ section_id }} .review-stream__inner {
+    position: relative;
+    min-height: var(--rs-desktop-height);
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+
+  #{{ section_id }} .review-stream__panel {
+    width: min(630px, 100%);
+  }
+
+  #{{ section_id }} .review-stream__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+
+  #{{ section_id }} .review-stream__title {
+    margin: 0;
+    color: var(--rs-heading);
+    font-size: clamp(28px, 3vw, 44px);
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+
+  #{{ section_id }} .review-stream__link {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: var(--rs-accent);
+    color: var(--rs-heading);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+
+  #{{ section_id }} .review-stream__link:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+  }
+
+  #{{ section_id }} .review-stream__viewport {
+    max-height: 660px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  #{{ section_id }} .review-stream__track.is-ready {
+    animation: review-stream-move var(--rs-speed) linear infinite;
+    will-change: transform;
+  }
+
+  #{{ section_id }} .review-stream__viewport:hover .review-stream__track,
+  #{{ section_id }} .review-stream__viewport:focus-within .review-stream__track {
+    animation-play-state: paused;
+  }
+
+  #{{ section_id }} .review-stream__group {
+    display: grid;
+    gap: 20px;
+    padding-bottom: 20px;
+  }
+
+  #{{ section_id }} .review-stream__item {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 16px;
+    min-height: 115px;
+    padding: 18px;
+    border-radius: var(--rs-radius);
+    background: var(--rs-card-bg);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  #{{ section_id }} .review-stream__avatar {
+    width: 72px;
+    height: 72px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--rs-accent) 24%, #ffffff);
+    color: var(--rs-heading);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+  }
+
+  #{{ section_id }} .review-stream__avatar img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  #{{ section_id }} .review-stream__body {
+    min-width: 0;
+  }
+
+  #{{ section_id }} .review-stream__meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  #{{ section_id }} .review-stream__name {
+    margin: 0;
+    min-width: 0;
+    color: var(--rs-heading);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #{{ section_id }} .review-stream__rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  #{{ section_id }} .review-stream__stars {
+    color: var(--rs-star);
+    font-size: 14px;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+
+  #{{ section_id }} .review-stream__copy {
+    color: var(--rs-text);
+    font-size: 14px;
+    line-height: 1.45;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  #{{ section_id }} .review-stream__copy p {
+    margin: 0;
+  }
+
+  @keyframes review-stream-move {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(0, -50%, 0);
+    }
+  }
+
+  @media screen and (max-width: 1680px) {
+    #{{ section_id }} .review-stream__viewport {
+      max-height: 520px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    #{{ section_id }} .review-stream__image--desktop {
+      display: none;
+    }
+
+    #{{ section_id }} .review-stream__image--mobile {
+      display: block;
+    }
+
+    #{{ section_id }} .review-stream__inner {
+      min-height: var(--rs-mobile-height);
+      align-items: flex-start;
+      padding-top: 32px;
+      padding-bottom: 32px;
+    }
+
+    #{{ section_id }} .review-stream__panel {
+      width: 100%;
+    }
+
+    #{{ section_id }} .review-stream__header {
+      margin-bottom: 18px;
+    }
+
+    #{{ section_id }} .review-stream__title {
+      font-size: 28px;
+    }
+
+    #{{ section_id }} .review-stream__link {
+      min-height: 28px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    #{{ section_id }} .review-stream__viewport {
+      max-height: 410px;
+    }
+
+    #{{ section_id }} .review-stream__item {
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: 10px;
+      min-height: 88px;
+      padding: 10px 12px;
+    }
+
+    #{{ section_id }} .review-stream__avatar {
+      width: 48px;
+      height: 48px;
+    }
+
+    #{{ section_id }} .review-stream__meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    #{{ section_id }} .review-stream__rating {
+      margin-top: 0;
+    }
+
+    #{{ section_id }} .review-stream__copy {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    #{{ section_id }} .review-stream__media::after {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #{{ section_id }} .review-stream__track.is-ready {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById({{ section_id | json }});
+    if (!root) return;
+
+    const track = root.querySelector('[data-review-track]');
+    const group = root.querySelector('[data-review-group]');
+    if (!track || !group || group.children.length < 2) return;
+
+    const prepareLoop = () => {
+      track.querySelectorAll('[data-review-clone]').forEach((node) => node.remove());
+
+      const clone = group.cloneNode(true);
+      clone.setAttribute('data-review-clone', '');
+      clone.setAttribute('aria-hidden', 'true');
+      track.appendChild(clone);
+      track.classList.add('is-ready');
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', prepareLoop, { once: true });
+    } else {
+      prepareLoop();
+    }
+
+    document.addEventListener('shopify:section:load', (event) => {
+      if (event.detail.sectionId === {{ section.id | json }}) prepareLoop();
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Custom review stream",
+  "tag": "section",
+  "class": "section-custom-review-stream",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Customer Reviews"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Read More"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Desktop background image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_background_image",
+      "label": "Mobile background image"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Fallback background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Review card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading and name color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Review text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Muted text color",
+      "default": "#737373"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Button accent color",
+      "default": "#ffd928"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#ffb800"
+    },
+    {
+      "type": "range",
+      "id": "scroll_speed",
+      "label": "Scroll speed",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "s",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "Desktop section height",
+      "min": 520,
+      "max": 980,
+      "step": 20,
+      "unit": "px",
+      "default": 760
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "label": "Mobile section height",
+      "min": 420,
+      "max": 760,
+      "step": 20,
+      "unit": "px",
+      "default": 540
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "avatar",
+          "label": "Customer image"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Customer name",
+          "default": "Customer name"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "richtext",
+          "id": "review",
+          "label": "Review text",
+          "default": "<p>Share a short customer review that highlights your product quality, service, or shopping experience.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom review stream",
+      "blocks": [
+        {
+          "type": "review",
+          "settings": {
+            "name": "Jim Blanscet",
+            "rating": 5,
+            "review": "<p>The bike arrived well packed, was simple to set up, and has been comfortable on daily rides. The display is clear and the ride feels smooth.</p>"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "name": "George Villanueva Sr",
+            "rating": 5,
+            "review": "<p>Every ride feels easy and fun. The range gives me confidence for longer trails, and the build quality has been excellent.</p>"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "name": "Tracy Blanscet",
+            "rating": 5,
+            "review": "<p>We wanted something comfortable and reliable for regular use. The suspension, tires, and controls made the whole experience feel natural very quickly.</p>"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "name": "Edward Voluntad",
+            "rating": 5,
+            "review": "<p>Stylish, powerful, and surprisingly practical. The brakes feel responsive, the screen is useful, and the ride has plenty of confidence.</p>"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "name": "DarylM",
+            "rating": 5,
+            "review": "<p>A capable bike for roads and light trails. It has nice power, looks great, and has handled weekend rides without any problems.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

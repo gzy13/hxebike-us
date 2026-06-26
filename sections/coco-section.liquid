@@ -1,0 +1,1147 @@
+{% liquid
+  assign section_id = 'coco-showcase-' | append: section.id
+  assign slide_count = section.blocks.size
+%}
+
+<section
+  id="{{ section_id }}"
+  class="coco-showcase"
+  style="
+    --coco-bg: {{ section.settings.background_color }};
+    --coco-surface: {{ section.settings.surface_color }};
+    --coco-text: {{ section.settings.text_color }};
+    --coco-heading: {{ section.settings.heading_color }};
+    --coco-muted: {{ section.settings.muted_color }};
+    --coco-accent: {{ section.settings.accent_color }};
+    --coco-star: {{ section.settings.star_color }};
+    --coco-button-bg: {{ section.settings.button_background }};
+    --coco-button-text: {{ section.settings.button_text_color }};
+    --coco-radius: {{ section.settings.corner_radius }}px;
+    --coco-max-width: {{ section.settings.max_width }}px;
+    --coco-desktop-height: {{ section.settings.desktop_height }}px;
+    --coco-mobile-height: {{ section.settings.mobile_height }}px;
+    --coco-padding-top: {{ section.settings.padding_top }}px;
+    --coco-padding-bottom: {{ section.settings.padding_bottom }}px;
+  "
+  data-coco-showcase
+  data-autoplay="{{ section.settings.enable_autoplay }}"
+  data-delay="{{ section.settings.autoplay_delay | times: 1000 }}"
+>
+  <div class="coco-showcase__inner">
+    {% if section.settings.heading != blank or section.settings.subheading != blank or section.settings.button_label != blank %}
+      <div class="coco-showcase__header">
+        <div>
+          {% if section.settings.eyebrow != blank %}
+            <p class="coco-showcase__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+          {% endif %}
+
+          {% if section.settings.heading != blank %}
+            <h2 class="coco-showcase__heading">{{ section.settings.heading | escape }}</h2>
+          {% endif %}
+
+          {% if section.settings.subheading != blank %}
+            <div class="coco-showcase__subheading">{{ section.settings.subheading }}</div>
+          {% endif %}
+        </div>
+
+        {% if section.settings.button_label != blank %}
+          <a class="coco-showcase__button coco-showcase__button--desktop" href="{{ section.settings.button_link | default: '#' }}">
+            {{ section.settings.button_label | escape }}
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if slide_count > 0 %}
+      <div class="coco-showcase__frame">
+        <div class="coco-showcase__track" data-coco-track>
+          {% for block in section.blocks %}
+            {% liquid
+              assign image_alt = block.settings.image_alt | default: block.settings.title | default: block.settings.name
+            %}
+
+            <article
+              class="coco-showcase__slide{% if forloop.first %} is-active{% endif %}"
+              data-coco-slide="{{ forloop.index0 }}"
+              data-coco-block-id="{{ block.id }}"
+              {{ block.shopify_attributes }}
+            >
+              <div class="coco-showcase__media">
+                {% if block.settings.image != blank %}
+                  {{
+                    block.settings.image
+                    | image_url: width: 1600
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '420, 640, 840, 1100, 1400, 1600',
+                      sizes: '(max-width: 749px) 86vw, (max-width: 989px) 78vw, 58vw',
+                      alt: image_alt
+                  }}
+                {% else %}
+                  <div class="coco-showcase__placeholder">
+                    {{ block.settings.title | default: 'Slide' | slice: 0 | upcase }}
+                  </div>
+                {% endif %}
+
+                <div class="coco-showcase__media-shade" aria-hidden="true"></div>
+
+                <div class="coco-showcase__mobile-copy">
+                  {% if section.settings.show_rating %}
+                    <div class="coco-showcase__stars" aria-label="{{ block.settings.rating }} out of 5 stars">
+                      {% for star in (1..5) %}
+                        <span aria-hidden="true">{% if star <= block.settings.rating %}&#9733;{% else %}&#9734;{% endif %}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.title != blank %}
+                    <h3>{{ block.settings.title | escape }}</h3>
+                  {% endif %}
+
+                  {% if block.settings.text != blank and section.settings.show_mobile_text %}
+                    <div class="coco-showcase__mobile-text">{{ block.settings.text }}</div>
+                  {% endif %}
+
+                  <div class="coco-showcase__mobile-meta">
+                    {% if block.settings.name != blank %}
+                      <span>{{ block.settings.name | escape }}</span>
+                    {% endif %}
+                    {% if block.settings.badge != blank %}
+                      <span>{{ block.settings.badge | escape }}</span>
+                    {% endif %}
+                  </div>
+
+                  {% if block.settings.button_label != blank %}
+                    <a class="coco-showcase__mobile-link" href="{{ block.settings.button_link | default: '#' }}">
+                      {{ block.settings.button_label | escape }}
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="coco-showcase__content">
+                {% if section.settings.show_rating %}
+                  <div class="coco-showcase__stars" aria-label="{{ block.settings.rating }} out of 5 stars">
+                    {% for star in (1..5) %}
+                      <span aria-hidden="true">{% if star <= block.settings.rating %}&#9733;{% else %}&#9734;{% endif %}</span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                {% if block.settings.kicker != blank %}
+                  <p class="coco-showcase__kicker">{{ block.settings.kicker | escape }}</p>
+                {% endif %}
+
+                {% if block.settings.title != blank %}
+                  <h3 class="coco-showcase__title">{{ block.settings.title | escape }}</h3>
+                {% endif %}
+
+                {% if block.settings.text != blank %}
+                  <div class="coco-showcase__text">{{ block.settings.text }}</div>
+                {% endif %}
+
+                <div class="coco-showcase__meta">
+                  {% if block.settings.name != blank %}
+                    <span class="coco-showcase__name">{{ block.settings.name | escape }}</span>
+                  {% endif %}
+                  {% if block.settings.badge != blank %}
+                    <span>{{ block.settings.badge | escape }}</span>
+                  {% endif %}
+                </div>
+
+                {% if block.settings.button_label != blank %}
+                  <a class="coco-showcase__button coco-showcase__button--slide" href="{{ block.settings.button_link | default: '#' }}">
+                    {{ block.settings.button_label | escape }}
+                  </a>
+                {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+
+        {% if slide_count > 1 %}
+          <div class="coco-showcase__controls">
+            {% if section.settings.show_arrows %}
+              <button class="coco-showcase__arrow" type="button" aria-label="Previous slide" data-coco-prev>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m15.2 5.3-1.1-1.1L6.3 12l7.8 7.8 1.1-1.1L8.5 12l6.7-6.7Z" fill="currentColor"/>
+                </svg>
+              </button>
+            {% endif %}
+
+            {% if section.settings.show_dots %}
+              <div class="coco-showcase__dots" aria-label="Carousel pagination">
+                {% for block in section.blocks %}
+                  <button
+                    class="coco-showcase__dot{% if forloop.first %} is-active{% endif %}"
+                    type="button"
+                    aria-label="Show slide {{ forloop.index }}"
+                    aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+                    data-coco-dot="{{ forloop.index0 }}"
+                  ></button>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if section.settings.show_arrows %}
+              <button class="coco-showcase__arrow" type="button" aria-label="Next slide" data-coco-next>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m8.8 18.7 1.1 1.1 7.8-7.8-7.8-7.8-1.1 1.1 6.7 6.7-6.7 6.7Z" fill="currentColor"/>
+                </svg>
+              </button>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      {% if section.settings.button_label != blank %}
+        <a class="coco-showcase__button coco-showcase__button--mobile" href="{{ section.settings.button_link | default: '#' }}">
+          {{ section.settings.button_label | escape }}
+        </a>
+      {% endif %}
+    {% else %}
+      <div class="coco-showcase__empty">Add slides in the theme editor.</div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  #{{ section_id }} {
+    background: var(--coco-bg);
+    color: var(--coco-text);
+    overflow: hidden;
+    padding: var(--coco-padding-top) 0 var(--coco-padding-bottom);
+  }
+
+  #{{ section_id }} * {
+    box-sizing: border-box;
+  }
+
+  #{{ section_id }} .coco-showcase__inner {
+    width: min(100%, var(--coco-max-width));
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  #{{ section_id }} .coco-showcase__header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 32px;
+    margin-bottom: 28px;
+  }
+
+  #{{ section_id }} .coco-showcase__eyebrow,
+  #{{ section_id }} .coco-showcase__kicker {
+    margin: 0 0 10px;
+    color: var(--coco-accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  #{{ section_id }} .coco-showcase__heading {
+    max-width: 760px;
+    margin: 0;
+    color: var(--coco-heading);
+    font-size: clamp(30px, 3.4vw, 56px);
+    font-weight: 650;
+    letter-spacing: 0;
+    line-height: 1.02;
+  }
+
+  #{{ section_id }} .coco-showcase__subheading {
+    max-width: 640px;
+    margin-top: 14px;
+    color: var(--coco-muted);
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  #{{ section_id }} .coco-showcase__subheading p,
+  #{{ section_id }} .coco-showcase__text p,
+  #{{ section_id }} .coco-showcase__mobile-text p {
+    margin: 0;
+  }
+
+  #{{ section_id }} .coco-showcase__frame {
+    position: relative;
+  }
+
+  #{{ section_id }} .coco-showcase__track {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    cursor: grab;
+  }
+
+  #{{ section_id }} .coco-showcase__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  #{{ section_id }} .coco-showcase__track.is-dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+    user-select: none;
+  }
+
+  #{{ section_id }} .coco-showcase__slide {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(320px, .72fr);
+    flex: 0 0 100%;
+    min-width: 0;
+    height: min(var(--coco-desktop-height), 500px);
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--coco-heading) 9%, transparent);
+    border-radius: var(--coco-radius);
+    background: var(--coco-surface);
+    box-shadow: 0 24px 70px rgba(18, 24, 20, .08);
+    scroll-snap-align: start;
+  }
+
+  #{{ section_id }} .coco-showcase__media {
+    position: relative;
+    height: min(var(--coco-desktop-height), 500px);
+    min-height: 0;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--coco-heading) 6%, var(--coco-surface));
+  }
+
+  #{{ section_id }} .coco-showcase__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+    object-position: center;
+    transform: scale(1.01);
+  }
+
+  #{{ section_id }} .coco-showcase__placeholder {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    place-items: center;
+    color: var(--coco-accent);
+    font-size: clamp(64px, 10vw, 140px);
+    font-weight: 700;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--coco-accent) 10%, transparent), transparent),
+      var(--coco-surface);
+  }
+
+  #{{ section_id }} .coco-showcase__media-shade {
+    position: absolute;
+    inset: auto 0 0;
+    height: 46%;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .52));
+    pointer-events: none;
+  }
+
+  #{{ section_id }} .coco-showcase__mobile-copy {
+    display: none;
+  }
+
+  #{{ section_id }} .coco-showcase__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(32px, 4vw, 64px);
+  }
+
+  #{{ section_id }} .coco-showcase__stars {
+    display: flex;
+    gap: 2px;
+    color: var(--coco-star);
+    font-size: 18px;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
+  #{{ section_id }} .coco-showcase__content .coco-showcase__stars {
+    margin-bottom: 18px;
+  }
+
+  #{{ section_id }} .coco-showcase__title {
+    margin: 0;
+    color: var(--coco-heading);
+    font-size: clamp(28px, 2.7vw, 44px);
+    font-weight: 650;
+    letter-spacing: 0;
+    line-height: 1.08;
+  }
+
+  #{{ section_id }} .coco-showcase__text {
+    margin-top: 18px;
+    color: var(--coco-text);
+    font-size: 17px;
+    line-height: 1.68;
+  }
+
+  #{{ section_id }} .coco-showcase__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+    color: var(--coco-muted);
+    font-size: 14px;
+  }
+
+  #{{ section_id }} .coco-showcase__name {
+    color: var(--coco-heading);
+    font-weight: 700;
+  }
+
+  #{{ section_id }} .coco-showcase__meta span + span::before {
+    content: "";
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin: 0 8px 2px 0;
+    border-radius: 50%;
+    background: var(--coco-accent);
+  }
+
+  #{{ section_id }} .coco-showcase__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--coco-button-bg);
+    color: var(--coco-button-text);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+    white-space: nowrap;
+  }
+
+  #{{ section_id }} .coco-showcase__mobile-link {
+    display: none;
+  }
+
+  #{{ section_id }} .coco-showcase__button:hover {
+    opacity: .9;
+    transform: translateY(-1px);
+  }
+
+  #{{ section_id }} .coco-showcase__button--slide {
+    align-self: flex-start;
+    margin-top: 28px;
+  }
+
+  #{{ section_id }} .coco-showcase__button--mobile {
+    display: none;
+  }
+
+  #{{ section_id }} .coco-showcase__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  #{{ section_id }} .coco-showcase__arrow {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--coco-heading) 10%, transparent);
+    border-radius: 50%;
+    background: var(--coco-surface);
+    color: var(--coco-heading);
+    cursor: pointer;
+    transition: border-color 180ms ease, transform 180ms ease;
+  }
+
+  #{{ section_id }} .coco-showcase__arrow:hover {
+    border-color: color-mix(in srgb, var(--coco-heading) 24%, transparent);
+    transform: translateY(-1px);
+  }
+
+  #{{ section_id }} .coco-showcase__arrow svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  #{{ section_id }} .coco-showcase__dots {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #{{ section_id }} .coco-showcase__dot {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--coco-heading) 18%, transparent);
+    cursor: pointer;
+    transition: background-color 180ms ease, width 180ms ease;
+  }
+
+  #{{ section_id }} .coco-showcase__dot.is-active {
+    width: 28px;
+    background: var(--coco-accent);
+  }
+
+  #{{ section_id }} .coco-showcase__empty {
+    display: grid;
+    min-height: 260px;
+    place-items: center;
+    border: 1px dashed color-mix(in srgb, var(--coco-heading) 18%, transparent);
+    border-radius: var(--coco-radius);
+    color: var(--coco-muted);
+  }
+
+  @media screen and (max-width: 989px) {
+    #{{ section_id }} .coco-showcase__inner {
+      padding: 0 20px;
+    }
+
+    #{{ section_id }} .coco-showcase__header {
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    #{{ section_id }} .coco-showcase__heading {
+      font-size: clamp(28px, 8vw, 40px);
+    }
+
+    #{{ section_id }} .coco-showcase__subheading {
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    #{{ section_id }} .coco-showcase__button--desktop {
+      display: none;
+    }
+
+    #{{ section_id }} .coco-showcase__track {
+      gap: 14px;
+      margin-left: -20px;
+      margin-right: -20px;
+      padding: 0 20px;
+      scroll-padding-left: 20px;
+    }
+
+    #{{ section_id }} .coco-showcase__slide {
+      display: block;
+      flex-basis: min(86vw, 430px);
+      height: auto;
+      min-height: 0;
+      border-radius: var(--coco-radius);
+      box-shadow: 0 18px 44px rgba(18, 24, 20, .12);
+    }
+
+    #{{ section_id }} .coco-showcase__media,
+    #{{ section_id }} .coco-showcase__media img,
+    #{{ section_id }} .coco-showcase__placeholder {
+      min-height: var(--coco-mobile-height);
+      height: var(--coco-mobile-height);
+    }
+
+    #{{ section_id }} .coco-showcase__content {
+      display: none;
+    }
+
+    #{{ section_id }} .coco-showcase__mobile-copy {
+      position: absolute;
+      inset: auto 0 0;
+      z-index: 1;
+      display: block;
+      padding: 18px;
+      color: #fff;
+      text-shadow: 0 1px 12px rgba(0, 0, 0, .28);
+    }
+
+    #{{ section_id }} .coco-showcase__mobile-copy .coco-showcase__stars {
+      margin-bottom: 8px;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    #{{ section_id }} .coco-showcase__mobile-copy h3 {
+      margin: 0;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    #{{ section_id }} .coco-showcase__mobile-text {
+      display: -webkit-box;
+      margin-top: 7px;
+      overflow: hidden;
+      color: rgba(255, 255, 255, .9);
+      font-size: 13px;
+      line-height: 1.45;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    #{{ section_id }} .coco-showcase__mobile-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 9px;
+      color: rgba(255, 255, 255, .82);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    #{{ section_id }} .coco-showcase__mobile-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      margin-top: 12px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 255, 255, .46);
+      border-radius: 999px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      text-decoration: none;
+      text-shadow: none;
+      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, .14);
+    }
+
+    #{{ section_id }} .coco-showcase__mobile-meta span + span::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      margin: 0 8px 2px 0;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    #{{ section_id }} .coco-showcase__controls {
+      justify-content: flex-start;
+      margin-top: 16px;
+    }
+
+    #{{ section_id }} .coco-showcase__arrow {
+      display: none;
+    }
+
+    #{{ section_id }} .coco-showcase__button--mobile {
+      display: inline-flex;
+      margin-top: 18px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ section_id }} {
+      padding: calc(var(--coco-padding-top) * .72) 0 calc(var(--coco-padding-bottom) * .72);
+    }
+
+    #{{ section_id }} .coco-showcase__inner {
+      padding: 0 16px;
+    }
+
+    #{{ section_id }} .coco-showcase__track {
+      margin-left: -16px;
+      margin-right: -16px;
+      padding: 0 16px;
+      scroll-padding-left: 16px;
+    }
+
+    #{{ section_id }} .coco-showcase__slide {
+      flex-basis: 86vw;
+    }
+
+    #{{ section_id }} .coco-showcase__mobile-copy {
+      padding: 16px;
+    }
+
+    #{{ section_id }} .coco-showcase__controls {
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const section = document.getElementById({{ section_id | json }});
+    if (!section || section.dataset.cocoReady === 'true') return;
+    section.dataset.cocoReady = 'true';
+
+    const track = section.querySelector('[data-coco-track]');
+    const slides = Array.from(section.querySelectorAll('[data-coco-slide]'));
+    const dots = Array.from(section.querySelectorAll('[data-coco-dot]'));
+    const prev = section.querySelector('[data-coco-prev]');
+    const next = section.querySelector('[data-coco-next]');
+    const autoplay = section.dataset.autoplay === 'true';
+    const delay = Number(section.dataset.delay) || 5000;
+    let active = 0;
+    let timer = null;
+    let isPointerDown = false;
+    let startX = 0;
+    let startScrollLeft = 0;
+    let isDragging = false;
+    let suppressClick = false;
+
+    if (!track || slides.length === 0) return;
+
+    const setActive = (index, shouldScroll = true) => {
+      active = (index + slides.length) % slides.length;
+
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle('is-active', slideIndex === active);
+      });
+
+      dots.forEach((dot, dotIndex) => {
+        dot.classList.toggle('is-active', dotIndex === active);
+        dot.setAttribute('aria-current', dotIndex === active ? 'true' : 'false');
+      });
+
+      if (shouldScroll) {
+        track.scrollTo({
+          left: slides[active].offsetLeft - slides[0].offsetLeft,
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+        });
+      }
+    };
+
+    const syncActiveFromScroll = () => {
+      const trackLeft = track.getBoundingClientRect().left;
+      let nearest = 0;
+      let nearestDistance = Infinity;
+
+      slides.forEach((slide, index) => {
+        const distance = Math.abs(slide.getBoundingClientRect().left - trackLeft);
+        if (distance < nearestDistance) {
+          nearest = index;
+          nearestDistance = distance;
+        }
+      });
+
+      if (nearest !== active) setActive(nearest, false);
+    };
+
+    const stopAutoplay = () => {
+      if (timer) window.clearInterval(timer);
+      timer = null;
+    };
+
+    const startAutoplay = () => {
+      stopAutoplay();
+      if (!autoplay || slides.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      timer = window.setInterval(() => setActive(active + 1), delay);
+    };
+
+    let scrollRaf = null;
+    track.addEventListener('scroll', () => {
+      if (scrollRaf) window.cancelAnimationFrame(scrollRaf);
+      scrollRaf = window.requestAnimationFrame(syncActiveFromScroll);
+    }, { passive: true });
+
+    track.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      isPointerDown = true;
+      isDragging = false;
+      startX = event.clientX;
+      startScrollLeft = track.scrollLeft;
+      stopAutoplay();
+      track.classList.add('is-dragging');
+    });
+
+    track.addEventListener('pointermove', (event) => {
+      if (!isPointerDown) return;
+      const distance = event.clientX - startX;
+      if (Math.abs(distance) > 4) isDragging = true;
+      if (!isDragging) return;
+      event.preventDefault();
+      track.scrollLeft = startScrollLeft - distance;
+    });
+
+    track.addEventListener('click', (event) => {
+      if (!suppressClick) return;
+      event.preventDefault();
+      event.stopPropagation();
+    }, true);
+
+    const finishDrag = () => {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+      track.classList.remove('is-dragging');
+      if (isDragging) {
+        suppressClick = true;
+        window.setTimeout(() => {
+          suppressClick = false;
+        }, 120);
+      }
+      syncActiveFromScroll();
+      startAutoplay();
+    };
+
+    track.addEventListener('pointerup', finishDrag);
+    track.addEventListener('pointercancel', finishDrag);
+    track.addEventListener('mouseleave', finishDrag);
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        setActive(index);
+        startAutoplay();
+      });
+    });
+
+    prev?.addEventListener('click', () => {
+      setActive(active - 1);
+      startAutoplay();
+    });
+
+    next?.addEventListener('click', () => {
+      setActive(active + 1);
+      startAutoplay();
+    });
+
+    section.addEventListener('mouseenter', stopAutoplay);
+    section.addEventListener('mouseleave', startAutoplay);
+    section.addEventListener('focusin', stopAutoplay);
+    section.addEventListener('focusout', startAutoplay);
+    window.addEventListener('resize', () => setActive(active, false));
+
+    document.addEventListener('shopify:block:select', (event) => {
+      if (event.detail.sectionId !== {{ section.id | json }}) return;
+      const selected = slides.find((slide) => slide.dataset.cocoBlockId === event.detail.blockId);
+      if (!selected) return;
+      setActive(Number(selected.dataset.cocoSlide));
+      stopAutoplay();
+    });
+
+    setActive(0, false);
+    startAutoplay();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Coco image showcase",
+  "tag": "section",
+  "class": "section-coco-showcase",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Customer stories"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Real rides, real reviews"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>Showcase product moments with a clean image-first slider that works beautifully on mobile.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Section button label",
+      "default": "Shop the collection"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Section button link"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#f4f6f2"
+    },
+    {
+      "type": "color",
+      "id": "surface_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading",
+      "default": "#17231c"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#303a34"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Muted text",
+      "default": "#727b73"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#2f5f3d"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Stars",
+      "default": "#c77825"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "#17231c"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 1000,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "default": 1360
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "Desktop image height",
+      "min": 360,
+      "max": 720,
+      "step": 10,
+      "unit": "px",
+      "default": 480
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "label": "Mobile image height",
+      "min": 280,
+      "max": 560,
+      "step": 10,
+      "unit": "px",
+      "default": 430
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "header",
+      "content": "Behavior"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show ratings",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mobile_text",
+      "label": "Show short text on mobile",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show desktop arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show dots",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_autoplay",
+      "label": "Enable autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_delay",
+      "label": "Autoplay delay",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Image alt text"
+        },
+        {
+          "type": "text",
+          "id": "kicker",
+          "label": "Small label",
+          "default": "Verified review"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Smooth, confident, and fun"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>The bike feels stable, powerful, and easy to ride. It made every route feel more enjoyable without feeling bulky.</p>"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name",
+          "default": "Dale B."
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge",
+          "default": "Verified buyer"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Slide button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Slide button link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Coco image showcase",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "kicker": "Trail tested",
+            "title": "Built for weekend rides",
+            "text": "<p>Comfortable on climbs, steady on loose ground, and easy to control when the trail gets busy.</p>",
+            "name": "Dale B.",
+            "badge": "Verified buyer",
+            "rating": 5
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "kicker": "Daily ride",
+            "title": "Effortless on every route",
+            "text": "<p>The assist feels natural, the handling is clean, and the ride has just the right amount of punch.</p>",
+            "name": "Wyatt D.",
+            "badge": "Verified buyer",
+            "rating": 5
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "kicker": "Customer favorite",
+            "title": "More range, more confidence",
+            "text": "<p>I can take longer rides without worrying about hills or fatigue. It feels thoughtfully designed.</p>",
+            "name": "Serj J.",
+            "badge": "Verified buyer",
+            "rating": 5
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

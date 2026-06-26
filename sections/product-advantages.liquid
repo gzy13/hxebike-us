@@ -1,0 +1,467 @@
+<section class="fd-advantages fd-advantages-{{ section.id }}">
+  <div class="fd-advantages__inner">
+    <div class="fd-advantages__grid">
+      {% for block in section.blocks limit: 3 %}
+        <article
+          class="fd-advantages__card fd-advantages__card--{{ forloop.index }}"
+          {{ block.shopify_attributes }}
+        >
+          {% if block.settings.show_circle_bg %}
+            <span class="fd-advantages__circle fd-advantages__circle--1"></span>
+            <span class="fd-advantages__circle fd-advantages__circle--2"></span>
+          {% endif %}
+
+          <div class="fd-advantages__content">
+            {% if block.settings.heading != blank %}
+              <h2 class="fd-advantages__title">{{ block.settings.heading }}</h2>
+            {% endif %}
+
+            {% if block.settings.text != blank %}
+              <div class="fd-advantages__text">
+                {{ block.settings.text }}
+              </div>
+            {% endif %}
+
+            {% assign s1 = block.settings.stat_1 %}
+            {% assign s2 = block.settings.stat_2 %}
+            {% assign s3 = block.settings.stat_3 %}
+
+            {% if s1 != blank or s2 != blank or s3 != blank %}
+              <div class="fd-advantages__stats">
+                {% if s1 != blank %}
+                  <span class="fd-advantages__stat">{{ s1 }}</span>
+                {% endif %}
+
+                {% if s2 != blank %}
+                  {% if s1 != blank %}<span class="fd-advantages__sep"></span>{% endif %}
+                  <span class="fd-advantages__stat">{{ s2 }}</span>
+                {% endif %}
+
+                {% if s3 != blank %}
+                  {% if s1 != blank or s2 != blank %}<span class="fd-advantages__sep"></span>{% endif %}
+                  <span class="fd-advantages__stat">{{ s3 }}</span>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+
+          {% if block.settings.image != blank %}
+            <div class="fd-advantages__media">
+              {{
+                block.settings.image
+                | image_url: width: 1600
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '400, 600, 800, 1000, 1200, 1400, 1600',
+                  class: 'fd-advantages__image'
+              }}
+            </div>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+  .fd-advantages-{{ section.id }} {
+    background: {{ section.settings.section_bg }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    width: 100%;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__inner {
+    width: min(1280px, calc(100% - 48px));
+    margin: 0 auto;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    grid-template-rows: 320px 320px;
+    grid-template-areas:
+      "card1 card3"
+      "card2 card3";
+    gap: 24px;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card {
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+    border-radius: 30px;
+    background: {{ section.settings.card_bg }};
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card--1 {
+    grid-area: card1;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card--2 {
+    grid-area: card2;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card--3 {
+    grid-area: card3;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card--1,
+  .fd-advantages-{{ section.id }} .fd-advantages__card--2 {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+    gap: 20px;
+    padding: 32px 28px;
+    min-height: 320px;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card--3 {
+    display: flex;
+    flex-direction: column;
+    padding: 32px 28px 24px;
+    min-height: 664px;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__content,
+  .fd-advantages-{{ section.id }} .fd-advantages__media {
+    position: relative;
+    z-index: 2;
+    min-width: 0;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__title {
+    margin: 0 0 14px;
+    color: {{ section.settings.heading_color }};
+    font-size: 18px;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__text {
+    color: {{ section.settings.text_color }};
+    font-size: 15px;
+    line-height: 1.75;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__text p {
+    margin: 0 0 14px;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__stats {
+    margin-top: auto;
+    padding-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__stat {
+    color: {{ section.settings.accent_color }};
+    font-size: 15px;
+    line-height: 1;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__sep {
+    width: 1px;
+    height: 20px;
+    background: {{ section.settings.accent_color }};
+    opacity: 0.6;
+    flex: 0 0 auto;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__media {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    height: 100%;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-width: 100%;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card--1 .fd-advantages__image {
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: -10px;
+    margin-bottom: -32px;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card--2 .fd-advantages__image {
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: -10px;
+    margin-bottom: -32px;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card--3 .fd-advantages__media {
+    flex: 1 1 auto;
+    align-items: flex-end;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__card--3 .fd-advantages__image {
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__circle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__circle--1 {
+    width: 420px;
+    height: 420px;
+    right: -90px;
+    bottom: -150px;
+    background: rgba(236, 117, 73, 0.08);
+  }
+
+  .fd-advantages-{{ section.id }} .fd-advantages__circle--2 {
+    width: 260px;
+    height: 260px;
+    right: 0;
+    bottom: -60px;
+    background: rgba(236, 117, 73, 0.12);
+  }
+
+  @media screen and (max-width: 989px) {
+    .fd-advantages-{{ section.id }} .fd-advantages__inner {
+      width: calc(100% - 24px);
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      grid-template-areas:
+        "card1"
+        "card2"
+        "card3";
+      gap: 16px;
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__card--1,
+    .fd-advantages-{{ section.id }} .fd-advantages__card--2,
+    .fd-advantages-{{ section.id }} .fd-advantages__card--3 {
+      display: block;
+      min-height: auto;
+      padding: 24px 18px 18px;
+      border-radius: 24px;
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__title {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__text {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__stats {
+      margin-top: 18px;
+      padding-top: 0;
+      gap: 10px;
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__sep {
+      height: 18px;
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__media,
+    .fd-advantages-{{ section.id }} .fd-advantages__card--3 .fd-advantages__media {
+      margin-top: 18px;
+      height: auto;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__card--1 .fd-advantages__image,
+    .fd-advantages-{{ section.id }} .fd-advantages__card--2 .fd-advantages__image,
+    .fd-advantages-{{ section.id }} .fd-advantages__card--3 .fd-advantages__image {
+      max-width: 100%;
+      margin: 0;
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__circle--1 {
+      width: 300px;
+      height: 300px;
+      right: -90px;
+      bottom: -120px;
+    }
+
+    .fd-advantages-{{ section.id }} .fd-advantages__circle--2 {
+      width: 180px;
+      height: 180px;
+      right: -20px;
+      bottom: -40px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Product advantages",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "section_bg",
+      "label": "Section background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#efefef"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#222222"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#ef6b3b"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "advantage",
+      "name": "Advantage card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Title",
+          "default": "Strong Cruising Ability"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Description",
+          "default": "<p>Eden electric bike with its battery capacity of 20 Ah/960 Wh and torque sensor components, intelligently adjusts power output to save more electricity.</p><p>It can travel up to 90 miles on a single charge under pedal assist mode.</p>"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "stat_1",
+          "label": "Stat 1",
+          "default": "20 AH"
+        },
+        {
+          "type": "text",
+          "id": "stat_2",
+          "label": "Stat 2",
+          "default": "90 Miles"
+        },
+        {
+          "type": "text",
+          "id": "stat_3",
+          "label": "Stat 3",
+          "default": "28 MPH"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_circle_bg",
+          "label": "Show circle background",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "Product advantages",
+      "blocks": [
+        {
+          "type": "advantage"
+        },
+        {
+          "type": "advantage",
+          "settings": {
+            "heading": "GPS Anti-theft Alert",
+            "text": "<p>With FD Eden's integrated system featuring 4G communication and GPS, effortlessly track and locate your Eden electric bike anytime, anywhere through the app.</p>",
+            "stat_1": "GPS Chip",
+            "stat_2": "4G Communication",
+            "stat_3": "",
+            "show_circle_bg": true
+          }
+        },
+        {
+          "type": "advantage",
+          "settings": {
+            "heading": "Safe and Intelligent",
+            "text": "<p>FD Eden is SGS certified ebike with brand components and an intelligent detection system so you can quickly check electric components and find problems earlier.</p>",
+            "stat_1": "BMS",
+            "stat_2": "SGS Certified",
+            "stat_3": "",
+            "show_circle_bg": false
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,558 @@
+{% comment %}
+  Poster-style Product Hero Switch (no modal, optimized)
+
+  Kept:
+  1) No rounded corners (canvas)
+  2) Watermark centered + size adjustable
+  3) Bike size adjustable (desktop + mobile)
+
+  Optimizations:
+  - Removed modal completely
+  - Layering stability (watermark < bike < metrics/bottom)
+  - Better a11y for swatches (arrow/home/end navigation + roving tabindex)
+  - JS safe guards
+  - Improved image alt text
+{% endcomment %}
+
+<section id="heroSwitch-{{ section.id }}" class="hero-switch">
+  {%- assign metric_blocks = section.blocks | where: 'type', 'metric' -%}
+  {% assign first_key = blank %}
+  {% for block in section.blocks %}
+    {% if block.type == 'variant' and first_key == blank %}
+      {% assign first_key = block.id %}
+    {% endif %}
+  {% endfor %}
+
+  {%- assign first_color_name = '' -%}
+
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'variant' and block.id == first_key -%}
+      {%- assign first_color_name = block.settings.color_name -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  <div class="hero-switch__canvas">
+    {% if section.settings.watermark_text != blank %}
+      <div class="hero-switch__watermark" aria-hidden="true">
+        {{ section.settings.watermark_text }}
+      </div>
+    {% endif %}
+
+    {% if metric_blocks.size > 0 %}
+      <div class="hero-switch__metrics">
+        {% for block in metric_blocks %}
+          <div class="hero-switch__metric" {{ block.shopify_attributes }}>
+            <div class="hero-switch__metricTitle">{{ block.settings.title }}</div>
+            <div class="hero-switch__metricText">{{ block.settings.text }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="hero-switch__bike">
+      {% for block in section.blocks %}
+        {% if block.type == 'variant' %}
+          {% assign is_first = false %}
+          {% if block.id == first_key %}
+            {% assign is_first = true %}
+          {% endif %}
+
+          {% if block.settings.image != blank %}
+            <img
+              class="hero-switch__bikeImg{% if is_first %} is-active{% endif %}"
+              src="{{ block.settings.image | image_url: width: 2000 }}"
+              srcset="
+                {{ block.settings.image | image_url: width: 800 }} 800w,
+                {{ block.settings.image | image_url: width: 1200 }} 1200w,
+                {{ block.settings.image | image_url: width: 1600 }} 1600w,
+                {{ block.settings.image | image_url: width: 2000 }} 2000w
+              "
+              sizes="(max-width: 749px) 100vw, 1400px"
+              width="{{ block.settings.image.width }}"
+              height="{{ block.settings.image.height }}"
+              loading="{% if is_first %}eager{% else %}lazy{% endif %}"
+              alt="{% if section.settings.watermark_text != blank %}{{ section.settings.watermark_text | escape }} - {% endif %}{{ block.settings.color_name | escape }}"
+              data-key="{{ block.id }}"
+              {{ block.shopify_attributes }}
+            >
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="hero-switch__bottom">
+      <div class="hero-switch__swatches" role="radiogroup" aria-label="Choose color">
+        {% for block in section.blocks %}
+          {% if block.type == 'variant' %}
+            {% assign is_first = false %}
+            {% if block.id == first_key %}
+              {% assign is_first = true %}
+            {% endif %}
+
+            <button
+              type="button"
+              class="hero-switch__dot{% if is_first %} is-selected{% endif %}"
+              data-key="{{ block.id }}"
+              data-color="{{ block.settings.color_name | escape }}"
+              role="radio"
+              aria-checked="{% if is_first %}true{% else %}false{% endif %}"
+              aria-label="{{ block.settings.color_name | escape }}"
+              tabindex="{% if is_first %}0{% else %}-1{% endif %}"
+              style="
+                --dot-color: {{ block.settings.dot_color }};
+                {% if block.settings.dot_image != blank %}
+                  background-image:url('{{ block.settings.dot_image | image_url: width: 120 }}');
+                  background-size: cover;
+                  background-position: center;
+                {% else %}
+                  background: {{ block.settings.dot_color }};
+                {% endif %}
+              "
+              {{ block.shopify_attributes }}
+            >
+              <span class="visually-hidden">{{ block.settings.color_name }}</span>
+            </button>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="hero-switch__bottomText">
+        <div class="hero-switch__colorName" data-color-name>
+          {{ first_color_name }}
+        </div>
+
+        {% if section.settings.desc != blank %}
+          <div class="hero-switch__desc">{{ section.settings.desc }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <style>
+    {%- assign watermark_color = section.settings.watermark_color | default: '#5A8CD2' -%}
+    {%- assign watermark_alpha = section.settings.watermark_opacity | default: 8 | divided_by: 100.0 -%}
+
+    #heroSwitch-{{ section.id }} .visually-hidden{
+      position:absolute !important;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    #heroSwitch-{{ section.id }}{
+      --hs-pad-x: {{ section.settings.padding_x_desktop | default: 48 }}px;
+      --hs-pad-y: {{ section.settings.padding_y_desktop | default: 34 }}px;
+      --hs-text: {{ section.settings.text_color | default: '#000000' }};
+      --hs-muted: {{ section.settings.muted_color | default: '#5f5f5f' }};
+      --hs-border: rgba(14, 20, 30, .12);
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__canvas{
+      position: relative;
+      width: 100%;
+      min-height: {{ section.settings.canvas_height_desktop | default: 860 }}px;
+      background: linear-gradient(180deg, #f4f8fc 0%, #ffffff 100%);
+      border-radius: 0;
+      overflow: hidden;
+      margin: 0 auto;
+      padding: var(--hs-pad-y) var(--hs-pad-x);
+      box-sizing: border-box;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__watermark{
+      position:absolute;
+      left:50%;
+      top:28%;
+      transform:translate(-50%, -50%);
+      font-weight:800;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      font-size: {{ section.settings.watermark_size_desktop }}px;
+      line-height:.9;
+      color: {{ watermark_color | color_modify: 'alpha', watermark_alpha }};
+      user-select:none;
+      pointer-events:none;
+      white-space:nowrap;
+      text-align:center;
+      width:100%;
+      z-index:0;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__bike{
+      position:absolute;
+      left:50%;
+      top:{{ section.settings.bike_top_desktop | default: 48 }}%;
+      transform:translate(-50%, -50%);
+      width:min({{ section.settings.bike_max_width_desktop | default: 1000 }}px, {{ section.settings.bike_width_desktop | default: 74 }}vw);
+      aspect-ratio:16 / 9;
+      display:grid;
+      place-items:center;
+      pointer-events:none;
+      z-index:1;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__bikeImg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      opacity:0;
+      transform:translateY(6px) scale(0.995);
+      transition:opacity .55s ease, transform .55s ease;
+      filter: {{ section.settings.bike_filter }};
+      z-index:2;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__bikeImg.is-active{
+      opacity:1;
+      transform:translateY(0) scale(1);
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__metrics{
+      position:absolute;
+      left: {{ section.settings.metrics_left_desktop | default: 13 }}%;
+      top:{{ section.settings.metrics_top_desktop | default: 50 }}%;
+      transform:translateY(-50%);
+      display:grid;
+      gap:26px;
+      max-width:260px;
+      z-index:3;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__metricTitle{
+      font-weight:600;
+      color:var(--hs-text);
+      font-size:18px;
+      line-height:1.15;
+      letter-spacing:.01em;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__metricText{
+      margin-top:8px;
+      color:var(--hs-muted);
+      font-size:13px;
+      font-weight:500;
+      line-height:1.4;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__bottom{
+      position:absolute;
+      left:50%;
+      bottom:{{ section.settings.bottom_offset_desktop | default: 36 }}px;
+      transform:translateX(-50%);
+      display:grid;
+      gap:10px;
+      justify-items:center;
+      text-align:center;
+      z-index:4;
+      width:min(560px, 86vw);
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__swatches{
+      position:relative;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:6px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.12);
+      background:rgba(255,255,255,.78);
+      box-shadow:
+        0 10px 28px rgba(15,23,42,.08),
+        inset 0 1px 0 rgba(255,255,255,.8);
+      backdrop-filter:blur(12px);
+      outline:none !important;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__dot{
+      position:relative;
+      width:{{ section.settings.swatch_size | default: 34 }}px;
+      height:{{ section.settings.swatch_size | default: 34 }}px;
+      border-radius:999px;
+      border:0;
+      background-size:cover;
+      background-position:center;
+      cursor:pointer;
+      padding:0;
+      transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+      outline:none !important;
+      appearance:none;
+      flex: 0 0 auto;
+      opacity:.86;
+      box-shadow:
+        inset 0 0 0 1px rgba(15,23,42,.12),
+        0 1px 2px rgba(15,23,42,.12);
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__dot::after{
+      content:"";
+      position:absolute;
+      inset:-4px;
+      border-radius:999px;
+      border:1px solid transparent;
+      transition:border-color .16s ease, box-shadow .16s ease;
+      pointer-events:none;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__dot:hover{
+      opacity:1;
+      transform:scale(1.03);
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__dot:focus-visible{
+      outline:none !important;
+      box-shadow:
+        inset 0 0 0 1px rgba(15,23,42,.14),
+        0 0 0 3px rgba(15,23,42,.14);
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__dot.is-selected{
+      opacity:1;
+      transform:none;
+      box-shadow:
+        inset 0 0 0 1px rgba(15,23,42,.14),
+        0 2px 6px rgba(15,23,42,.16);
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__dot.is-selected::after{
+      border-color:rgba(15,23,42,.42);
+      box-shadow:
+        0 0 0 2px rgba(255,255,255,.9);
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__colorName{
+      font-weight:700;
+      color:var(--hs-text);
+      font-size:16px;
+    }
+
+    #heroSwitch-{{ section.id }} .hero-switch__desc{
+      color:var(--hs-muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    @media (max-width: 749px){
+      #heroSwitch-{{ section.id }}{
+        --hs-pad-x: {{ section.settings.padding_x_mobile | default: 16 }}px;
+        --hs-pad-y: {{ section.settings.padding_y_mobile | default: 16 }}px;
+      }
+
+      #heroSwitch-{{ section.id }} .hero-switch__canvas{
+        min-height:{{ section.settings.canvas_height_mobile | default: 580 }}px;
+      }
+
+      #heroSwitch-{{ section.id }} .hero-switch__watermark{
+        top:28%;
+        font-size: {{ section.settings.watermark_size_mobile }}px;
+        white-space:normal;
+      }
+
+      #heroSwitch-{{ section.id }} .hero-switch__metrics{
+        left:50%;
+        top:auto;
+        transform:translateX(-50%);
+        bottom:{{ section.settings.metrics_bottom_mobile | default: 132 }}px;
+        z-index:4;
+        display:flex;
+        gap:22px;
+        width:min(420px, 92vw);
+        max-width:none;
+        justify-content:space-between;
+        text-align:center;
+      }
+
+      #heroSwitch-{{ section.id }} .hero-switch__metric{
+        flex:1 1 0;
+      }
+
+      #heroSwitch-{{ section.id }} .hero-switch__metricTitle{
+        font-size:16px;
+        font-weight:600;
+      }
+
+      #heroSwitch-{{ section.id }} .hero-switch__metricText{
+        font-size:12px;
+        margin-top:6px;
+      }
+
+      #heroSwitch-{{ section.id }} .hero-switch__bike{
+        width:min({{ section.settings.bike_max_width_mobile | default: 520 }}px, {{ section.settings.bike_width_mobile | default: 92 }}vw);
+        top:{{ section.settings.bike_top_mobile | default: 50 }}%;
+      }
+
+      #heroSwitch-{{ section.id }} .hero-switch__bottom{
+        bottom:{{ section.settings.bottom_offset_mobile | default: 18 }}px;
+      }
+    }
+  </style>
+
+  <script>
+    (function(){
+      const root = document.getElementById("heroSwitch-{{ section.id }}");
+      if (!root) return;
+
+      const dots = Array.from(root.querySelectorAll(".hero-switch__dot"));
+      const imgs = Array.from(root.querySelectorAll(".hero-switch__bikeImg"));
+      const nameEl = root.querySelector("[data-color-name]");
+      const swatches = root.querySelector(".hero-switch__swatches");
+
+      function setRovingTabindex(activeBtn){
+        dots.forEach(function(btn){
+          btn.setAttribute("tabindex", btn === activeBtn ? "0" : "-1");
+        });
+      }
+
+      function setActive(key, color){
+        if (!key) return;
+
+        let activeBtn = null;
+
+        dots.forEach(function(btn){
+          const selected = btn.dataset.key === key;
+          btn.classList.toggle("is-selected", selected);
+          btn.setAttribute("aria-checked", selected ? "true" : "false");
+          if (selected) activeBtn = btn;
+        });
+
+        imgs.forEach(function(img){
+          img.classList.toggle("is-active", img.dataset.key === key);
+        });
+
+        if (nameEl && typeof color === "string") {
+          nameEl.textContent = color;
+        }
+
+        if (activeBtn) {
+          setRovingTabindex(activeBtn);
+        }
+      }
+
+      dots.forEach(function(btn){
+        btn.addEventListener("click", function(){
+          setActive(btn.dataset.key, btn.dataset.color || "");
+        });
+      });
+
+      if (swatches) {
+        swatches.addEventListener("keydown", function(e){
+          const focused = document.activeElement;
+          if (!focused || !focused.classList.contains("hero-switch__dot")) return;
+
+          const idx = dots.indexOf(focused);
+          if (idx === -1) return;
+
+          let next = null;
+
+          if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+            e.preventDefault();
+            next = dots[(idx + 1) % dots.length];
+          } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+            e.preventDefault();
+            next = dots[(idx - 1 + dots.length) % dots.length];
+          } else if (e.key === "Home") {
+            e.preventDefault();
+            next = dots[0];
+          } else if (e.key === "End") {
+            e.preventDefault();
+            next = dots[dots.length - 1];
+          }
+
+          if (next) {
+            next.focus();
+            setActive(next.dataset.key, next.dataset.color || "");
+          }
+        });
+      }
+
+      const first = root.querySelector(".hero-switch__dot.is-selected") || root.querySelector(".hero-switch__dot");
+      if (first) {
+        setActive(first.dataset.key, first.dataset.color || "");
+      }
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Hero Switch",
+  "settings": [
+    { "type": "header", "content": "Layout" },
+    { "type": "range", "id": "canvas_height_desktop", "label": "Canvas height (desktop)", "min": 480, "max": 1000, "step": 10, "default": 860 },
+    { "type": "range", "id": "canvas_height_mobile", "label": "Canvas height (mobile)", "min": 420, "max": 820, "step": 10, "default": 580 },
+    { "type": "range", "id": "padding_x_desktop", "label": "Side padding (desktop)", "min": 0, "max": 120, "step": 2, "default": 48 },
+    { "type": "range", "id": "padding_y_desktop", "label": "Top/bottom padding (desktop)", "min": 0, "max": 100, "step": 2, "default": 34 },
+    { "type": "range", "id": "padding_x_mobile", "label": "Side padding (mobile)", "min": 0, "max": 40, "step": 1, "default": 16 },
+    { "type": "range", "id": "padding_y_mobile", "label": "Top/bottom padding (mobile)", "min": 0, "max": 40, "step": 1, "default": 16 },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#000000" },
+    { "type": "color", "id": "muted_color", "label": "Muted text color", "default": "#5f5f5f" },
+
+    { "type": "header", "content": "Watermark" },
+    { "type": "text", "id": "watermark_text", "label": "Watermark text", "default": "MODEL NAME" },
+    { "type": "color", "id": "watermark_color", "label": "Watermark color", "default": "#5A8CD2" },
+    { "type": "range", "id": "watermark_size_desktop", "label": "Watermark size (desktop)", "min": 80, "max": 280, "step": 4, "default": 180 },
+    { "type": "range", "id": "watermark_size_mobile", "label": "Watermark size (mobile)", "min": 40, "max": 160, "step": 2, "default": 90 },
+    { "type": "range", "id": "watermark_opacity", "label": "Watermark opacity (%)", "min": 3, "max": 25, "step": 1, "default": 8 },
+
+    { "type": "header", "content": "Bike" },
+    { "type": "text", "id": "bike_filter", "label": "Bike CSS filter", "default": "none" },
+    { "type": "range", "id": "bike_width_desktop", "label": "Bike width (desktop vw)", "min": 50, "max": 95, "step": 1, "default": 74 },
+    { "type": "range", "id": "bike_max_width_desktop", "label": "Bike max width (desktop px)", "min": 600, "max": 1400, "step": 20, "default": 1000 },
+    { "type": "range", "id": "bike_top_desktop", "label": "Bike vertical position (desktop)", "min": 35, "max": 65, "step": 1, "default": 48, "unit": "%" },
+    { "type": "range", "id": "bike_width_mobile", "label": "Bike width (mobile vw)", "min": 70, "max": 120, "step": 1, "default": 92 },
+    { "type": "range", "id": "bike_max_width_mobile", "label": "Bike max width (mobile px)", "min": 320, "max": 800, "step": 10, "default": 520 },
+    { "type": "range", "id": "bike_top_mobile", "label": "Bike vertical position (mobile)", "min": 35, "max": 65, "step": 1, "default": 50, "unit": "%" },
+
+    { "type": "header", "content": "Metrics" },
+    { "type": "range", "id": "metrics_left_desktop", "label": "Metrics left position (desktop)", "min": 0, "max": 45, "step": 1, "default": 13, "unit": "%" },
+    { "type": "range", "id": "metrics_top_desktop", "label": "Metrics vertical position (desktop)", "min": 25, "max": 75, "step": 1, "default": 50, "unit": "%" },
+    { "type": "range", "id": "metrics_bottom_mobile", "label": "Metrics bottom offset (mobile)", "min": 80, "max": 240, "step": 2, "default": 132, "unit": "px" },
+
+    { "type": "header", "content": "Bottom controls" },
+    { "type": "range", "id": "swatch_size", "label": "Swatch size", "min": 22, "max": 52, "step": 1, "default": 34, "unit": "px" },
+    { "type": "range", "id": "bottom_offset_desktop", "label": "Bottom controls offset (desktop)", "min": 10, "max": 120, "step": 2, "default": 36, "unit": "px" },
+    { "type": "range", "id": "bottom_offset_mobile", "label": "Bottom controls offset (mobile)", "min": 8, "max": 80, "step": 1, "default": 18, "unit": "px" },
+
+    {
+      "type": "textarea",
+      "id": "desc",
+      "label": "Bottom description",
+      "default": "A powerful and comfortable e-bike with smooth control and certified safety."
+    }
+  ],
+
+  "blocks": [
+    {
+      "type": "variant",
+      "name": "Color",
+      "settings": [
+        { "type": "text", "id": "color_name", "label": "Color name", "default": "Sapphire Blue" },
+        { "type": "image_picker", "id": "image", "label": "Bike PNG (transparent)" },
+        { "type": "image_picker", "id": "dot_image", "label": "Dot image (optional)" },
+        { "type": "color", "id": "dot_color", "label": "Dot color", "default": "#2F80ED" }
+      ]
+    },
+    {
+      "type": "metric",
+      "name": "Metric",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "720 Wh" },
+        { "type": "text", "id": "text", "label": "Text", "default": "Portable Battery" }
+      ]
+    }
+  ],
+
+  "presets": [
+    { "name": "Hero Switch" }
+  ]
+}
+{% endschema %}

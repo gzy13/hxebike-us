@@ -1,0 +1,830 @@
+{% doc %}
+  @prompt
+    Create a seamless compact film-strip slider exactly like SUPER73 buyer showcase with square edge-to-edge images (1:1 aspect ratio) that continuously scroll left at constant speed using GPU-accelerated CSS transform (translateX). Use duplicated node list for real infinite loop where DOM equals original image list plus cloned image list, when first list has fully scrolled out of view use logic: if translateX is less than or equal to negative originalWidth then translateX plus equals originalWidth. This ensures no visible restart, no jump, no pause, no snapping, no reset animation. IMPORTANT: All uploaded images (up to 30) must be included in loop, if user uploads 28 images must scroll through all 28 before looping, do NOT limit to first 12 or any subset. Images have no gaps between them, no rounded corners by default (border-radius exists but default is 0px). Add Size Selector in settings with Small current compact size (approximately 1/3 normal), Medium approximately 2x larger than Small, Large full normal size. Images must always remain perfectly square at all sizes. Use lazy loading for off-screen images. CRITICAL LAYOUT STRUCTURE: Top brand band scrolling, Images row scrolling, Bottom brand band scrolling - the top band images and bottom band all scroll at SAME speed as one unified continuous strip. Visual example: @HXeBike • @HXeBike • @HXeBike (top band), images scrolling (middle), @HXeBike • @HXeBike • @HXeBike (bottom band). Band background is pure black #000000 or matte black textured image. Brand text is white #FFFFFF never overlaid on images, no dot before first text, spacing must be very sparse and breathable. Band height slim not thick, target 1/8 to 1/10 of image height, add setting 16-60px with default height close to SUPER73. Important bug fix: ensure band background color actually displays (previous version did not show black band). Desktop has continuous auto-scroll left, optional arrows (show/hide toggle default OFF), pause on hover toggle controls behavior. Mobile auto-scroll speed must match desktop, fix previous slowdown by applying approximately 2x speed multiplier on mobile, user can swipe left/right inside slider. IMPORTANT: swiping must not drag entire page horizontally, page should remain vertically scrollable, module should feel fixed like SUPER73 where only strip moves not viewport. Clicking image opens lightbox popup showing exact image clicked (correct index mapping no off-by-one errors), popup includes dark overlay, centered enlarged image, close button (X), ESC key closes on desktop, swipe navigation on mobile and desktop. Theme editor settings support up to 30 images with options: upload/remove/reorder images, size selector Small/Medium/Large, band color or background image picker, brand text input, toggle brand text visibility, band height control, scroll speed slider, auto-play toggle (default ON), loop toggle (default ON), pause on hover toggle (desktop), optional show/hide arrows (desktop). Desktop shows 8-12 visible images, mobile shows 3-5 visible images, always square aspect ratio, continuous scrolling left at same relative speed on both desktop and mobile. Use CSS transform with GPU acceleration, use lazy loading, duplicate full image list for seamless loop, absolutely NO white background behind images, no gaps between images, no snapping, no restart flash, no layout jumps, no jank, no visible pause when looping.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% liquid
+  assign size_multiplier = 1
+  if block.settings.size == 'small'
+    assign size_multiplier = 0.33
+  elsif block.settings.size == 'medium'
+    assign size_multiplier = 0.66
+  endif
+
+  assign base_image_size = 300
+  assign image_size = base_image_size | times: size_multiplier | round
+
+  assign base_band_height = 32
+  assign band_height = block.settings.band_height
+
+  assign base_speed = block.settings.scroll_speed
+  assign mobile_speed_multiplier = 2.0
+%}
+
+{% style %}
+  .ai-filmstrip-{{ ai_gen_id }} {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+  }
+
+  .ai-filmstrip-container-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .ai-filmstrip-brand-band-{{ ai_gen_id }} {
+    width: 100%;
+    height: {{ band_height }}px;
+    background-color: {{ block.settings.band_color }};
+    {% if block.settings.band_background_image %}
+      background-image: url('{{ block.settings.band_background_image | image_url: width: 2000 }}');
+      background-size: cover;
+      background-position: center;
+    {% endif %}
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ai-filmstrip-brand-text-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    will-change: transform;
+  }
+
+  .ai-filmstrip-brand-text-{{ ai_gen_id }} {
+    color: {{ block.settings.brand_text_color }};
+    font-size: {{ band_height | times: 0.4 | round }}px;
+    font-weight: 500;
+    padding: 0 {{ band_height | times: 3 }}px;
+    display: inline-block;
+  }
+
+  .ai-filmstrip-images-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .ai-filmstrip-track-{{ ai_gen_id }} {
+    display: flex;
+    will-change: transform;
+    cursor: grab;
+  }
+
+  .ai-filmstrip-track-{{ ai_gen_id }}.dragging {
+    cursor: grabbing;
+  }
+
+  .ai-filmstrip-image-item-{{ ai_gen_id }} {
+    flex-shrink: 0;
+    width: {{ image_size }}px;
+    height: {{ image_size }}px;
+    position: relative;
+    overflow: hidden;
+    border-radius: {{ block.settings.image_border_radius }}px;
+  }
+
+  .ai-filmstrip-image-item-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .ai-filmstrip-arrows-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: none;
+  }
+
+  @media (min-width: 750px) {
+    .ai-filmstrip-arrows-{{ ai_gen_id }} {
+      {% if block.settings.show_arrows %}
+        display: block;
+      {% endif %}
+    }
+  }
+
+  .ai-filmstrip-arrow-{{ ai_gen_id }} {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-filmstrip-arrow-{{ ai_gen_id }}:hover {
+    background-color: rgba(255, 255, 255, 1);
+  }
+
+  .ai-filmstrip-arrow-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .ai-filmstrip-arrow-left-{{ ai_gen_id }} {
+    left: 20px;
+  }
+
+  .ai-filmstrip-arrow-right-{{ ai_gen_id }} {
+    right: 20px;
+  }
+
+  .ai-filmstrip-lightbox-{{ ai_gen_id }} {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-filmstrip-lightbox-{{ ai_gen_id }}.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .ai-filmstrip-lightbox-content-{{ ai_gen_id }} {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-filmstrip-lightbox-image-{{ ai_gen_id }} {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+  }
+
+  .ai-filmstrip-lightbox-close-{{ ai_gen_id }} {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 40px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  @media (max-width: 749px) {
+    .ai-filmstrip-lightbox-close-{{ ai_gen_id }} {
+      top: 10px;
+      right: 10px;
+    }
+
+    .ai-filmstrip-image-item-{{ ai_gen_id }} {
+      width: {{ image_size | times: 0.8 | round }}px;
+      height: {{ image_size | times: 0.8 | round }}px;
+    }
+  }
+{% endstyle %}
+
+<filmstrip-slider-{{ ai_gen_id }}
+  class="ai-filmstrip-{{ ai_gen_id }}"
+  data-autoplay="{{ block.settings.autoplay }}"
+  data-loop="{{ block.settings.loop }}"
+  data-pause-hover="{{ block.settings.pause_on_hover }}"
+  data-speed="{{ base_speed }}"
+  data-mobile-speed="{{ base_speed | times: mobile_speed_multiplier }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-filmstrip-container-{{ ai_gen_id }}">
+    {% if block.settings.show_brand_text %}
+      <div class="ai-filmstrip-brand-band-{{ ai_gen_id }} ai-filmstrip-brand-band-top-{{ ai_gen_id }}">
+        <div class="ai-filmstrip-brand-text-wrapper-{{ ai_gen_id }}">
+          {% for i in (1..20) %}
+            <span class="ai-filmstrip-brand-text-{{ ai_gen_id }}">{{ block.settings.brand_text }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="ai-filmstrip-images-wrapper-{{ ai_gen_id }}">
+      <div class="ai-filmstrip-track-{{ ai_gen_id }}">
+        {% assign image_count = 0 %}
+        {% for i in (1..30) %}
+          {% assign image_key = 'image_' | append: i %}
+          {% if block.settings[image_key] %}
+            {% assign image_count = image_count | plus: 1 %}
+          {% endif %}
+        {% endfor %}
+
+        {% if image_count > 0 %}
+          {% for i in (1..30) %}
+            {% assign image_key = 'image_' | append: i %}
+            {% if block.settings[image_key] %}
+              <div class="ai-filmstrip-image-item-{{ ai_gen_id }}" data-index="{{ forloop.index0 }}">
+                <img
+                  src="{{ block.settings[image_key] | image_url: width: 600 }}"
+                  alt="{{ block.settings[image_key].alt | escape }}"
+                  loading="lazy"
+                  width="600"
+                  height="600"
+                >
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {% for i in (1..30) %}
+            {% assign image_key = 'image_' | append: i %}
+            {% if block.settings[image_key] %}
+              <div class="ai-filmstrip-image-item-{{ ai_gen_id }}" data-index="{{ forloop.index0 }}">
+                <img
+                  src="{{ block.settings[image_key] | image_url: width: 600 }}"
+                  alt="{{ block.settings[image_key].alt | escape }}"
+                  loading="lazy"
+                  width="600"
+                  height="600"
+                >
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          {% for i in (1..8) %}
+            <div class="ai-filmstrip-image-item-{{ ai_gen_id }}">
+              <div style="width: 100%; height: 100%; background: #f4f4f4; display: flex; align-items: center; justify-content: center;">
+                {{ 'image' | placeholder_svg_tag }}
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      {% if block.settings.show_arrows %}
+        <div class="ai-filmstrip-arrows-{{ ai_gen_id }} ai-filmstrip-arrow-left-{{ ai_gen_id }}">
+          <button class="ai-filmstrip-arrow-{{ ai_gen_id }}" aria-label="Previous">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div class="ai-filmstrip-arrows-{{ ai_gen_id }} ai-filmstrip-arrow-right-{{ ai_gen_id }}">
+          <button class="ai-filmstrip-arrow-{{ ai_gen_id }}" aria-label="Next">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if block.settings.show_brand_text %}
+      <div class="ai-filmstrip-brand-band-{{ ai_gen_id }} ai-filmstrip-brand-band-bottom-{{ ai_gen_id }}">
+        <div class="ai-filmstrip-brand-text-wrapper-{{ ai_gen_id }}">
+          {% for i in (1..20) %}
+            <span class="ai-filmstrip-brand-text-{{ ai_gen_id }}">{{ block.settings.brand_text }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="ai-filmstrip-lightbox-{{ ai_gen_id }}">
+    <div class="ai-filmstrip-lightbox-content-{{ ai_gen_id }}">
+      <img class="ai-filmstrip-lightbox-image-{{ ai_gen_id }}" src="" alt="">
+      <button class="ai-filmstrip-lightbox-close-{{ ai_gen_id }}" aria-label="Close">&times;</button>
+    </div>
+  </div>
+</filmstrip-slider-{{ ai_gen_id }}>
+
+<script>
+(function() {
+  class FilmstripSlider{{ ai_gen_id }} extends HTMLElement {
+    constructor() {
+      super();
+      this.track = this.querySelector('.ai-filmstrip-track-{{ ai_gen_id }}');
+      this.images = Array.from(this.querySelectorAll('.ai-filmstrip-image-item-{{ ai_gen_id }}'));
+      this.brandBands = this.querySelectorAll('.ai-filmstrip-brand-text-wrapper-{{ ai_gen_id }}');
+      this.lightbox = this.querySelector('.ai-filmstrip-lightbox-{{ ai_gen_id }}');
+      this.lightboxImage = this.querySelector('.ai-filmstrip-lightbox-image-{{ ai_gen_id }}');
+      this.lightboxClose = this.querySelector('.ai-filmstrip-lightbox-close-{{ ai_gen_id }}');
+      
+      this.autoplay = this.dataset.autoplay === 'true';
+      this.loop = this.dataset.loop === 'true';
+      this.pauseHover = this.dataset.pauseHover === 'true';
+      this.speed = parseFloat(this.dataset.speed) || 30;
+      this.mobileSpeed = parseFloat(this.dataset.mobileSpeed) || 60;
+      
+      this.translateX = 0;
+      this.originalWidth = 0;
+      this.animationId = null;
+      this.isPaused = false;
+      this.isDragging = false;
+      this.startX = 0;
+      this.currentX = 0;
+      this.dragOffset = 0;
+      this.isMobile = window.innerWidth < 750;
+      this.touchStartX = 0;
+      this.touchStartY = 0;
+      this.isVerticalScroll = false;
+    }
+
+    connectedCallback() {
+      this.calculateOriginalWidth();
+      this.setupEventListeners();
+      if (this.autoplay && this.loop) {
+        this.startAnimation();
+      }
+    }
+
+    disconnectedCallback() {
+      this.stopAnimation();
+    }
+
+    calculateOriginalWidth() {
+      const firstHalf = this.images.filter((img, idx) => idx < this.images.length / 2);
+      this.originalWidth = firstHalf.reduce((sum, img) => sum + img.offsetWidth, 0);
+    }
+
+    setupEventListeners() {
+      this.images.forEach((img, index) => {
+        img.addEventListener('click', (e) => {
+          if (!this.isDragging) {
+            const actualIndex = parseInt(img.dataset.index);
+            this.openLightbox(actualIndex);
+          }
+        });
+      });
+
+      if (this.lightboxClose) {
+        this.lightboxClose.addEventListener('click', () => this.closeLightbox());
+      }
+
+      if (this.lightbox) {
+        this.lightbox.addEventListener('click', (e) => {
+          if (e.target === this.lightbox) {
+            this.closeLightbox();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.lightbox.classList.contains('active')) {
+          this.closeLightbox();
+        }
+      });
+
+      if (this.pauseHover && window.innerWidth >= 750) {
+        this.addEventListener('mouseenter', () => {
+          this.isPaused = true;
+        });
+        this.addEventListener('mouseleave', () => {
+          this.isPaused = false;
+        });
+      }
+
+      this.track.addEventListener('mousedown', (e) => this.handleDragStart(e));
+      this.track.addEventListener('mousemove', (e) => this.handleDragMove(e));
+      this.track.addEventListener('mouseup', () => this.handleDragEnd());
+      this.track.addEventListener('mouseleave', () => this.handleDragEnd());
+
+      this.track.addEventListener('touchstart', (e) => {
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+        this.isVerticalScroll = false;
+        this.handleDragStart(e.touches[0]);
+      }, { passive: true });
+
+      this.track.addEventListener('touchmove', (e) => {
+        if (!this.isVerticalScroll) {
+          const touchX = e.touches[0].clientX;
+          const touchY = e.touches[0].clientY;
+          const deltaX = Math.abs(touchX - this.touchStartX);
+          const deltaY = Math.abs(touchY - this.touchStartY);
+
+          if (deltaY > deltaX && deltaY > 10) {
+            this.isVerticalScroll = true;
+            this.handleDragEnd();
+            return;
+          }
+
+          if (deltaX > 10) {
+            e.preventDefault();
+            this.handleDragMove(e.touches[0]);
+          }
+        }
+      }, { passive: false });
+
+      this.track.addEventListener('touchend', () => {
+        this.handleDragEnd();
+      });
+
+      const arrows = this.querySelectorAll('.ai-filmstrip-arrow-{{ ai_gen_id }}');
+      arrows.forEach(arrow => {
+        arrow.addEventListener('click', (e) => {
+          const isLeft = arrow.closest('.ai-filmstrip-arrow-left-{{ ai_gen_id }}');
+          this.handleArrowClick(isLeft);
+        });
+      });
+
+      window.addEventListener('resize', () => {
+        this.isMobile = window.innerWidth < 750;
+        this.calculateOriginalWidth();
+      });
+    }
+
+    handleDragStart(e) {
+      this.isDragging = true;
+      this.startX = e.clientX || e.pageX;
+      this.dragOffset = 0;
+      this.track.classList.add('dragging');
+      this.isPaused = true;
+    }
+
+    handleDragMove(e) {
+      if (!this.isDragging) return;
+      this.currentX = e.clientX || e.pageX;
+      this.dragOffset = this.currentX - this.startX;
+    }
+
+    handleDragEnd() {
+      if (this.isDragging) {
+        this.isDragging = false;
+        this.track.classList.remove('dragging');
+        this.translateX += this.dragOffset;
+        this.dragOffset = 0;
+        this.isPaused = false;
+      }
+    }
+
+    handleArrowClick(isLeft) {
+      const scrollAmount = this.originalWidth * 0.3;
+      if (isLeft) {
+        this.translateX += scrollAmount;
+      } else {
+        this.translateX -= scrollAmount;
+      }
+    }
+
+    startAnimation() {
+      const animate = () => {
+        if (!this.isPaused) {
+          const currentSpeed = this.isMobile ? this.mobileSpeed : this.speed;
+          this.translateX -= currentSpeed / 60;
+
+          if (this.translateX <= -this.originalWidth) {
+            this.translateX += this.originalWidth;
+          }
+        }
+
+        const finalTranslateX = this.translateX + this.dragOffset;
+        this.track.style.transform = `translateX(${finalTranslateX}px)`;
+
+        this.brandBands.forEach(band => {
+          band.style.transform = `translateX(${finalTranslateX}px)`;
+        });
+
+        this.animationId = requestAnimationFrame(animate);
+      };
+
+      this.animationId = requestAnimationFrame(animate);
+    }
+
+    stopAnimation() {
+      if (this.animationId) {
+        cancelAnimationFrame(this.animationId);
+        this.animationId = null;
+      }
+    }
+
+    openLightbox(index) {
+      const imageKey = 'image_' + (index + 1);
+      const imageSetting = {{ block.settings | json }};
+      
+      let imageUrl = '';
+      for (let i = 1; i <= 30; i++) {
+        const key = 'image_' + i;
+        if (imageSetting[key] && i === index + 1) {
+          imageUrl = imageSetting[key];
+          break;
+        }
+      }
+
+      if (imageUrl) {
+        this.lightboxImage.src = imageUrl;
+        this.lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    closeLightbox() {
+      this.lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  customElements.define('filmstrip-slider-{{ ai_gen_id }}', FilmstripSlider{{ ai_gen_id }});
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Buyer showcase filmstrip",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "Size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 0
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_3",
+      "label": "Image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_4",
+      "label": "Image 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_5",
+      "label": "Image 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_6",
+      "label": "Image 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_7",
+      "label": "Image 7"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_8",
+      "label": "Image 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_9",
+      "label": "Image 9"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_10",
+      "label": "Image 10"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_11",
+      "label": "Image 11"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_12",
+      "label": "Image 12"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_13",
+      "label": "Image 13"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_14",
+      "label": "Image 14"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_15",
+      "label": "Image 15"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_16",
+      "label": "Image 16"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_17",
+      "label": "Image 17"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_18",
+      "label": "Image 18"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_19",
+      "label": "Image 19"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_20",
+      "label": "Image 20"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_21",
+      "label": "Image 21"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_22",
+      "label": "Image 22"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_23",
+      "label": "Image 23"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_24",
+      "label": "Image 24"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_25",
+      "label": "Image 25"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_26",
+      "label": "Image 26"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_27",
+      "label": "Image 27"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_28",
+      "label": "Image 28"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_29",
+      "label": "Image 29"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_30",
+      "label": "Image 30"
+    },
+    {
+      "type": "header",
+      "content": "Brand band"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_brand_text",
+      "label": "Show brand text",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "brand_text",
+      "label": "Brand text",
+      "default": "@HXeBike"
+    },
+    {
+      "type": "color",
+      "id": "band_color",
+      "label": "Band color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "brand_text_color",
+      "label": "Text color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "image_picker",
+      "id": "band_background_image",
+      "label": "Band background image"
+    },
+    {
+      "type": "range",
+      "id": "band_height",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Band height",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "Scroll settings"
+    },
+    {
+      "type": "range",
+      "id": "scroll_speed",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Scroll speed",
+      "default": 30
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-play",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "Loop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Buyer showcase filmstrip"
+    }
+  ]
+}
+{% endschema %}

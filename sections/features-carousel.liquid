@@ -1,0 +1,445 @@
+{% comment %}
+  Features 功能细节展示滑块模块 - 优化版（更宽 / 无桌面悬停浮动 / 标题可控 / 更丝滑每次滑动1张）
+  实现方式：原生横向滚动 + scroll-snap（比 translateX 更稳更丝滑，且不会出现“拖动两个卡片”的错位感）
+{% endcomment %}
+
+<style>
+  .features-carousel-wrapper {
+    width: 100%;
+    padding: {{ section.settings.section_padding_y }}px 20px;
+    background: {{ section.settings.background_color }};
+  }
+
+  .features-carousel-container {
+    max-width: {{ section.settings.container_width }}px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .features-carousel-header {
+    text-align: {{ section.settings.text_alignment }};
+    margin-bottom: {{ section.settings.header_spacing_bottom }}px;
+  }
+
+  .features-carousel-header-inner {
+    max-width: {{ section.settings.header_max_width }}px;
+    {% if section.settings.text_alignment == 'center' %}
+      margin: 0 auto;
+    {% elsif section.settings.text_alignment == 'right' %}
+      margin-left: auto;
+      margin-right: 0;
+    {% else %}
+      margin-right: auto;
+      margin-left: 0;
+    {% endif %}
+  }
+
+  .features-carousel-title {
+    font-size: {{ section.settings.title_size }}px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    color: {{ section.settings.title_color }};
+    line-height: 1.2;
+  }
+
+  .features-carousel-subtitle {
+    font-size: {{ section.settings.subtitle_size }}px;
+    color: {{ section.settings.subtitle_color }};
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Scroller wrapper */
+  .features-carousel-track-wrapper {
+    position: relative;
+  }
+
+  /* 原生滚动容器：更丝滑、更稳定 */
+  .features-carousel-scroller {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: 0 {{ section.settings.track_side_padding }}px;
+  }
+  .features-carousel-scroller::-webkit-scrollbar { display: none; }
+
+  .features-carousel-track {
+    display: flex;
+    gap: {{ section.settings.card_gap }}px;
+    align-items: stretch;
+    /* 防止图片/卡片撑开导致滚动抖动 */
+    will-change: scroll-position;
+  }
+
+  .feature-card {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    flex: 0 0 calc(33.333% - ({{ section.settings.card_gap }}px * 2 / 3));
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  .feature-card-image {
+    width: 100%;
+    aspect-ratio: {{ section.settings.image_ratio }};
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .feature-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .feature-card-content {
+    padding: 24px;
+  }
+
+  .feature-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    color: #222;
+    line-height: 1.35;
+  }
+
+  .feature-card-description {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+  }
+
+  /* 桌面端：完全关闭 hover 浮动/阴影变化/图片放大（你要求的） */
+  @media (min-width: 768px) {
+    .feature-card,
+    .feature-card * {
+      transition: none !important;
+    }
+  }
+
+  /* 移动端：允许轻微按压反馈（可选） */
+  @media (max-width: 767px) {
+    .feature-card:active {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.14);
+    }
+  }
+
+  /* 箭头 */
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all .2s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+  }
+  .carousel-arrow:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+  }
+  .carousel-arrow.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .carousel-arrow-prev { left: 0; }
+  .carousel-arrow-next { right: 0; }
+  .carousel-arrow svg { width: 20px; height: 20px; fill: #333; }
+
+  /* 分页 */
+  .carousel-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 28px;
+  }
+  .pagination-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #d0d0d0;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  .pagination-dot.active {
+    background: {{ section.settings.accent_color }};
+    width: 24px;
+  }
+
+  /* 响应式卡片宽度 */
+  @media (max-width: 1199px) {
+    .feature-card {
+      flex: 0 0 calc(50% - ({{ section.settings.card_gap }}px / 2));
+    }
+  }
+  @media (max-width: 767px) {
+    .features-carousel-wrapper { padding: {{ section.settings.section_padding_y_mobile }}px 16px; }
+    .features-carousel-title { font-size: {{ section.settings.title_size | minus: 8 }}px; }
+    .features-carousel-subtitle { font-size: {{ section.settings.subtitle_size | minus: 2 }}px; }
+
+    .features-carousel-scroller { padding: 0 {{ section.settings.track_side_padding_mobile }}px; }
+
+    .feature-card { flex: 0 0 100%; }
+    .carousel-arrow { width: 36px; height: 36px; }
+    .carousel-arrow svg { width: 16px; height: 16px; }
+  }
+</style>
+
+<div class="features-carousel-wrapper">
+  <div class="features-carousel-container">
+    {% if section.settings.title != blank or section.settings.subtitle != blank %}
+      <div class="features-carousel-header">
+        <div class="features-carousel-header-inner">
+          {% if section.settings.title != blank %}
+            <h2 class="features-carousel-title">{{ section.settings.title }}</h2>
+          {% endif %}
+          {% if section.settings.subtitle != blank %}
+            <p class="features-carousel-subtitle">{{ section.settings.subtitle }}</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="features-carousel-track-wrapper">
+      <div class="features-carousel-scroller" id="featuresScroller-{{ section.id }}">
+        <div class="features-carousel-track" id="featuresTrack-{{ section.id }}">
+          {% for block in section.blocks %}
+            <div class="feature-card" {{ block.shopify_attributes }}>
+              <div class="feature-card-image">
+                {% if block.settings.image != blank %}
+                  {{ block.settings.image | image_url: width: 1200 | image_tag: loading: 'lazy', alt: block.settings.title }}
+                {% else %}
+                  {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                {% endif %}
+              </div>
+              <div class="feature-card-content">
+                {% if block.settings.title != blank %}
+                  <h3 class="feature-card-title">{{ block.settings.title }}</h3>
+                {% endif %}
+                {% if block.settings.description != blank %}
+                  <p class="feature-card-description">{{ block.settings.description }}</p>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button class="carousel-arrow carousel-arrow-prev" id="prevBtn-{{ section.id }}" aria-label="Previous">
+        <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+      </button>
+      <button class="carousel-arrow carousel-arrow-next" id="nextBtn-{{ section.id }}" aria-label="Next">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </button>
+    </div>
+
+    <div class="carousel-pagination" id="pagination-{{ section.id }}"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const sectionId = '{{ section.id }}';
+  const scroller = document.getElementById('featuresScroller-' + sectionId);
+  const track = document.getElementById('featuresTrack-' + sectionId);
+  const prevBtn = document.getElementById('prevBtn-' + sectionId);
+  const nextBtn = document.getElementById('nextBtn-' + sectionId);
+  const pagination = document.getElementById('pagination-' + sectionId);
+
+  if (!scroller || !track) return;
+
+  let cardsPerView = 3;
+  const totalCards = {{ section.blocks.size }};
+
+  function updateCardsPerView() {
+    const w = window.innerWidth;
+    if (w >= 1200) cardsPerView = 3;
+    else if (w >= 768) cardsPerView = 2;
+    else cardsPerView = 1;
+  }
+
+  function getCardStep() {
+    const firstCard = track.querySelector('.feature-card');
+    if (!firstCard) return 0;
+    const cardRect = firstCard.getBoundingClientRect();
+    const styles = window.getComputedStyle(track);
+    const gap = parseFloat(styles.columnGap || styles.gap || 0);
+    return cardRect.width + gap;
+  }
+
+  function getMaxIndex() {
+    return Math.max(0, totalCards - cardsPerView);
+  }
+
+  function getCurrentIndex() {
+    const step = getCardStep();
+    if (!step) return 0;
+    return Math.round(scroller.scrollLeft / step);
+  }
+
+  function scrollToIndex(index) {
+    const step = getCardStep();
+    const maxIndex = getMaxIndex();
+    const clamped = Math.max(0, Math.min(index, maxIndex));
+    scroller.scrollTo({ left: clamped * step, behavior: 'smooth' });
+  }
+
+  function updateButtonsAndDots() {
+    const maxIndex = getMaxIndex();
+    const idx = getCurrentIndex();
+
+    prevBtn.classList.toggle('disabled', idx <= 0);
+    nextBtn.classList.toggle('disabled', idx >= maxIndex);
+
+    const dots = pagination.querySelectorAll('.pagination-dot');
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+
+  function createPagination() {
+    pagination.innerHTML = '';
+    const maxIndex = getMaxIndex();
+    for (let i = 0; i <= maxIndex; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'pagination-dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => scrollToIndex(i));
+      pagination.appendChild(dot);
+    }
+  }
+
+  prevBtn.addEventListener('click', () => {
+    scrollToIndex(getCurrentIndex() - 1);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    scrollToIndex(getCurrentIndex() + 1);
+  });
+
+  // 滚动时同步按钮/分页（用 requestAnimationFrame 防抖，保持丝滑）
+  let rafId = null;
+  scroller.addEventListener('scroll', () => {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(updateButtonsAndDots);
+  }, { passive: true });
+
+  // 初始化 & Resize
+  function init() {
+    updateCardsPerView();
+    createPagination();
+    updateButtonsAndDots();
+  }
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const oldIndex = getCurrentIndex();
+      updateCardsPerView();
+      createPagination();
+      // 重新对齐到卡片起点（防止缩放后落在半张卡位置）
+      scrollToIndex(Math.min(oldIndex, getMaxIndex()));
+      updateButtonsAndDots();
+    }, 200);
+  });
+
+  init();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Features 功能细节展示",
+  "tag": "section",
+  "class": "features-carousel-section",
+  "settings": [
+    { "type": "header", "content": "标题设置" },
+    { "type": "text", "id": "title", "label": "标题", "default": "产品功能亮点" },
+    { "type": "range", "id": "title_size", "min": 20, "max": 56, "step": 2, "unit": "px", "label": "标题字体大小", "default": 36 },
+    { "type": "textarea", "id": "subtitle", "label": "副标题", "default": "探索我们产品的核心优势与创新功能" },
+    { "type": "range", "id": "subtitle_size", "min": 12, "max": 28, "step": 1, "unit": "px", "label": "副标题字体大小", "default": 16 },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "标题区对齐",
+      "options": [
+        { "value": "left", "label": "左对齐" },
+        { "value": "center", "label": "居中" },
+        { "value": "right", "label": "右对齐" }
+      ],
+      "default": "center"
+    },
+    { "type": "range", "id": "header_max_width", "min": 360, "max": 1200, "step": 20, "unit": "px", "label": "标题区最大宽度（控制标题位置/行宽）", "default": 800 },
+    { "type": "range", "id": "header_spacing_bottom", "min": 16, "max": 80, "step": 4, "unit": "px", "label": "标题区与卡片区间距", "default": 40 },
+
+    { "type": "header", "content": "布局设置" },
+    { "type": "range", "id": "container_width", "min": 1200, "max": 2200, "step": 50, "unit": "px", "label": "容器最大宽度（桌面端更宽）", "default": 1800 },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "图片比例",
+      "options": [
+        { "value": "1 / 1", "label": "1:1 (正方形)" },
+        { "value": "4 / 3", "label": "4:3 (横向)" },
+        { "value": "3 / 4", "label": "3:4 (竖向)" }
+      ],
+      "default": "1 / 1"
+    },
+    { "type": "range", "id": "card_gap", "min": 12, "max": 40, "step": 2, "unit": "px", "label": "卡片间距", "default": 24 },
+    { "type": "range", "id": "track_side_padding", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "卡片区左右内边距（桌面端）", "default": 60 },
+    { "type": "range", "id": "track_side_padding_mobile", "min": 0, "max": 60, "step": 2, "unit": "px", "label": "卡片区左右内边距（移动端）", "default": 40 },
+    { "type": "range", "id": "section_padding_y", "min": 20, "max": 120, "step": 4, "unit": "px", "label": "Section 上下内边距（桌面端）", "default": 60 },
+    { "type": "range", "id": "section_padding_y_mobile", "min": 16, "max": 80, "step": 4, "unit": "px", "label": "Section 上下内边距（移动端）", "default": 40 },
+
+    { "type": "header", "content": "颜色设置" },
+    { "type": "color", "id": "background_color", "label": "背景颜色", "default": "#ffffff" },
+    { "type": "color", "id": "title_color", "label": "标题颜色", "default": "#222222" },
+    { "type": "color", "id": "subtitle_color", "label": "副标题颜色", "default": "#666666" },
+    { "type": "color", "id": "accent_color", "label": "强调色（分页指示器）", "default": "#000000" }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "功能卡片",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "功能图片" },
+        { "type": "text", "id": "title", "label": "功能标题", "default": "功能标题" },
+        { "type": "textarea", "id": "description", "label": "功能描述", "default": "在这里添加功能的详细描述，说明这个功能如何帮助用户解决问题或提升体验。" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Features 功能展示",
+      "blocks": [
+        { "type": "feature", "settings": { "title": "高性能电池", "description": "采用最新锂电池技术，续航时间长达100公里,满足您的长途骑行需求。" } },
+        { "type": "feature", "settings": { "title": "智能控制系统", "description": "配备先进的智能控制面板，实时显示速度、电量、里程等关键信息。" } },
+        { "type": "feature", "settings": { "title": "轻量化设计", "description": "采用航空级铝合金车架，重量仅18kg，轻松携带和存放。" } },
+        { "type": "feature", "settings": { "title": "防水防尘", "description": "IP65级防水防尘设计，无惧各种天气条件，全天候骑行无忧。" } },
+        { "type": "feature", "settings": { "title": "舒适避震", "description": "前后双避震系统，有效吸收路面颠簸，提供更舒适的骑行体验。" } },
+        { "type": "feature", "settings": { "title": "安全制动", "description": "配备前后碟刹系统，制动灵敏可靠，确保您的骑行安全。" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

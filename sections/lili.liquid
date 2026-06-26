@@ -1,0 +1,892 @@
+{% liquid
+  assign product_blocks = section.blocks | where: 'type', 'product'
+  assign products_count = product_blocks.size
+%}
+
+<section
+  id="HxBikeCards-{{ section.id }}"
+  class="hx-bike-cards"
+  style="
+    --hx-bg: {{ section.settings.background_color }};
+    --hx-card-bg: {{ section.settings.card_background }};
+    --hx-text: {{ section.settings.text_color }};
+    --hx-muted: {{ section.settings.muted_color }};
+    --hx-star: {{ section.settings.star_color }};
+    --hx-price: {{ section.settings.price_color }};
+    --hx-button-bg: {{ section.settings.button_background }};
+    --hx-button-text: {{ section.settings.button_text_color }};
+    --hx-container: {{ section.settings.container_width }}px;
+  "
+>
+  <div class="hx-bike-cards__inner">
+    {% if section.settings.heading != blank or section.settings.subheading != blank %}
+      <header class="hx-bike-cards__header">
+        {% if section.settings.heading != blank %}
+          <h2>{{ section.settings.heading }}</h2>
+        {% endif %}
+
+        {% if section.settings.subheading != blank %}
+          <p>{{ section.settings.subheading }}</p>
+        {% endif %}
+      </header>
+    {% endif %}
+
+    <div class="hx-bike-cards__viewport" data-hx-bike-viewport>
+      <div class="hx-bike-cards__track">
+        {% if products_count > 0 %}
+          {% for block in product_blocks %}
+            {% liquid
+              assign product = block.settings.product
+              assign product_title = block.settings.title
+              assign product_url = block.settings.link
+              assign product_image = block.settings.image
+              assign product_image_url = block.settings.image_url
+              assign product_subtitle = block.settings.subtitle
+              assign review_count = block.settings.review_count
+              assign price_text = block.settings.price_text
+              assign compare_price_text = block.settings.compare_price_text
+              assign save_text = block.settings.save_text
+              assign button_text = block.settings.button_text | default: section.settings.button_text
+
+              if product != blank
+                if product_title == blank
+                  assign product_title = product.title
+                endif
+                if product_url == blank
+                  assign product_url = product.url
+                endif
+                if product_image == blank
+                  assign product_image = product.featured_image
+                endif
+                if price_text == blank
+                  assign price_text = product.price | money
+                endif
+                if compare_price_text == blank and product.compare_at_price > product.price
+                  assign compare_price_text = product.compare_at_price | money
+                endif
+              endif
+
+              if product_title == blank
+                assign product_title = 'Magicycle Electric Bike'
+              endif
+            %}
+
+            <article class="hx-bike-card" {{ block.shopify_attributes }}>
+              <a class="hx-bike-card__media" href="{{ product_url | default: '#' }}" aria-label="{{ product_title | escape }}">
+                {% if product_image != blank %}
+                  {{
+                    product_image
+                    | image_url: width: 900
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '360, 540, 720, 900',
+                      sizes: '(min-width: 1200px) 28vw, (min-width: 750px) 42vw, 82vw',
+                      alt: product_title
+                  }}
+                {% elsif product_image_url != blank %}
+                  <img src="{{ product_image_url | escape }}" alt="{{ product_title | escape }}" loading="lazy">
+                {% else %}
+                  {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                {% endif %}
+              </a>
+
+              <div class="hx-bike-card__content">
+                <a class="hx-bike-card__title" href="{{ product_url | default: '#' }}">{{ product_title }}</a>
+
+                <div class="hx-bike-card__meta">
+                  {% if review_count != blank %}
+                    <div class="hx-bike-card__rating" aria-label="{{ review_count }} reviews">
+                      <span aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                      <small>{{ review_count }} reviews</small>
+                    </div>
+                  {% endif %}
+
+                  <div class="hx-bike-card__swatches" aria-label="Available colors">
+                    {% assign visible_swatch_count = 0 %}
+                    {% for i in (1..6) %}
+                      {% liquid
+                        assign color_key = 'color_' | append: i
+                        assign color_value = block.settings[color_key]
+                        assign normalized_color = color_value | downcase | remove: ' '
+                      %}
+                      {% unless color_value == blank or normalized_color == 'transparent' or normalized_color == 'rgba(0,0,0,0)' %}
+                        {% assign visible_swatch_count = visible_swatch_count | plus: 1 %}
+                        <span{% if visible_swatch_count == 1 %} class="is-active"{% endif %} style="--swatch: {{ color_value }};"></span>
+                      {% endunless %}
+                    {% endfor %}
+                  </div>
+                </div>
+
+                <div class="hx-bike-card__rule"></div>
+
+                {% if product_subtitle != blank %}
+                  <a class="hx-bike-card__subtitle" href="{{ product_url | default: '#' }}">{{ product_subtitle }}</a>
+                {% endif %}
+
+                <div class="hx-bike-card__footer">
+                  <div class="hx-bike-card__prices">
+                    {% if compare_price_text != blank %}
+                      <span class="hx-bike-card__compare">{{ compare_price_text }}</span>
+                    {% endif %}
+
+                    {% if price_text != blank %}
+                      <span class="hx-bike-card__price">{{ price_text }}</span>
+                    {% endif %}
+
+                    {% if save_text != blank %}
+                      <span class="hx-bike-card__save">{{ save_text }}</span>
+                    {% endif %}
+                  </div>
+
+                  <a class="hx-bike-card__button" href="{{ product_url | default: '#' }}">{{ button_text }}</a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        {% else %}
+          {% for product in section.settings.collection.products limit: section.settings.products_to_show %}
+            {% liquid
+              assign compare_price_text = blank
+              if product.compare_at_price > product.price
+                assign compare_price_text = product.compare_at_price | money
+              endif
+            %}
+
+            <article class="hx-bike-card">
+              <a class="hx-bike-card__media" href="{{ product.url }}" aria-label="{{ product.title | escape }}">
+                {% if product.featured_image != blank %}
+                  {{
+                    product.featured_image
+                    | image_url: width: 900
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '360, 540, 720, 900',
+                      sizes: '(min-width: 1200px) 28vw, (min-width: 750px) 42vw, 82vw',
+                      alt: product.title
+                  }}
+                {% else %}
+                  {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                {% endif %}
+              </a>
+
+              <div class="hx-bike-card__content">
+                <a class="hx-bike-card__title" href="{{ product.url }}">{{ product.title }}</a>
+                <div class="hx-bike-card__rule"></div>
+                <div class="hx-bike-card__footer">
+                  <div class="hx-bike-card__prices">
+                    {% if compare_price_text != blank %}
+                      <span class="hx-bike-card__compare">{{ compare_price_text }}</span>
+                    {% endif %}
+                    <span class="hx-bike-card__price">{{ product.price | money }}</span>
+                  </div>
+                  <a class="hx-bike-card__button" href="{{ product.url }}">{{ section.settings.button_text }}</a>
+                </div>
+              </div>
+            </article>
+          {% else %}
+            <article class="hx-bike-card">
+              <div class="hx-bike-card__media">
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+              <div class="hx-bike-card__content">
+                <a class="hx-bike-card__title" href="#">Magicycle Electric Bike</a>
+                <div class="hx-bike-card__meta">
+                  <div class="hx-bike-card__rating"><span aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span><small>40 reviews</small></div>
+                </div>
+                <div class="hx-bike-card__rule"></div>
+                <a class="hx-bike-card__subtitle" href="#">Add product blocks or choose a collection.</a>
+                <div class="hx-bike-card__footer">
+                  <div class="hx-bike-card__prices">
+                    <span class="hx-bike-card__compare">$3,199.00 CAD</span>
+                    <span class="hx-bike-card__price">$2,099.00 CAD</span>
+                    <span class="hx-bike-card__save">Save $1,100 CAD</span>
+                  </div>
+                  <a class="hx-bike-card__button" href="#">{{ section.settings.button_text }}</a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+    {% if section.settings.show_arrows %}
+      <div class="hx-bike-cards__arrows">
+        <button class="hx-bike-cards__arrow" type="button" data-hx-bike-prev aria-label="Previous product">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 4.5 8 12l7.5 7.5"></path></svg>
+        </button>
+        <button class="hx-bike-cards__arrow hx-bike-cards__arrow--next" type="button" data-hx-bike-next aria-label="Next product">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8.5 4.5 7.5 7.5-7.5 7.5"></path></svg>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+  #HxBikeCards-{{ section.id }} {
+    background: var(--hx-bg);
+    color: var(--hx-text);
+    font-family: var(--font-body-family, Poppins, Arial, sans-serif);
+    padding: clamp(38px, 5vw, 70px) 0;
+  }
+
+  #HxBikeCards-{{ section.id }} * {
+    box-sizing: border-box;
+  }
+
+  #HxBikeCards-{{ section.id }} a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__inner {
+    width: min(100% - 32px, var(--hx-container));
+    margin: 0 auto;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__header {
+    margin-bottom: clamp(28px, 4vw, 58px);
+    text-align: left;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__header h2 {
+    margin: 0;
+    font-family: var(--font-heading-family, var(--font-body-family, Poppins, Arial, sans-serif));
+    font-size: clamp(30px, 3vw, 42px);
+    letter-spacing: 0;
+    line-height: 1.08;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__header p {
+    margin: 18px 0 0;
+    max-width: 920px;
+    color: var(--hx-text);
+    font-size: clamp(16px, 1.3vw, 21px);
+    line-height: 1.4;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - 96px) / 3);
+    gap: 48px;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 598px;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--hx-card-bg);
+    scroll-snap-align: start;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1.5 / 1;
+    padding: 22px 26px 10px;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__media img,
+  #HxBikeCards-{{ section.id }} .hx-bike-card__media svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 20px 36px 30px;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__title {
+    display: -webkit-box;
+    min-height: 2.36em;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: clamp(18px, 1.45vw, 22px);
+    line-height: 1.18;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 12px;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__rating {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    color: var(--hx-star);
+    font-size: 15px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__rating small {
+    margin-left: 5px;
+    color: var(--hx-text);
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__swatches {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    min-width: max-content;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__swatches span {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--swatch);
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__swatches span[style*="transparent"],
+  #HxBikeCards-{{ section.id }} .hx-bike-card__swatches span[style*="rgba(0, 0, 0, 0)"],
+  #HxBikeCards-{{ section.id }} .hx-bike-card__swatches span[style*="rgba(0,0,0,0)"] {
+    display: none;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__swatches .is-active {
+    box-shadow: 0 0 0 2px var(--hx-card-bg), 0 0 0 4px #4d4d4d;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__rule {
+    width: 100%;
+    height: 1px;
+    margin: 18px 0 20px;
+    background: linear-gradient(90deg, #111 0 49%, #dedede 49% 100%);
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__subtitle {
+    display: -webkit-box;
+    min-height: 2.9em;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 18px;
+    margin-top: auto;
+    padding-top: 32px;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__prices {
+    min-width: 0;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__compare {
+    display: block;
+    color: var(--hx-text);
+    font-size: 20px;
+    line-height: 1.1;
+    text-decoration: line-through;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__price {
+    display: block;
+    margin-top: 7px;
+    color: var(--hx-price);
+    font-size: 21px;
+    line-height: 1.1;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__save {
+    display: block;
+    margin-top: 6px;
+    color: var(--hx-muted);
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 108px;
+    min-height: 40px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    background: var(--hx-button-bg);
+    color: var(--hx-button-text);
+    font-size: 14px;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-card__button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__arrows {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 34px;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 2px solid #9c9c9c;
+    border-radius: 50%;
+    background: #fff1a7;
+    color: #777;
+    cursor: pointer;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__arrow--next {
+    border-color: transparent;
+    background: var(--hx-button-bg);
+    color: #111;
+  }
+
+  #HxBikeCards-{{ section.id }} .hx-bike-cards__arrow svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media screen and (max-width: 1180px) {
+    #HxBikeCards-{{ section.id }} .hx-bike-cards__track {
+      grid-auto-columns: calc((100% - 28px) / 2);
+      gap: 28px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card {
+      min-height: 560px;
+    }
+  }
+
+  @media screen and (max-width: 740px) {
+    #HxBikeCards-{{ section.id }} {
+      padding: 34px 0 44px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-cards__inner {
+      width: min(100% - 32px, 390px);
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-cards__header {
+      margin-bottom: 24px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-cards__header p {
+      margin-top: 10px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-cards__viewport {
+      scroll-padding-inline: 0;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-cards__track {
+      display: flex;
+      justify-content: flex-start;
+      gap: 16px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card {
+      flex: 0 0 100%;
+      scroll-snap-align: center;
+      min-height: 520px;
+      border-radius: 16px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__media {
+      padding: 18px 18px 6px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__content {
+      padding: 18px 20px 22px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__meta {
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__swatches {
+      flex-wrap: wrap;
+      gap: 10px;
+      max-width: 96px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__footer {
+      gap: 12px;
+      padding-top: 24px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__compare,
+    #HxBikeCards-{{ section.id }} .hx-bike-card__price {
+      font-size: 18px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__button {
+      min-width: 98px;
+      padding-inline: 16px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-cards__arrows {
+      justify-content: center;
+      margin-top: 24px;
+    }
+  }
+
+  @media screen and (max-width: 420px) {
+    #HxBikeCards-{{ section.id }} .hx-bike-card {
+      min-height: 492px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__title {
+      font-size: 18px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__rating {
+      font-size: 13px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__rating small,
+    #HxBikeCards-{{ section.id }} .hx-bike-card__subtitle,
+    #HxBikeCards-{{ section.id }} .hx-bike-card__save {
+      font-size: 13px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__footer {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 10px;
+    }
+
+    #HxBikeCards-{{ section.id }} .hx-bike-card__button {
+      width: fit-content;
+      justify-self: end;
+      min-width: 92px;
+      padding-inline: 14px;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const section = document.getElementById('HxBikeCards-{{ section.id }}');
+    if (!section) return;
+
+    const viewport = section.querySelector('[data-hx-bike-viewport]');
+    const prev = section.querySelector('[data-hx-bike-prev]');
+    const next = section.querySelector('[data-hx-bike-next]');
+    if (!viewport || !prev || !next) return;
+
+    const getStep = () => {
+      const card = viewport.querySelector('.hx-bike-card');
+      const gap = parseFloat(getComputedStyle(viewport.querySelector('.hx-bike-cards__track')).columnGap || 0);
+      return card ? card.getBoundingClientRect().width + gap : viewport.clientWidth;
+    };
+
+    prev.addEventListener('click', () => viewport.scrollBy({ left: -getStep(), behavior: 'smooth' }));
+    next.addEventListener('click', () => viewport.scrollBy({ left: getStep(), behavior: 'smooth' }));
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "HX bike cards",
+  "tag": "section",
+  "class": "section-hx-bike-cards",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop Electric Bikes"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "From off-road adventures to daily commutes, Magicycle e-bikes have you covered."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection fallback"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Collection products to show",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "label": "Container width",
+      "min": 1000,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 1440
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show slider arrows",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Muted text",
+      "default": "#6c6c6c"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#ffcc18"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Sale price",
+      "default": "#e02020"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "#ffd21f"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#000000"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product card",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom title"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Custom link"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image"
+        },
+        {
+          "type": "text",
+          "id": "image_url",
+          "label": "Image URL fallback"
+        },
+        {
+          "type": "textarea",
+          "id": "subtitle",
+          "label": "Subtitle"
+        },
+        {
+          "type": "text",
+          "id": "review_count",
+          "label": "Review count",
+          "default": "40"
+        },
+        {
+          "type": "text",
+          "id": "compare_price_text",
+          "label": "Compare price"
+        },
+        {
+          "type": "text",
+          "id": "price_text",
+          "label": "Sale price"
+        },
+        {
+          "type": "text",
+          "id": "save_text",
+          "label": "Save text"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button text"
+        },
+        {
+          "type": "color",
+          "id": "color_1",
+          "label": "Color 1",
+          "default": "#314473"
+        },
+        {
+          "type": "color",
+          "id": "color_2",
+          "label": "Color 2"
+        },
+        {
+          "type": "color",
+          "id": "color_3",
+          "label": "Color 3"
+        },
+        {
+          "type": "color",
+          "id": "color_4",
+          "label": "Color 4"
+        },
+        {
+          "type": "color",
+          "id": "color_5",
+          "label": "Color 5"
+        },
+        {
+          "type": "color",
+          "id": "color_6",
+          "label": "Color 6"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "HX bike cards",
+      "blocks": [
+        {
+          "type": "product",
+          "settings": {
+            "title": "Magicycle 52V 20Ah Cruiser Pro Step-thru Electric Mountain...",
+            "image_url": "https://www.magicyclebike.ca/cdn/shop/files/cruiser-pro-step-thru-blue-1_750x.webp?v=1755828379",
+            "subtitle": "Built for your all-terrain journeys",
+            "review_count": "40",
+            "compare_price_text": "$3,199.00 CAD",
+            "price_text": "$2,099.00 CAD",
+            "save_text": "Save $1,100 CAD",
+            "color_1": "#314473"
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "title": "Magicycle Ocelot Pro Long Range Step-Thru Fat Tire...",
+            "image_url": "https://www.magicyclebike.ca/cdn/shop/files/ocelot-pro-space-gray-1.jpg?v=1718418957&width=555",
+            "subtitle": "Custom-Fit for Riders of All Heights",
+            "review_count": "61",
+            "compare_price_text": "$3,199.00 CAD",
+            "price_text": "$2,399.00 CAD",
+            "save_text": "Save $800 CAD",
+            "color_1": "#4c4c4c",
+            "color_2": "#748852",
+            "color_3": "#efefef",
+            "color_4": "#bc547d"
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "title": "Magicycle Deer Step-Thru Full Suspension Ebike SUV",
+            "image_url": "https://www.magicyclebike.ca/cdn/shop/files/26-deer-step-thru-grey-1.webp?v=1719906950&width=555",
+            "subtitle": "First Hunting Ebike SUV for Recreational Riders",
+            "review_count": "82",
+            "compare_price_text": "$3,499.00 CAD",
+            "price_text": "$2,999.00 CAD",
+            "save_text": "Save $500 CAD",
+            "color_1": "#4c4c4c",
+            "color_2": "#147490",
+            "color_3": "#748852",
+            "color_4": "#b57e51",
+            "color_5": "#53cc1f",
+            "color_6": "#ffb628"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

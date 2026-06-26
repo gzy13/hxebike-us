@@ -1,0 +1,1065 @@
+<section class="hx-pcs" data-section-id="{{ section.id }}">
+  <div class="hx-pcs__container">
+    <div class="hx-pcs__header">
+      {% if section.settings.heading != blank %}
+        <h2 class="hx-pcs__heading">{{ section.settings.heading }}</h2>
+      {% endif %}
+    </div>
+
+    <div
+      class="hx-pcs__track"
+      aria-label="{% if section.settings.heading != blank %}{{ section.settings.heading | escape }}{% else %}Product cards{% endif %}"
+    >
+      {% for block in section.blocks %}
+        {% assign product = block.settings.product %}
+        {% assign card_url = '' %}
+
+        {% if product != blank %}
+          {% assign card_url = product.url %}
+        {% elsif block.settings.button_link != blank %}
+          {% assign card_url = block.settings.button_link %}
+        {% endif %}
+
+        {% assign title_text = '' %}
+        {% if product != blank %}
+          {% assign title_text = product.title %}
+        {% else %}
+          {% assign title_text = block.settings.custom_title %}
+        {% endif %}
+
+        {% assign desc_text = '' %}
+        {% if block.settings.product_description != blank %}
+          {% assign desc_text = block.settings.product_description %}
+        {% endif %}
+
+        {% assign has_colors = false %}
+        {% assign rendered_product_colors = false %}
+
+        {% if block.settings.show_colors %}
+          {% if product != blank and product.options_with_values.size > 0 %}
+            {% for option in product.options_with_values %}
+              {% assign option_name = option.name | downcase %}
+              {% if option_name contains 'color' or option_name contains 'colour' or option_name contains '颜色' or option_name contains 'colourway' %}
+                {% if option.values.size > 0 %}
+                  {% assign has_colors = true %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {% if block.settings.color_1 != blank or block.settings.color_2 != blank or block.settings.color_3 != blank or block.settings.color_4 != blank %}
+              {% assign has_colors = true %}
+            {% endif %}
+          {% endif %}
+        {% endif %}
+
+        <article class="hx-card" {{ block.shopify_attributes }}>
+          <div class="hx-card__badges">
+            {% if block.settings.promo_tag != blank %}
+              <span class="hx-badge hx-badge--dark">{{ block.settings.promo_tag }}</span>
+            {% elsif block.settings.promotion_label != blank %}
+              <span class="hx-badge hx-badge--dark">{{ block.settings.promotion_label }}</span>
+            {% endif %}
+
+            {% if block.settings.promo_save != blank %}
+              <span class="hx-badge hx-badge--yellow">{{ block.settings.promo_save }}</span>
+            {% endif %}
+          </div>
+
+          {% if block.settings.gift_badge and block.settings.gift_icon != blank %}
+            <div class="hx-card__gift" aria-label="Limited gift">
+              <img
+                src="{{ block.settings.gift_icon | image_url: width: 120 }}"
+                alt=""
+                loading="lazy"
+                width="60"
+                height="60"
+                aria-hidden="true"
+              >
+            </div>
+          {% endif %}
+
+          {% if card_url != blank %}
+            <a class="hx-card__image" href="{{ card_url }}" aria-label="{{ title_text | escape }}">
+              {% if product != blank and product.featured_image %}
+                <img
+                  src="{{ product.featured_image | image_url: width: 1400 }}"
+                  alt="{{ product.title | escape }}"
+                  loading="lazy"
+                  width="1400"
+                  height="1400"
+                >
+              {% elsif block.settings.custom_image != blank %}
+                <img
+                  src="{{ block.settings.custom_image | image_url: width: 1400 }}"
+                  alt="{{ title_text | escape }}"
+                  loading="lazy"
+                  width="1400"
+                  height="1400"
+                >
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg hx-card__placeholder' }}
+              {% endif %}
+            </a>
+          {% else %}
+            <div class="hx-card__image">
+              {% if product != blank and product.featured_image %}
+                <img
+                  src="{{ product.featured_image | image_url: width: 1400 }}"
+                  alt="{{ product.title | escape }}"
+                  loading="lazy"
+                  width="1400"
+                  height="1400"
+                >
+              {% elsif block.settings.custom_image != blank %}
+                <img
+                  src="{{ block.settings.custom_image | image_url: width: 1400 }}"
+                  alt="{{ title_text | escape }}"
+                  loading="lazy"
+                  width="1400"
+                  height="1400"
+                >
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg hx-card__placeholder' }}
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <div class="hx-card__body">
+            <div class="hx-card__top">
+              <div class="hx-card__text">
+                <h3 class="hx-card__title">
+                  {% if card_url != blank %}
+                    <a class="hx-card__title-link" href="{{ card_url }}">
+                      {{ title_text }}
+                    </a>
+                  {% else %}
+                    {{ title_text }}
+                  {% endif %}
+                </h3>
+
+                {% if desc_text != blank %}
+                  <p class="hx-card__desc">{{ desc_text }}</p>
+                {% endif %}
+              </div>
+
+              <div
+                class="hx-card__colors{% unless has_colors %} is-hidden{% endunless %}"
+                {% if has_colors %}
+                  aria-label="Available colors"
+                {% else %}
+                  aria-hidden="true"
+                {% endif %}
+              >
+                {% if has_colors %}
+                  {% if product != blank and product.options_with_values.size > 0 %}
+                    {% for option in product.options_with_values %}
+                      {% assign option_name = option.name | downcase %}
+                      {% if option_name contains 'color' or option_name contains 'colour' or option_name contains '颜色' or option_name contains 'colourway' %}
+                        {% for value in option.values limit: 4 %}
+                          {% assign v = value | downcase | strip %}
+                          {% assign sw = '#d1d5db' %}
+                          {% case v %}
+                            {% when 'black', 'matte black', 'jet black' %}
+                              {% assign sw = '#111111' %}
+                            {% when 'white', 'ivory' %}
+                              {% assign sw = '#ffffff' %}
+                            {% when 'gray', 'grey', 'space gray', 'space grey' %}
+                              {% assign sw = '#9ca3af' %}
+                            {% when 'silver' %}
+                              {% assign sw = '#c0c0c0' %}
+                            {% when 'blue', 'navy', 'midnight blue' %}
+                              {% assign sw = '#2563eb' %}
+                            {% when 'green', 'forest green' %}
+                              {% assign sw = '#16a34a' %}
+                            {% when 'red' %}
+                              {% assign sw = '#dc2626' %}
+                            {% when 'orange' %}
+                              {% assign sw = '#f97316' %}
+                            {% when 'yellow' %}
+                              {% assign sw = '#facc15' %}
+                            {% when 'pink' %}
+                              {% assign sw = '#ec4899' %}
+                            {% when 'purple' %}
+                              {% assign sw = '#7c3aed' %}
+                            {% when 'brown' %}
+                              {% assign sw = '#8b5e3c' %}
+                            {% when 'beige', 'cream', 'sand' %}
+                              {% assign sw = '#d6c6a5' %}
+                            {% when 'gold' %}
+                              {% assign sw = '#d4af37' %}
+                          {% endcase %}
+                          <span
+                            class="hx-swatch"
+                            title="{{ value | escape }}"
+                            aria-label="{{ value | escape }}"
+                            style="--sw: {{ sw }};"
+                          ></span>
+                        {% endfor %}
+                        {% assign rendered_product_colors = true %}
+                        {% break %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+
+                  {% unless rendered_product_colors %}
+                    {% if block.settings.color_1 != blank %}
+                      <span class="hx-swatch" aria-label="Color 1" style="--sw: {{ block.settings.color_1 }};"></span>
+                    {% endif %}
+                    {% if block.settings.color_2 != blank %}
+                      <span class="hx-swatch" aria-label="Color 2" style="--sw: {{ block.settings.color_2 }};"></span>
+                    {% endif %}
+                    {% if block.settings.color_3 != blank %}
+                      <span class="hx-swatch" aria-label="Color 3" style="--sw: {{ block.settings.color_3 }};"></span>
+                    {% endif %}
+                    {% if block.settings.color_4 != blank %}
+                      <span class="hx-swatch" aria-label="Color 4" style="--sw: {{ block.settings.color_4 }};"></span>
+                    {% endif %}
+                  {% endunless %}
+                {% endif %}
+              </div>
+
+              <div class="hx-card__buyrow">
+                <div class="hx-card__price">
+                  {% if product != blank %}
+                    <span class="hx-price__now">
+                      {{ product.price_min | money }}{% if product.price_varies %}<span class="hx-price__suffix">+</span>{% endif %}
+                    </span>
+
+                    {% if product.compare_at_price_max > product.price_min %}
+                      <span class="hx-price__was">{{ product.compare_at_price_max | money }}</span>
+                    {% else %}
+                      <span class="hx-price__was hx-price__was--placeholder">&nbsp;</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="hx-price__now">{{ block.settings.current_price }}</span>
+                    {% if block.settings.original_price != blank %}
+                      <span class="hx-price__was">{{ block.settings.original_price }}</span>
+                    {% else %}
+                      <span class="hx-price__was hx-price__was--placeholder">&nbsp;</span>
+                    {% endif %}
+                  {% endif %}
+                </div>
+
+                {% if block.settings.button_text != blank and card_url != blank %}
+                  <a class="hx-card__cta" href="{{ card_url }}">
+                    {{ block.settings.button_text }}
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="hx-card__specs">
+              {% if block.settings.spec_1_value != blank and block.settings.spec_1_name != blank %}
+                <div class="hx-spec">
+                  <div class="hx-spec__v">{{ block.settings.spec_1_value }}</div>
+                  <div class="hx-spec__k">{{ block.settings.spec_1_name }}</div>
+                </div>
+              {% endif %}
+              {% if block.settings.spec_2_value != blank and block.settings.spec_2_name != blank %}
+                <div class="hx-spec">
+                  <div class="hx-spec__v">{{ block.settings.spec_2_value }}</div>
+                  <div class="hx-spec__k">{{ block.settings.spec_2_name }}</div>
+                </div>
+              {% endif %}
+              {% if block.settings.spec_3_value != blank and block.settings.spec_3_name != blank %}
+                <div class="hx-spec">
+                  <div class="hx-spec__v">{{ block.settings.spec_3_value }}</div>
+                  <div class="hx-spec__k">{{ block.settings.spec_3_name }}</div>
+                </div>
+              {% endif %}
+              {% if block.settings.spec_4_value != blank and block.settings.spec_4_name != blank %}
+                <div class="hx-spec">
+                  <div class="hx-spec__v">{{ block.settings.spec_4_value }}</div>
+                  <div class="hx-spec__k">{{ block.settings.spec_4_name }}</div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hx-pcs {
+    padding: 22px 0;
+  }
+
+  .hx-pcs__container {
+    max-width: none;
+    width: 100%;
+    padding: 0 40px;
+  }
+
+  @media (max-width: 768px) {
+    .hx-pcs__container {
+      padding: 0 16px;
+    }
+  }
+
+  .hx-pcs__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .hx-pcs__heading {
+    margin: 0;
+    font-size: {{ section.settings.heading_size }}px;
+    line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  @media (max-width: 768px) {
+    .hx-pcs__heading {
+      font-size: {{ section.settings.heading_size_mobile }}px;
+    }
+  }
+
+  .hx-pcs__track {
+    --gap: 18px;
+    display: flex;
+    gap: var(--gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 2px 16px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .hx-pcs__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .hx-pcs__track {
+      scroll-snap-type: x proximity;
+      overscroll-behavior-x: contain;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-x;
+    }
+
+    .hx-pcs__track.is-dragging {
+      cursor: grabbing;
+      scroll-snap-type: none !important;
+      user-select: none;
+    }
+  }
+
+  .hx-card {
+    scroll-snap-align: start;
+    flex: 0 0 calc((100% - (var(--gap) * 3)) / 4);
+    background: #fff;
+    border: 1px solid #e9edf2;
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .hx-card__badges {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 3;
+    max-width: calc(100% - 90px);
+  }
+
+  .hx-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .hx-badge--dark {
+    background: #0b0b0c;
+    color: #fff;
+  }
+
+  .hx-badge--yellow {
+    background: #DCD932;
+    color: #0b0b0c;
+  }
+
+  .hx-card__gift {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(229,231,235,0.8);
+    border-radius: 14px;
+    backdrop-filter: blur(6px);
+  }
+
+  .hx-card__gift img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+  }
+
+  .hx-card__image {
+    display: block;
+    background: #ffffff;
+    padding: 10px 12px;
+    height: 230px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .hx-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    transform: scale(1.08);
+    transform-origin: center;
+  }
+
+  .hx-card__placeholder {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hx-card__body {
+    background: #fbfbfb;
+    padding: 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .hx-card__top {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .hx-card__text {
+    min-width: 0;
+  }
+
+  .hx-card__title {
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #111827;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(20px * 1.2 * 2);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  .hx-card__title-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .hx-card__title-link:hover {
+    text-decoration: underline;
+  }
+
+  .hx-card__desc {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 400;
+    color: #4b5563;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(13px * 1.4 * 2);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .hx-card__colors {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 14px;
+    min-height: 22px;
+    flex-wrap: wrap;
+  }
+
+  .hx-card__colors.is-hidden {
+    visibility: hidden;
+  }
+
+  .hx-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--sw, #d1d5db);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(17,24,39,0.12);
+    flex: 0 0 auto;
+  }
+
+  .hx-card__buyrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 2px 0 14px;
+    min-height: 64px;
+  }
+
+  .hx-card__price {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .hx-price__now {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #111827;
+    display: block;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  .hx-price__suffix {
+    font-size: 0.85em;
+    vertical-align: top;
+    margin-left: 1px;
+  }
+
+  .hx-price__was {
+    font-size: 13px;
+    font-weight: 400;
+    color: #9ca3af;
+    text-decoration: line-through;
+    margin-top: 6px;
+    display: block;
+    white-space: nowrap;
+    min-height: 16px;
+  }
+
+  .hx-price__was--placeholder {
+    text-decoration: none;
+    opacity: 0;
+  }
+
+  .hx-card__cta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 118px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #DCD932  ;
+    color: #0b0b0c;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgba(0,0,0,0.08);
+    white-space: nowrap;
+  }
+
+  .hx-card__specs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    border-top: 1px solid rgba(17,24,39,0.06);
+    padding-top: 12px;
+    margin-top: auto;
+    min-height: 56px;
+  }
+
+  .hx-spec {
+    min-width: 0;
+  }
+
+  .hx-spec__v {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.15;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .hx-spec__k {
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 400;
+    color: #6b7280;
+    line-height: 1.1;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 1024px) {
+    .hx-card {
+      flex-basis: calc((100% - (var(--gap) * 1)) / 2);
+    }
+
+    .hx-card__specs {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hx-card__image {
+      height: 250px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hx-pcs__track {
+      --gap: 14px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .hx-card {
+      flex-basis: 84%;
+    }
+
+    .hx-card__image {
+      height: 260px;
+    }
+
+    .hx-card__image img {
+      transform: scale(1.1);
+    }
+
+    .hx-card__body {
+      padding: 16px 14px 14px;
+    }
+
+    .hx-card__title {
+      font-size: 18px;
+      line-height: 1.18;
+      margin-bottom: 8px;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      min-height: calc(18px * 1.18 * 3);
+    }
+
+    .hx-card__desc {
+      font-size: 12px;
+      line-height: 1.42;
+      margin-bottom: 12px;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      min-height: calc(12px * 1.42 * 2);
+    }
+
+    .hx-card__colors {
+      margin-bottom: 12px;
+    }
+
+    .hx-card__buyrow {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      min-height: 0;
+      margin-bottom: 14px;
+    }
+
+    .hx-card__price {
+      width: 100%;
+    }
+
+    .hx-price__now {
+      font-size: 24px;
+    }
+
+    .hx-price__was {
+      margin-top: 4px;
+    }
+
+    .hx-card__cta {
+      width: 100%;
+      min-width: 0;
+      padding: 13px 14px;
+    }
+
+    .hx-card__specs {
+      gap: 10px 12px;
+      padding-top: 12px;
+      min-height: 0;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .hx-card__image {
+      height: 330px;
+      padding: 6px 10px;
+    }
+
+    .hx-card__image img {
+      transform: scale(1.12);
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var POINTER_MOVE_OPTIONS = { passive: true };
+    var WHEEL_OPTIONS = { passive: false };
+
+    function initHxDragScroll(track) {
+      if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      if (!track || track.dataset.dragInitialized === 'true') return;
+
+      track.dataset.dragInitialized = 'true';
+
+      var pointerDown = false;
+      var dragging = false;
+      var didDrag = false;
+      var activePointerId = null;
+
+      var startX = 0;
+      var startScrollLeft = 0;
+
+      var DRAG_THRESHOLD = 12;
+
+      var rafId = 0;
+      var targetScrollLeft = 0;
+
+      var lastX = 0;
+      var lastTime = 0;
+      var velocity = 0;
+      var inertiaId = 0;
+
+      function applyScroll() {
+        rafId = 0;
+        track.scrollLeft = targetScrollLeft;
+      }
+
+      function requestScroll(nextLeft) {
+        targetScrollLeft = nextLeft;
+        if (!rafId) rafId = requestAnimationFrame(applyScroll);
+      }
+
+      function stopInertia() {
+        if (inertiaId) {
+          cancelAnimationFrame(inertiaId);
+          inertiaId = 0;
+        }
+      }
+
+      function startInertia() {
+        stopInertia();
+
+        if (Math.abs(velocity) < 0.02) {
+          track.classList.remove('is-dragging');
+          return;
+        }
+
+        var friction = 0.95;
+        var minVelocity = 0.02;
+
+        function step() {
+          velocity *= friction;
+
+          if (Math.abs(velocity) < minVelocity) {
+            inertiaId = 0;
+            track.classList.remove('is-dragging');
+            return;
+          }
+
+          track.scrollLeft -= velocity * 16;
+          inertiaId = requestAnimationFrame(step);
+        }
+
+        inertiaId = requestAnimationFrame(step);
+      }
+
+      function onPointerDown(e) {
+        if (e.button !== 0) return;
+
+        stopInertia();
+        track.classList.remove('is-dragging');
+
+        pointerDown = true;
+        dragging = false;
+        didDrag = false;
+        activePointerId = e.pointerId;
+
+        startX = e.clientX;
+        startScrollLeft = track.scrollLeft;
+
+        lastX = e.clientX;
+        lastTime = performance.now();
+        velocity = 0;
+      }
+
+      function onPointerMove(e) {
+        if (!pointerDown || e.pointerId !== activePointerId) return;
+
+        var dx = e.clientX - startX;
+
+        if (!dragging && Math.abs(dx) > DRAG_THRESHOLD) {
+          dragging = true;
+          didDrag = true;
+          track.classList.add('is-dragging');
+
+          if (track.setPointerCapture) {
+            try {
+              track.setPointerCapture(e.pointerId);
+            } catch (err) {}
+          }
+        }
+
+        if (!dragging) return;
+
+        requestScroll(startScrollLeft - dx);
+
+        var now = performance.now();
+        var dt = Math.max(1, now - lastTime);
+        var vx = (e.clientX - lastX) / dt;
+        velocity = velocity * 0.7 + vx * 0.3;
+
+        lastX = e.clientX;
+        lastTime = now;
+      }
+
+      function endDrag() {
+        if (!pointerDown) return;
+
+        pointerDown = false;
+        activePointerId = null;
+
+        if (dragging) {
+          startInertia();
+        } else {
+          track.classList.remove('is-dragging');
+        }
+
+        dragging = false;
+      }
+
+      function onClickCapture(e) {
+        if (!didDrag) return;
+
+        var clickable = e.target.closest('a, button');
+        if (clickable) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        didDrag = false;
+      }
+
+      function onWheel(e) {
+        var absX = Math.abs(e.deltaX);
+        var absY = Math.abs(e.deltaY);
+
+        var canScrollX = track.scrollWidth > track.clientWidth + 1;
+        if (!canScrollX) return;
+
+        var wantHorizontal = absX > absY || e.shiftKey;
+        if (!wantHorizontal) return;
+
+        e.preventDefault();
+        var delta = absX > absY ? e.deltaX : e.deltaY;
+        track.scrollLeft += delta;
+      }
+
+      track.addEventListener('pointerdown', onPointerDown);
+      track.addEventListener('pointermove', onPointerMove, POINTER_MOVE_OPTIONS);
+      track.addEventListener('pointerup', endDrag);
+      track.addEventListener('pointercancel', endDrag);
+      track.addEventListener('click', onClickCapture, true);
+      track.addEventListener('wheel', onWheel, WHEEL_OPTIONS);
+
+      track._hxCleanup = function () {
+        stopInertia();
+
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+
+        track.removeEventListener('pointerdown', onPointerDown);
+        track.removeEventListener('pointermove', onPointerMove, POINTER_MOVE_OPTIONS);
+        track.removeEventListener('pointerup', endDrag);
+        track.removeEventListener('pointercancel', endDrag);
+        track.removeEventListener('click', onClickCapture, true);
+        track.removeEventListener('wheel', onWheel, WHEEL_OPTIONS);
+
+        delete track._hxCleanup;
+        delete track.dataset.dragInitialized;
+      };
+    }
+
+    function initSection(section) {
+      if (!section) return;
+      var track = section.querySelector('.hx-pcs__track');
+      if (!track) return;
+      initHxDragScroll(track);
+    }
+
+    function cleanupSection(section) {
+      if (!section) return;
+      var track = section.querySelector('.hx-pcs__track');
+      if (track && typeof track._hxCleanup === 'function') {
+        track._hxCleanup();
+      }
+    }
+
+    function resolveSectionFromEventTarget(target) {
+      if (!target) return null;
+
+      if (target.matches && target.matches('.hx-pcs[data-section-id="{{ section.id }}"]')) {
+        return target;
+      }
+
+      if (target.querySelector) {
+        return target.querySelector('.hx-pcs[data-section-id="{{ section.id }}"]');
+      }
+
+      return null;
+    }
+
+    var sections = document.querySelectorAll('.hx-pcs[data-section-id="{{ section.id }}"]');
+    sections.forEach(initSection);
+
+    document.addEventListener('shopify:section:unload', function (event) {
+      var unloadedSection = resolveSectionFromEventTarget(event.target);
+      if (unloadedSection) {
+        cleanupSection(unloadedSection);
+      }
+    });
+
+    document.addEventListener('shopify:section:load', function (event) {
+      var loadedSection = resolveSectionFromEventTarget(event.target);
+      if (loadedSection) {
+        initSection(loadedSection);
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "产品卡片滑动（高级版）",
+  "tag": "section",
+  "class": "section-product-cards",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "模块标题（可选）",
+      "default": "Discover More"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "标题字号（桌面）",
+      "min": 16,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 26
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "标题字号（移动端）",
+      "min": 14,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "产品卡片",
+      "settings": [
+        { "type": "header", "content": "📦 产品选择" },
+        { "type": "product", "id": "product", "label": "选择产品" },
+
+        { "type": "header", "content": "🏷️ 促销标签" },
+        { "type": "text", "id": "promo_tag", "label": "黑色标签", "default": "Holiday Deal" },
+        { "type": "text", "id": "promo_save", "label": "黄色标签", "default": "Save $600.00" },
+        { "type": "text", "id": "promotion_label", "label": "旧字段（兼容）", "placeholder": "Holiday Deal" },
+
+        { "type": "checkbox", "id": "gift_badge", "label": "显示礼品标签", "default": false },
+        { "type": "image_picker", "id": "gift_icon", "label": "礼品图标" },
+
+        { "type": "header", "content": "✏️ 自定义内容（产品未选择时使用）" },
+        { "type": "image_picker", "id": "custom_image", "label": "自定义图片" },
+        { "type": "text", "id": "custom_title", "label": "自定义标题", "default": "产品名称" },
+        { "type": "text", "id": "product_description", "label": "产品描述", "default": "One line description for quick decision." },
+
+        { "type": "header", "content": "🎨 颜色选项" },
+        { "type": "checkbox", "id": "show_colors", "label": "显示颜色选项", "default": true },
+        { "type": "color", "id": "color_1", "label": "颜色 1", "default": "#FF6B35" },
+        { "type": "color", "id": "color_2", "label": "颜色 2", "default": "#2E7D32" },
+        { "type": "color", "id": "color_3", "label": "颜色 3", "default": "#000000" },
+        { "type": "color", "id": "color_4", "label": "颜色 4" },
+
+        { "type": "header", "content": "💰 自定义价格（产品未选择时使用）" },
+        { "type": "text", "id": "current_price", "label": "当前售价", "default": "$999.00" },
+        { "type": "text", "id": "original_price", "label": "原价（可选）", "placeholder": "$1,599.00" },
+
+        { "type": "header", "content": "⚙️ 核心参数" },
+        { "type": "text", "id": "spec_1_value", "label": "参数1 值", "default": "1000W" },
+        { "type": "text", "id": "spec_1_name", "label": "参数1 名称", "default": "Peak Motor" },
+        { "type": "text", "id": "spec_2_value", "label": "参数2 值", "default": "21 MPH" },
+        { "type": "text", "id": "spec_2_name", "label": "参数2 名称", "default": "Top Speed" },
+        { "type": "text", "id": "spec_3_value", "label": "参数3 值", "default": "55 Miles" },
+        { "type": "text", "id": "spec_3_name", "label": "参数3 名称", "default": "Max Range" },
+        { "type": "text", "id": "spec_4_value", "label": "参数4 值", "default": "26\" x 2.5\"" },
+        { "type": "text", "id": "spec_4_name", "label": "参数4 名称", "default": "Tires" },
+
+        { "type": "header", "content": "🔘 CTA 按钮" },
+        { "type": "text", "id": "button_text", "label": "按钮文案", "default": "Shop Now" },
+        { "type": "url", "id": "button_link", "label": "按钮链接（产品未选择时使用）" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "产品卡片滑动（高级版）",
+      "blocks": [
+        { "type": "product_card" },
+        { "type": "product_card" },
+        { "type": "product_card" },
+        { "type": "product_card" }
+      ]
+    }
+  ]
+}
+{% endschema %}

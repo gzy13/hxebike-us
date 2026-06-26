@@ -1,0 +1,116 @@
+{% comment %}
+  Snippet: hx-x6-geometry (HXEBIKE X6)
+  Usage:
+  {% render 'hx-geometry-panel',
+    title: 'HXEBIKE X6 Parameters',
+    image_url: 'https://cdn.shopify.com/s/files/1/0940/2590/8589/files/hxebike-x6.webp?v=1772704000',
+    image_alt: 'HXEBIKE X6 parameters'
+  %}
+{% endcomment %}
+
+{%- assign geo_title = title | default: 'HXEBIKE X6 Parameters' -%}
+{%- assign geo_image_alt = image_alt | default: 'HXEBIKE X6 parameters' -%}
+{%- assign geo_default_img = 'https://cdn.shopify.com/s/files/1/0940/2590/8589/files/hxebike-x6.webp?v=1772704000' -%}
+{%- assign geo_img = image_url | default: geo_default_img -%}
+
+<section class="hxGeo">
+  <div class="hxGeo__container">
+    <div class="hxGeo__grid">
+      <!-- Block 1: Parameters -->
+      <div class="hxGeo__block hxGeo__block--params">
+        <h3 class="hxGeo__title">{{ geo_title }}</h3>
+
+        <div class="hxGeo__table" role="table" aria-label="HXEBIKE X6 parameters">
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Frame Size</div><div class="hxGeo__v" role="cell">Standard</div></div>
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Wheel Size</div><div class="hxGeo__v" role="cell">5.5 inch</div></div>
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Tires</div><div class="hxGeo__v" role="cell">Chaoyang 5.5&quot; Tires</div></div>
+
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Motor</div><div class="hxGeo__v" role="cell">350W Motor</div></div>
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Throttle</div><div class="hxGeo__v" role="cell">Twist Throttle</div></div>
+
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Brakes</div><div class="hxGeo__v" role="cell">160mm Hydraulic Disc Brakes</div></div>
+
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Frame</div><div class="hxGeo__v" role="cell">Aluminum Alloy Frame</div></div>
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Frame Material</div><div class="hxGeo__v" role="cell">Aluminum Alloy</div></div>
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Handlebar</div><div class="hxGeo__v" role="cell">Aluminum Alloy</div></div>
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Handlebar Height</div><div class="hxGeo__v" role="cell">Adjustable</div></div>
+
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Seat Type</div><div class="hxGeo__v" role="cell">Without Seat</div></div>
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Folding</div><div class="hxGeo__v" role="cell">Yes</div></div>
+
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Kickstand</div><div class="hxGeo__v" role="cell">Aluminum Alloy Kickstand</div></div>
+
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Pedal Ground Clearance</div><div class="hxGeo__v" role="cell">8cm (no weight bearing)</div></div>
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Max Rider Weight</div><div class="hxGeo__v" role="cell">100kg</div></div>
+          <div class="hxGeo__row" role="row"><div class="hxGeo__k" role="cell">Weight</div><div class="hxGeo__v" role="cell">10.5 kg (Product Weight)</div></div>
+        </div>
+      </div>
+
+      <!-- Block 2: Image -->
+      <div class="hxGeo__block hxGeo__block--image">
+        <picture>
+          <source 
+            media="(max-width: 990px)" 
+            srcset="https://cdn.shopify.com/s/files/1/0940/2590/8589/files/x6-config-mobile.jpg?v=1772782704">
+          <img 
+            class="hxGeo__img"
+            src="https://cdn.shopify.com/s/files/1/0940/2590/8589/files/X6-config-desktop.png?v=1772782704"
+            alt="{{ geo_image_alt | escape }}"
+            loading="lazy">
+        </picture>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .hxGeo{ padding:32px 0; color:#111; font-family:var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif); }
+    .hxGeo *{ box-sizing:border-box; }
+
+    .hxGeo__container{ max-width:1680px; margin:0 auto; padding:0 clamp(16px,3vw,64px); }
+
+    .hxGeo__grid{
+      display:grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: clamp(18px, 3vw, 56px);
+      align-items:start;
+    }
+
+    .hxGeo__title{
+      margin:0 0 18px;
+      font-size:28px;
+      line-height:1.15;
+      font-weight:600;
+      letter-spacing:-0.01em;
+    }
+
+    .hxGeo__table{ border-top:1px solid rgba(0,0,0,.10); }
+    .hxGeo__row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      padding:16px 0;
+      border-bottom:1px solid rgba(0,0,0,.06);
+    }
+    .hxGeo__k, .hxGeo__v{
+      font-size:15px;
+      line-height:1.5;
+      font-weight:400;
+    }
+    .hxGeo__k{ color:rgba(0,0,0,.86); }
+    .hxGeo__v{ color:rgba(0,0,0,.62); text-align:right; }
+
+    .hxGeo__img{ width:100%; height:auto; display:block; border-radius:12px; }
+
+    @media (max-width:990px){
+      .hxGeo{ padding:20px 0; }
+      .hxGeo__container{ max-width:100%; padding:0; }
+      .hxGeo__grid{ grid-template-columns:1fr; gap:16px; }
+      .hxGeo__block--image{ order:0; }
+      .hxGeo__block--params{ order:1; padding:0 clamp(16px,3vw,24px); }
+      .hxGeo__title{ font-size:22px; margin:6px 0 14px; }
+      .hxGeo__img{ border-radius:0; width:100%; }
+      .hxGeo__row{ padding:14px 0; }
+      .hxGeo__k, .hxGeo__v{ font-size:14px; }
+    }
+  </style>
+</section>

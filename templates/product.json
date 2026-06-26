@@ -1,0 +1,296 @@
+{
+  "sections": {
+    "main-product": {
+      "type": "main-product",
+      "blocks": {
+        "vendor": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "icon": "none",
+            "iwidth": "custom",
+            "icon_width": 20,
+            "text": "{{ product.vendor }}",
+            "text_size": "text-base"
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "title_size": "product-title-sm",
+            "title_size_mobile": "product-title-sm",
+            "show_price": false,
+            "show_rating": false
+          }
+        },
+        "price_dpDYNw": {
+          "type": "price",
+          "settings": {
+            "show_taxes_notice": false
+          }
+        },
+        "countdown": {
+          "type": "countdown",
+          "settings": {
+            "heading": "Hurry up!",
+            "subheading": "Sale end in:",
+            "color_text": "#e11d48",
+            "color_background": "#fff1f2",
+            "gradient_background": ""
+          }
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "show_variant_labels": true,
+            "picker_type": "button",
+            "enable_color_swatches": true,
+            "color_swatch_type": "variant",
+            "size_chart": ""
+          }
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_quantity_selector": true,
+            "show_price": true,
+            "show_dynamic_checkout": true,
+            "show_gift_card_recipient": true,
+            "enable_back_in_stock": true,
+            "show_back_in_stock_name": true,
+            "show_back_in_stock_phone": true
+          }
+        },
+        "liquid_tpp9p7": {
+          "type": "liquid",
+          "settings": {
+            "liquid": "<style>\n  .payment-logos-wrapper {\n    display: inline-block;   /* 关键：宽度自动随图片 */\n    text-align: center;\n    margin-top: 6px;\n    margin-bottom: 6px;\n  }\n\n  .payment-logos-container {\n    width: 100%;\n    text-align: center;      /* 让 wrapper 居中 */\n  }\n\n  .payment-logos-wrapper img {\n    height: auto;\n    max-width: 100%;\n    display: block;          /* 避免底部多余空隙 */\n  }\n\n  /* Mobile optimization */\n  @media (max-width: 768px) {\n    .payment-logos-wrapper {\n      margin-top: 4px;\n      margin-bottom: 4px;\n    }\n    .payment-logos-wrapper img {\n      max-width: 90%;\n    }\n  }\n</style>\n\n<div class=\"payment-logos-container\">\n  <div class=\"payment-logos-wrapper\">\n    <img \n      src=\"https://cdn.shopify.com/s/files/1/0940/2590/8589/files/payment-tuttio.avif?v=1764662305\"\n      alt=\"Payment Methods\"\n      loading=\"lazy\"\n    >\n  </div>\n</div>"
+          }
+        },
+        "pickup_availability": {
+          "type": "pickup_availability",
+          "settings": {}
+        },
+        "sticky_buy_button": {
+          "type": "sticky_buy_button",
+          "settings": {}
+        },
+        "description": {
+          "type": "description",
+          "settings": {
+            "text_size": "text-base"
+          }
+        },
+        "icon_list_eGDH4f": {
+          "type": "icon_list",
+          "settings": {
+            "heading": "",
+            "enable_carousel": false,
+            "show_below_media": true
+          }
+        }
+      },
+      "block_order": [
+        "vendor",
+        "title",
+        "price_dpDYNw",
+        "countdown",
+        "variant_picker",
+        "buy_buttons",
+        "liquid_tpp9p7",
+        "pickup_availability",
+        "sticky_buy_button",
+        "description",
+        "icon_list_eGDH4f"
+      ],
+      "custom_css": [
+        ".product--container {max-width: 1280px; margin: 0 auto; padding: 0 24px;}",
+        "@media (max-width: 990px) {.product--container {max-width: 100%; padding: 0 12px; }}"
+      ],
+      "settings": {
+        "enable_sticky_info": true,
+        "media_size": 60,
+        "gallery_layout": "thumbnail",
+        "thumbnail_position": "beside",
+        "image_ratio": "adapt_first",
+        "image_zoom": "lightbox",
+        "hide_variants": false,
+        "enable_video_autoplay": true,
+        "enable_video_looping": true,
+        "mobile_layout": "full_width",
+        "image_ratio_mobile": "adapt_first",
+        "mobile_thumbnail": false,
+        "padding_top": 24,
+        "padding_bottom": 24,
+        "divider": false,
+        "full_width": false,
+        "rounded": false
+      }
+    },
+    "help-drawer": {
+      "type": "help-drawer",
+      "blocks": {
+        "content-1": {
+          "type": "content",
+          "settings": {
+            "icon": "rocket",
+            "heading": "Shipping Information",
+            "text": "<p>Use this text to answer questions in as much detail as possible for your customers.</p>",
+            "highlighted_text": "none",
+            "highlighted_scribble": "circle",
+            "color_text": "#b45309",
+            "color_background": "#fffbeb",
+            "gradient_background": "",
+            "color_highlight": "#ffddbf",
+            "gradient_highlight": ""
+          }
+        },
+        "content-2": {
+          "type": "content",
+          "settings": {
+            "icon": "headphone",
+            "heading": "Customer Support",
+            "text": "<p>Use this text to answer questions in as much detail as possible for your customers.</p>",
+            "highlighted_text": "none",
+            "highlighted_scribble": "circle",
+            "color_text": "#0369a1",
+            "color_background": "#f0f9ff",
+            "gradient_background": "",
+            "color_highlight": "#ffddbf",
+            "gradient_highlight": ""
+          }
+        },
+        "content-3": {
+          "type": "content",
+          "settings": {
+            "icon": "chat_bubble",
+            "heading": "FAQ’s",
+            "text": "<p>Use this text to answer questions in as much detail as possible for your customers.</p>",
+            "highlighted_text": "none",
+            "highlighted_scribble": "circle",
+            "color_text": "#be123c",
+            "color_background": "#fff1f2",
+            "gradient_background": "",
+            "color_highlight": "#ffddbf",
+            "gradient_highlight": ""
+          }
+        },
+        "content-4": {
+          "type": "content",
+          "settings": {
+            "icon": "phone",
+            "heading": "Contact Us",
+            "text": "<p>Use this text to answer questions in as much detail as possible for your customers.</p>",
+            "highlighted_text": "none",
+            "highlighted_scribble": "circle",
+            "color_text": "#4d7c0f",
+            "color_background": "#f7fee7",
+            "gradient_background": "",
+            "color_highlight": "#ffddbf",
+            "gradient_highlight": ""
+          }
+        }
+      },
+      "block_order": [
+        "content-1",
+        "content-2",
+        "content-3",
+        "content-4"
+      ],
+      "settings": {
+        "heading": "Need help?",
+        "description": "<p>If you have any questions, you are always welcome to contact us. We'll get back to you as soon as possible, within 24 hours on weekdays.</p>"
+      }
+    },
+    "product-recommendations": {
+      "type": "product-recommendations",
+      "disabled": true,
+      "settings": {
+        "product_limit": 6,
+        "columns": 4,
+        "carousel_on_desktop": true,
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "heading": "You may also like",
+        "heading_size": "title-md",
+        "heading_alignment": "text-left md:items-end md:flex-row",
+        "heading_tag": "h2",
+        "subheading": "",
+        "description": "",
+        "highlighted_text": "none",
+        "highlighted_scribble": "circle",
+        "color_text": "",
+        "color_background": "",
+        "gradient_background": "",
+        "color_highlight": "",
+        "gradient_highlight": "",
+        "color_button_text": "",
+        "color_button_background": "",
+        "color_button_gradient": "",
+        "padding_top": 0,
+        "padding_bottom": 72,
+        "divider": false,
+        "full_width": false,
+        "rounded": true
+      }
+    },
+    "recently-viewed": {
+      "type": "recently-viewed",
+      "disabled": true,
+      "settings": {
+        "product_limit": 6,
+        "columns": 4,
+        "carousel_on_desktop": true,
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "heading": "Recently Viewed",
+        "heading_size": "title-md",
+        "heading_alignment": "text-left md:items-end md:flex-row",
+        "heading_tag": "h2",
+        "subheading": "",
+        "description": "",
+        "highlighted_text": "none",
+        "highlighted_scribble": "circle",
+        "color_text": "",
+        "color_background": "",
+        "gradient_background": "",
+        "color_highlight": "",
+        "gradient_highlight": "",
+        "color_button_text": "",
+        "color_button_background": "",
+        "color_button_gradient": "",
+        "padding_top": 72,
+        "padding_bottom": 72,
+        "divider": false,
+        "full_width": false,
+        "rounded": false
+      }
+    },
+    "735806500300874996": {
+      "type": "apps",
+      "disabled": true,
+      "settings": {
+        "color_text": "",
+        "color_background": "",
+        "gradient_background": "",
+        "color_highlight": "",
+        "gradient_highlight": "",
+        "color_button_text": "",
+        "color_button_background": "",
+        "color_button_gradient": "",
+        "padding_top": 72,
+        "padding_bottom": 72,
+        "divider": false,
+        "full_width": false,
+        "rounded": false
+      }
+    }
+  },
+  "order": [
+    "main-product",
+    "help-drawer",
+    "product-recommendations",
+    "recently-viewed",
+    "735806500300874996"
+  ]
+}

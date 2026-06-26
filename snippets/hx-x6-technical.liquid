@@ -1,0 +1,92 @@
+{% comment %}
+  Snippet: hx-technical-panel
+  Usage:
+  {% render 'hx-technical-panel', title: 'Technical' %}
+{% endcomment %}
+
+{%- assign tech_title = title | default: 'Technical' -%}
+
+<section class="hxTech">
+  <div class="hxTech__container">
+    <h3 class="hxTech__title">{{ tech_title }}</h3>
+
+    <div class="hxTech__grid" role="table" aria-label="Technical parameters">
+      <!-- Left column -->
+      <div class="hxTech__col" role="rowgroup">
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Motor</div><div class="hxTech__v" role="cell">350W Motor</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Battery</div><div class="hxTech__v" role="cell">36V 7.5AH Li-ion Battery</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Maximum Speed</div><div class="hxTech__v" role="cell">25 km/h (15.5 mph)</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Range</div><div class="hxTech__v" role="cell">8-15 km (depends on road and rider weight)</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Charging Time</div><div class="hxTech__v" role="cell">3 hours</div></div>
+      </div>
+
+      <!-- Right column -->
+      <div class="hxTech__col" role="rowgroup">
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Payload Capacity</div><div class="hxTech__v" role="cell">72 kg (160 lbs)</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Wheel Size</div><div class="hxTech__v" role="cell">5.5 inch</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Climb Angle</div><div class="hxTech__v" role="cell">10 degree</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Folding</div><div class="hxTech__v" role="cell">Yes</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Weight</div><div class="hxTech__v" role="cell">10.5 kg (23 lbs)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .hxTech{ padding:32px 0; color:#111; font-family:var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif); }
+    .hxTech *{ box-sizing:border-box; }
+
+    .hxTech__container{ max-width:1680px; margin:0 auto; padding:0 clamp(16px,3vw,64px); }
+
+    .hxTech__title{
+      margin:0 0 18px;
+      font-size:28px;
+      line-height:1.15;
+      font-weight:600;
+      letter-spacing:-0.01em;
+    }
+
+    .hxTech__grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(18px, 3vw, 56px);
+      border-top:1px solid rgba(0,0,0,.10);
+    }
+
+    .hxTech__row{
+      display:grid;
+      grid-template-columns: 240px 1fr;
+      gap:16px;
+      padding:16px 0;
+      border-bottom:1px solid rgba(0,0,0,.06);
+      align-items:start;
+    }
+
+    .hxTech__k, .hxTech__v{
+      font-size:15px;
+      line-height:1.5;
+      font-weight:400;
+    }
+    .hxTech__k{ color:rgba(0,0,0,.86); }
+    .hxTech__v{ color:rgba(0,0,0,.62); }
+
+    @media (max-width:990px){
+      .hxTech{ padding:20px 0; }
+      .hxTech__container{ max-width:100%; padding:0 clamp(16px,3vw,24px); }
+      .hxTech__title{ font-size:22px; margin:6px 0 14px; }
+
+      .hxTech__grid{ grid-template-columns:1fr; gap:0; }
+
+      .hxTech__row{
+        grid-template-columns: 1fr 1fr;
+        gap:12px;
+        padding:14px 0;
+      }
+      .hxTech__k, .hxTech__v{ font-size:14px; }
+      .hxTech__v{ text-align:right; }
+    }
+
+    @media (max-width:420px){
+      .hxTech__row{ grid-template-columns: 1.2fr 0.8fr; }
+    }
+  </style>
+</section>

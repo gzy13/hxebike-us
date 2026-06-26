@@ -1,0 +1,907 @@
+{% liquid
+  assign product_blocks = section.blocks | where: 'type', 'product'
+  assign first_block = product_blocks.first
+  assign initial_bg = section.settings.background_color
+  if first_block != blank and first_block.settings.accent_color != blank
+    assign initial_bg = first_block.settings.accent_color
+  endif
+%}
+
+<section
+  id="ProgressProducts-{{ section.id }}"
+  class="progress-products-section"
+  style="
+    --progress-products-bg: {{ initial_bg }};
+    --progress-products-text: {{ section.settings.text_color }};
+    --progress-products-muted: {{ section.settings.muted_text_color }};
+    --progress-products-bar: {{ section.settings.bar_color }};
+  "
+>
+  <div class="progress-mainy-items-flx" data-progress-root>
+    <div class="home-page-bike-progress" data-progress-rail>
+      <div class="homepage-bike-slider-focus" aria-label="{{ section.settings.focus_label | escape }}">
+        {% assign rendered_groups = '' %}
+        {% for block in product_blocks %}
+          {% assign group_name = block.settings.group | default: section.settings.default_group %}
+          {% assign group_key = group_name | handleize | append: '|' %}
+          {% unless rendered_groups contains group_key %}
+            <button
+              type="button"
+              class="scroll-focus{% if forloop.first %} HomePage_focused{% endif %}"
+              data-value="{{ group_name | escape }}"
+            >
+              {{ group_name }}
+            </button>
+            {% assign rendered_groups = rendered_groups | append: group_key %}
+          {% endunless %}
+        {% endfor %}
+      </div>
+
+      <div class="pgrsbar-scroll-items" aria-hidden="true">
+        <div class="prgs-bar-scrolling" data-progress-thumb></div>
+      </div>
+    </div>
+
+    <div class="progress-image-items">
+      {% for block in product_blocks %}
+        {% liquid
+          assign product = block.settings.product
+          assign product_title = block.settings.title
+          assign product_url = block.settings.link
+          assign product_image = block.settings.image
+          assign group_name = block.settings.group | default: section.settings.default_group
+
+          if product != blank
+            if product_title == blank
+              assign product_title = product.title
+            endif
+            if product_url == blank
+              assign product_url = product.url
+            endif
+            if product_image == blank
+              assign product_image = product.featured_image
+            endif
+          endif
+
+          if product_title == blank
+            assign product_title = 'Product'
+          endif
+        %}
+
+        <a
+          href="{{ product_url | default: '#' }}"
+          class="progress-image-itemsing"
+          data-title="{{ product_title | escape }}"
+          data-value="{{ group_name | escape }}"
+          data-index="{{ forloop.index0 }}"
+          {{ block.shopify_attributes }}
+        >
+          <div class="progress-product-media">
+            {% if product_image != blank %}
+              {{
+                product_image
+                | image_url: width: 1500
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '320, 480, 720, 960, 1200, 1500',
+                  sizes: '(min-width: 1280px) 50vw, 100vw',
+                  alt: product_title
+              }}
+            {% else %}
+              {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+
+    <div class="progress-head-detailsing">
+      {% for block in product_blocks %}
+        {% liquid
+          assign product = block.settings.product
+          assign product_title = block.settings.title
+          assign product_url = block.settings.link
+          assign accent_color = block.settings.accent_color | default: section.settings.background_color
+
+          if product != blank
+            if product_title == blank
+              assign product_title = product.title
+            endif
+            if product_url == blank
+              assign product_url = product.url
+            endif
+          endif
+
+          if product_title == blank
+            assign product_title = 'Product'
+          endif
+        %}
+
+        <a
+          href="{{ product_url | default: '#' }}"
+          class="progress-head-details{% if forloop.first %} active{% endif %}"
+          data-title="{{ product_title | escape }}"
+          data-index="{{ forloop.index0 }}"
+          style="--background: {{ accent_color }};"
+        >
+          <div class="progress-heading">
+            <h2>{{ product_title }}</h2>
+          </div>
+
+          <div class="scroll-progress-slider">
+            <div class="bike-progress-slider-block-detail">
+              {% for i in (1..4) %}
+                {% liquid
+                  assign value_key = 'stat_' | append: i | append: '_value'
+                  assign unit_key = 'stat_' | append: i | append: '_unit'
+                  assign label_key = 'stat_' | append: i | append: '_label'
+                  assign gauge_key = 'stat_' | append: i | append: '_gauge'
+                  assign stat_value = block.settings[value_key]
+                  assign stat_unit = block.settings[unit_key]
+                  assign stat_label = block.settings[label_key]
+                  assign stat_gauge = block.settings[gauge_key]
+                %}
+
+                {% if stat_value != blank or stat_label != blank %}
+                  <div class="bike-progress-slider-block-detail-box">
+                    <div class="bike-progress-slider-block-detail-box-inner">
+                      <div class="bike-progress-slider-block-detail-box-number">
+                        <span data-target="{{ stat_value | escape }}">{{ stat_value }}</span>
+                        {% if stat_unit != blank %}
+                          <div class="bike-progress-slider-block-detail-box-adda">{{ stat_unit }}</div>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="BikeGauge_bike-gauge-block">
+                      <div class="BikeGauge_bike-gauge__box-block" style="width: {{ stat_gauge }}%;"></div>
+                    </div>
+                    {% if stat_label != blank %}
+                      <div class="caption-inner">{{ stat_label }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+  #ProgressProducts-{{ section.id }} {
+    background: var(--progress-products-bg);
+    color: var(--progress-products-text);
+    font-family: var(--font-body-family, Montserrat, Arial, sans-serif);
+    transition: background-color 0.35s ease;
+  }
+
+  #ProgressProducts-{{ section.id }} .progress-mainy-items-flx {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(96px, 10vw) minmax(0, 1fr) minmax(360px, 34vw);
+    gap: clamp(18px, 3vw, 56px);
+    min-height: 100vh;
+    padding: clamp(24px, 5vw, 76px) clamp(16px, 4vw, 72px);
+    background: var(--progress-products-bg);
+    transition: background-color 0.35s ease;
+  }
+
+  #ProgressProducts-{{ section.id }} .home-page-bike-progress {
+    position: sticky;
+    top: var(--sticky-offset, 120px);
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-height: min(720px, calc(100vh - 160px));
+    padding-top: 4px;
+    background: var(--progress-products-bg);
+    transition: background-color 0.35s ease;
+    z-index: 2;
+  }
+
+  #ProgressProducts-{{ section.id }} .homepage-bike-slider-focus {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  #ProgressProducts-{{ section.id }} .scroll-focus {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--progress-products-text);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.1;
+    opacity: 0.45;
+    padding: 0;
+    text-align: left;
+    text-transform: uppercase;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  #ProgressProducts-{{ section.id }} .scroll-focus.HomePage_focused {
+    opacity: 1;
+    transform: translateX(6px);
+  }
+
+  #ProgressProducts-{{ section.id }} .pgrsbar-scroll-items {
+    position: relative;
+    flex: 1;
+    width: 4px;
+    min-height: 220px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.24);
+  }
+
+  #ProgressProducts-{{ section.id }} .prgs-bar-scrolling {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: clamp(56px, 12vh, 116px);
+    background: var(--progress-products-bar);
+    transform: translateY(0);
+    transition: transform 0.08s linear;
+  }
+
+  #ProgressProducts-{{ section.id }} .progress-image-items {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(28px, 6vw, 96px);
+  }
+
+  #ProgressProducts-{{ section.id }} .progress-image-itemsing {
+    display: block;
+    min-height: min(72vh, 760px);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #ProgressProducts-{{ section.id }} .progress-product-media {
+    position: sticky;
+    top: var(--media-sticky-offset, 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: min(72vh, 760px);
+  }
+
+  #ProgressProducts-{{ section.id }} .progress-product-media img,
+  #ProgressProducts-{{ section.id }} .progress-product-media svg {
+    display: block;
+    width: min(100%, 920px);
+    max-height: min(64vh, 680px);
+    object-fit: contain;
+  }
+
+  #ProgressProducts-{{ section.id }} .progress-head-detailsing {
+    position: sticky;
+    top: var(--detail-sticky-offset, 120px);
+    align-self: start;
+    min-height: min(720px, calc(100vh - 160px));
+  }
+
+  #ProgressProducts-{{ section.id }} .progress-head-details {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: inherit;
+    opacity: 0;
+    pointer-events: none;
+    text-decoration: none;
+    transform: translateY(20px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  #ProgressProducts-{{ section.id }} .progress-head-details.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  #ProgressProducts-{{ section.id }} .progress-heading h2 {
+    max-width: 8.5ch;
+    margin: 0 0 3rem;
+    color: var(--progress-products-text);
+    font-family: var(--font-heading-family, var(--font-body-family, Montserrat, Arial, sans-serif));
+    font-size: 6.75rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 0.88;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+
+  #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail {
+    display: grid;
+    gap: 1.65rem;
+    max-width: 420px;
+  }
+
+  #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail-box {
+    padding-top: 1.15rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.26);
+  }
+
+  #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail-box-number {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    margin-bottom: 0.7rem;
+    color: var(--progress-products-text);
+    font-family: var(--font-heading-family, var(--font-body-family, Montserrat, Arial, sans-serif));
+    font-size: 2.75rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 0.92;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail-box-adda {
+    font-family: var(--font-body-family, Montserrat, Arial, sans-serif);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: none;
+  }
+
+  #ProgressProducts-{{ section.id }} .BikeGauge_bike-gauge-block {
+    width: 100%;
+    height: 3px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.24);
+  }
+
+  #ProgressProducts-{{ section.id }} .BikeGauge_bike-gauge__box-block {
+    height: 100%;
+    max-width: 100%;
+    background: var(--progress-products-text);
+    transform-origin: left center;
+  }
+
+  #ProgressProducts-{{ section.id }} .caption-inner {
+    margin-top: 0.65rem;
+    color: var(--progress-products-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.35;
+    opacity: 0.86;
+  }
+
+  @media screen and (max-width: 1440px) {
+    #ProgressProducts-{{ section.id }} .progress-heading h2 {
+      font-size: 5.75rem;
+    }
+
+    #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail-box-number {
+      font-size: 2.35rem;
+    }
+  }
+
+  @media screen and (max-width: 1280px) {
+    #ProgressProducts-{{ section.id }} .progress-mainy-items-flx {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      min-height: auto;
+      padding: 24px 16px 44px;
+    }
+
+    #ProgressProducts-{{ section.id }} .home-page-bike-progress {
+      top: 0;
+      min-height: auto;
+      margin: -24px -16px 0;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    #ProgressProducts-{{ section.id }} .homepage-bike-slider-focus {
+      flex-direction: row;
+      gap: 18px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    #ProgressProducts-{{ section.id }} .homepage-bike-slider-focus::-webkit-scrollbar {
+      display: none;
+    }
+
+    #ProgressProducts-{{ section.id }} .scroll-focus {
+      flex: 0 0 auto;
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+
+    #ProgressProducts-{{ section.id }} .scroll-focus.HomePage_focused {
+      transform: translateY(-2px);
+    }
+
+    #ProgressProducts-{{ section.id }} .pgrsbar-scroll-items {
+      width: 100%;
+      height: 4px;
+      min-height: 4px;
+    }
+
+    #ProgressProducts-{{ section.id }} .prgs-bar-scrolling {
+      width: clamp(52px, 20vw, 120px);
+      height: 100%;
+      transform: translateX(0);
+    }
+
+    #ProgressProducts-{{ section.id }} .progress-image-items {
+      gap: 36px;
+      order: 3;
+    }
+
+    #ProgressProducts-{{ section.id }} .progress-image-itemsing {
+      min-height: auto;
+      scroll-margin-top: 92px;
+    }
+
+    #ProgressProducts-{{ section.id }} .progress-product-media {
+      position: relative;
+      top: auto;
+      min-height: auto;
+      padding: 18px 0 6px;
+    }
+
+    #ProgressProducts-{{ section.id }} .progress-product-media img,
+    #ProgressProducts-{{ section.id }} .progress-product-media svg {
+      width: 100%;
+      max-height: 54vh;
+    }
+
+    #ProgressProducts-{{ section.id }} .progress-head-detailsing {
+      position: sticky;
+      top: 66px;
+      min-height: auto;
+      order: 2;
+      padding: 16px 0 20px;
+      background: var(--progress-products-bg);
+      z-index: 1;
+    }
+
+    #ProgressProducts-{{ section.id }} .progress-head-details {
+      position: relative;
+      display: none;
+      min-height: auto;
+    }
+
+    #ProgressProducts-{{ section.id }} .progress-head-details.active {
+      display: flex;
+    }
+
+    #ProgressProducts-{{ section.id }} .progress-heading h2 {
+      max-width: 10ch;
+      margin-bottom: 1.4rem;
+      font-size: 4rem;
+      line-height: 0.95;
+    }
+
+    #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail {
+      max-width: none;
+      gap: 1rem;
+    }
+
+    #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail-box {
+      padding-top: 0.85rem;
+    }
+
+    #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail-box-number {
+      font-size: 2rem;
+      margin-bottom: 0.55rem;
+    }
+
+    #ProgressProducts-{{ section.id }} .caption-inner {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem 0.85rem;
+    }
+
+    #ProgressProducts-{{ section.id }} .progress-heading h2 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail-box-number {
+      font-size: 1.75rem;
+    }
+
+    #ProgressProducts-{{ section.id }} .bike-progress-slider-block-detail-box-adda {
+      font-size: 0.75rem;
+    }
+
+    #ProgressProducts-{{ section.id }} .caption-inner {
+      font-size: 0.6875rem;
+      line-height: 1.3;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById('ProgressProducts-{{ section.id }}');
+    if (!root) return;
+
+    const imageItems = Array.from(root.querySelectorAll('.progress-image-itemsing'));
+    const detailItems = Array.from(root.querySelectorAll('.progress-head-details'));
+    const progressMain = root.querySelector('[data-progress-root]');
+    const progressRail = root.querySelector('[data-progress-rail]');
+    const focusItems = Array.from(root.querySelectorAll('.scroll-focus'));
+    const progressBar = root.querySelector('[data-progress-thumb]');
+    let activeIndex = -1;
+    let ticking = false;
+
+    function decimalPlaces(value) {
+      const stringValue = String(value || '');
+      return stringValue.includes('.') ? stringValue.split('.')[1].length : 0;
+    }
+
+    function updateCounter(span, target) {
+      const endValue = parseFloat(target);
+      if (Number.isNaN(endValue)) return;
+
+      const startValue = 0;
+      const duration = 1000;
+      const startTime = performance.now();
+      const places = decimalPlaces(target);
+
+      function frame(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        span.textContent = (startValue + (endValue - startValue) * eased).toFixed(places);
+
+        if (progress < 1) {
+          requestAnimationFrame(frame);
+        }
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    function setActive(index) {
+      if (index === activeIndex || !detailItems[index]) return;
+
+      detailItems.forEach((item, itemIndex) => {
+        item.classList.toggle('active', itemIndex === index);
+      });
+
+      const activeDetail = detailItems[index];
+      const activeImage = imageItems[index];
+      const accent = getComputedStyle(activeDetail).getPropertyValue('--background').trim();
+      const group = activeImage ? activeImage.dataset.value : '';
+
+      if (accent) {
+        root.style.setProperty('--progress-products-bg', accent);
+        if (progressMain) progressMain.style.backgroundColor = accent;
+        if (progressRail) progressRail.style.backgroundColor = accent;
+      }
+
+      focusItems.forEach((item) => {
+        item.classList.toggle('HomePage_focused', item.dataset.value === group);
+      });
+
+      activeDetail.querySelectorAll('[data-target]').forEach((span) => {
+        updateCounter(span, span.dataset.target);
+      });
+
+      activeIndex = index;
+    }
+
+    function updateProgress() {
+      if (!progressBar) return;
+
+      const rect = root.getBoundingClientRect();
+      const total = Math.max(rect.height - window.innerHeight, 1);
+      const progress = Math.min(Math.max(-rect.top / total, 0), 1);
+
+      if (window.matchMedia('(max-width: 1280px)').matches) {
+        const rail = progressBar.parentElement;
+        const distance = Math.max(rail.offsetWidth - progressBar.offsetWidth, 0);
+        progressBar.style.transform = `translateX(${progress * distance}px)`;
+      } else {
+        const rail = progressBar.parentElement;
+        const distance = Math.max(rail.offsetHeight - progressBar.offsetHeight, 0);
+        progressBar.style.transform = `translateY(${progress * distance}px)`;
+      }
+    }
+
+    function findCurrentIndex() {
+      if (!imageItems.length) return 0;
+
+      const viewportMiddle = window.innerHeight * 0.52;
+      let nearestIndex = 0;
+      let nearestDistance = Infinity;
+
+      imageItems.forEach((item, index) => {
+        const rect = item.getBoundingClientRect();
+        const itemMiddle = rect.top + rect.height / 2;
+        const distance = Math.abs(itemMiddle - viewportMiddle);
+
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestIndex = index;
+        }
+      });
+
+      return nearestIndex;
+    }
+
+    function onScroll() {
+      if (ticking) return;
+
+      ticking = true;
+      requestAnimationFrame(() => {
+        updateProgress();
+        setActive(findCurrentIndex());
+        ticking = false;
+      });
+    }
+
+    focusItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        const target = imageItems.find((image) => image.dataset.value === item.dataset.value);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Progress product scroll",
+  "tag": "section",
+  "class": "section-progress-product-scroll",
+  "settings": [
+    {
+      "type": "text",
+      "id": "focus_label",
+      "label": "Focus navigation label",
+      "default": "Product series"
+    },
+    {
+      "type": "text",
+      "id": "default_group",
+      "label": "Default group name",
+      "default": "Raptor"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Default background color",
+      "default": "#41c87f"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "muted_text_color",
+      "label": "Caption color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "bar_color",
+      "label": "Progress bar color",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Shopify product"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom title"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Custom link"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image"
+        },
+        {
+          "type": "text",
+          "id": "group",
+          "label": "Group name",
+          "default": "Raptor"
+        },
+        {
+          "type": "color",
+          "id": "accent_color",
+          "label": "Active background color",
+          "default": "#41c87f"
+        },
+        {
+          "type": "header",
+          "content": "Stat 1"
+        },
+        {
+          "type": "text",
+          "id": "stat_1_value",
+          "label": "Value",
+          "default": "6000"
+        },
+        {
+          "type": "text",
+          "id": "stat_1_unit",
+          "label": "Unit",
+          "default": "W"
+        },
+        {
+          "type": "text",
+          "id": "stat_1_label",
+          "label": "Caption",
+          "default": "Peak for Off Road"
+        },
+        {
+          "type": "range",
+          "id": "stat_1_gauge",
+          "label": "Gauge width",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 100
+        },
+        {
+          "type": "header",
+          "content": "Stat 2"
+        },
+        {
+          "type": "text",
+          "id": "stat_2_value",
+          "label": "Value",
+          "default": "50"
+        },
+        {
+          "type": "text",
+          "id": "stat_2_unit",
+          "label": "Unit",
+          "default": "mph"
+        },
+        {
+          "type": "text",
+          "id": "stat_2_label",
+          "label": "Caption",
+          "default": "Max Speed for Off Road"
+        },
+        {
+          "type": "range",
+          "id": "stat_2_gauge",
+          "label": "Gauge width",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 80
+        },
+        {
+          "type": "header",
+          "content": "Stat 3"
+        },
+        {
+          "type": "text",
+          "id": "stat_3_value",
+          "label": "Value",
+          "default": "1500"
+        },
+        {
+          "type": "text",
+          "id": "stat_3_unit",
+          "label": "Unit",
+          "default": "Wh"
+        },
+        {
+          "type": "text",
+          "id": "stat_3_label",
+          "label": "Caption",
+          "default": "Battery"
+        },
+        {
+          "type": "range",
+          "id": "stat_3_gauge",
+          "label": "Gauge width",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 100
+        },
+        {
+          "type": "header",
+          "content": "Stat 4"
+        },
+        {
+          "type": "text",
+          "id": "stat_4_value",
+          "label": "Value",
+          "default": "50"
+        },
+        {
+          "type": "text",
+          "id": "stat_4_unit",
+          "label": "Unit",
+          "default": "miles"
+        },
+        {
+          "type": "text",
+          "id": "stat_4_label",
+          "label": "Caption",
+          "default": "Range"
+        },
+        {
+          "type": "range",
+          "id": "stat_4_gauge",
+          "label": "Gauge width",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 25
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Progress product scroll",
+      "blocks": [
+        {
+          "type": "product",
+          "settings": {
+            "title": "R3",
+            "group": "Raptor",
+            "accent_color": "#41c87f"
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "title": "R3 NEO",
+            "group": "Raptor",
+            "accent_color": "#77a6b6",
+            "stat_2_value": "45"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

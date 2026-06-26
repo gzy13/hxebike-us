@@ -1,0 +1,721 @@
+{% liquid
+  assign section_id = 'image-cards-split-' | append: section.id
+  assign blocks_count = section.blocks.size
+%}
+
+<section id="{{ section_id }}" class="image-cards-split section-{{ section.id }}">
+  <div class="image-cards-split__outer">
+    <div class="image-cards-split__grid cards-count-{{ blocks_count }}">
+      {% for block in section.blocks %}
+        {% liquid
+          assign card_link = block.settings.link
+          assign card_image = block.settings.image
+          assign card_title = block.settings.title
+          assign card_text = block.settings.text
+          assign button_label = block.settings.button_label
+          assign image_alt = card_image.alt | default: card_title | default: shop.name | escape
+        %}
+
+        <article
+          class="image-cards-split__card {% if forloop.first %}is-featured{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          {% if card_link != blank %}
+            <a
+              class="image-cards-split__link"
+              href="{{ card_link }}"
+              aria-label="{{ card_title | default: button_label | default: 'Card link' | escape }}"
+            >
+          {% else %}
+            <div class="image-cards-split__link image-cards-split__link--static">
+          {% endif %}
+
+              <div class="image-cards-split__media">
+                {% if card_image != blank %}
+                  {{
+                    card_image
+                    | image_url: width: 1800
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '480, 720, 900, 1200, 1500, 1800',
+                      sizes: '(max-width: 767px) calc(100vw - 32px), (max-width: 1199px) 50vw, 50vw',
+                      class: 'image-cards-split__image',
+                      alt: image_alt
+                  }}
+                {% else %}
+                  {{
+                    'lifestyle-1'
+                    | placeholder_svg_tag: 'image-cards-split__image image-cards-split__image--placeholder'
+                  }}
+                {% endif %}
+
+                <div class="image-cards-split__overlay"></div>
+              </div>
+
+              <div class="image-cards-split__content content-align-{{ section.settings.content_alignment }}">
+                {% if card_title != blank %}
+                  <h3 class="image-cards-split__title">{{ card_title }}</h3>
+                {% endif %}
+
+                {% if card_text != blank %}
+                  <div class="image-cards-split__text rte">
+                    {{ card_text }}
+                  </div>
+                {% endif %}
+
+                {% if button_label != blank %}
+                  <span class="image-cards-split__button">
+                    {{ button_label }}
+                  </span>
+                {% endif %}
+              </div>
+
+          {% if card_link != blank %}
+            </a>
+          {% else %}
+            </div>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+  #{{ section_id }} {
+    --section-pt: {{ section.settings.padding_top }}px;
+    --section-pb: {{ section.settings.padding_bottom }}px;
+    --section-max-width: {{ section.settings.section_max_width }}px;
+
+    --card-radius: {{ section.settings.card_radius }}px;
+    --card-min-height-desktop: {{ section.settings.desktop_height }}px;
+    --card-min-height-mobile: {{ section.settings.mobile_height }}px;
+
+    --card-gap-desktop: {{ section.settings.gap_desktop }}px;
+    --card-gap-mobile: {{ section.settings.gap_mobile }}px;
+
+    --overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    --overlay-opacity-hover: {{ section.settings.overlay_opacity_hover | divided_by: 100.0 }};
+
+    --title-color: {{ section.settings.title_color }};
+    --text-color: {{ section.settings.text_color }};
+    --button-bg: {{ section.settings.button_bg }};
+    --button-text: {{ section.settings.button_text }};
+
+    --content-max-width: {{ section.settings.content_max_width }}px;
+
+    --title-size-desktop: {{ section.settings.title_size_desktop }}px;
+    --title-size-mobile: {{ section.settings.title_size_mobile }}px;
+
+    --text-size-desktop: {{ section.settings.text_size_desktop }}px;
+    --text-size-mobile: {{ section.settings.text_size_mobile }}px;
+
+    --button-size-desktop: {{ section.settings.button_size_desktop }}px;
+    --button-size-mobile: {{ section.settings.button_size_mobile }}px;
+
+    --title-line-height: {{ section.settings.title_line_height | divided_by: 100.0 }};
+    --text-line-height: {{ section.settings.text_line_height | divided_by: 100.0 }};
+
+    padding-top: var(--section-pt);
+    padding-bottom: var(--section-pb);
+  }
+
+  #{{ section_id }},
+  #{{ section_id }} * {
+    box-sizing: border-box;
+  }
+
+  #{{ section_id }} .image-cards-split__outer {
+    width: 100%;
+    max-width: var(--section-max-width);
+    margin: 0 auto;
+  }
+
+  #{{ section_id }} .image-cards-split__grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--card-gap-mobile);
+    width: 100%;
+  }
+
+  #{{ section_id }} .image-cards-split__card {
+    position: relative;
+    min-width: 0;
+    width: 100%;
+  }
+
+  #{{ section_id }} .image-cards-split__link,
+  #{{ section_id }} .image-cards-split__link--static {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: var(--card-min-height-mobile);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    text-decoration: none;
+    isolation: isolate;
+    color: inherit;
+    background: #f4f4f4;
+  }
+
+  #{{ section_id }} .image-cards-split__link:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 4px;
+  }
+
+  #{{ section_id }} .image-cards-split__media {
+    position: absolute;
+    inset: 0;
+  }
+
+  #{{ section_id }} .image-cards-split__image,
+  #{{ section_id }} .image-cards-split__image--placeholder,
+  #{{ section_id }} .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.45s ease, filter 0.45s ease;
+  }
+
+  #{{ section_id }} .image-cards-split__overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.42) 0%,
+        rgba(0, 0, 0, 0.16) 45%,
+        rgba(0, 0, 0, 0.04) 100%
+      );
+    opacity: var(--overlay-opacity);
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+
+  #{{ section_id }} .image-cards-split__content {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 2;
+    padding: 20px;
+    max-width: var(--content-max-width);
+  }
+
+  #{{ section_id }} .content-align-left {
+    text-align: left;
+    margin-right: auto;
+  }
+
+  #{{ section_id }} .content-align-center {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #{{ section_id }} .content-align-right {
+    text-align: right;
+    margin-left: auto;
+  }
+
+  #{{ section_id }} .image-cards-split__title {
+    margin: 0 0 10px;
+    color: var(--title-color);
+    font-size: var(--title-size-mobile);
+    line-height: var(--title-line-height);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+  }
+
+  #{{ section_id }} .image-cards-split__text {
+    margin: 0 0 18px;
+    font-size: var(--text-size-mobile);
+    line-height: var(--text-line-height);
+    overflow-wrap: anywhere;
+  }
+
+  /* 关键修复：强制覆盖主题 rte 默认颜色 */
+  #{{ section_id }} .image-cards-split__text,
+  #{{ section_id }} .image-cards-split__text *,
+  #{{ section_id }} .image-cards-split__text.rte,
+  #{{ section_id }} .image-cards-split__text.rte *,
+  #{{ section_id }} .image-cards-split__text p,
+  #{{ section_id }} .image-cards-split__text a,
+  #{{ section_id }} .image-cards-split__text strong,
+  #{{ section_id }} .image-cards-split__text em,
+  #{{ section_id }} .image-cards-split__text span,
+  #{{ section_id }} .image-cards-split__text li,
+  #{{ section_id }} .image-cards-split__text ul,
+  #{{ section_id }} .image-cards-split__text ol,
+  #{{ section_id }} .image-cards-split__text h1,
+  #{{ section_id }} .image-cards-split__text h2,
+  #{{ section_id }} .image-cards-split__text h3,
+  #{{ section_id }} .image-cards-split__text h4,
+  #{{ section_id }} .image-cards-split__text h5,
+  #{{ section_id }} .image-cards-split__text h6,
+  #{{ section_id }} .image-cards-split__text blockquote {
+    color: var(--text-color) !important;
+  }
+
+  #{{ section_id }} .image-cards-split__text p:last-child,
+  #{{ section_id }} .image-cards-split__text ul:last-child,
+  #{{ section_id }} .image-cards-split__text ol:last-child {
+    margin-bottom: 0;
+  }
+
+  #{{ section_id }} .image-cards-split__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--button-bg);
+    color: var(--button-text);
+    font-size: var(--button-size-mobile);
+    font-weight: 600;
+    line-height: 1;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    max-width: 100%;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  @media screen and (max-width: 767px) {
+    #{{ section_id }} .image-cards-split__outer {
+      max-width: 100%;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    #{{ section_id }} .image-cards-split__card {
+      flex: 0 0 100%;
+    }
+
+    #{{ section_id }} .image-cards-split__link,
+    #{{ section_id }} .image-cards-split__link--static {
+      min-height: var(--card-min-height-mobile);
+    }
+
+    #{{ section_id }} .image-cards-split__content {
+      padding: 20px;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    #{{ section_id }} .image-cards-split__outer {
+      max-width: var(--section-max-width);
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    #{{ section_id }} .image-cards-split__grid {
+      flex-direction: row;
+      gap: var(--card-gap-desktop);
+      align-items: stretch;
+    }
+
+    #{{ section_id }} .image-cards-split__card {
+      flex-grow: 1;
+      flex-shrink: 1;
+      min-width: 0;
+      transition: flex-basis 0.45s ease, flex-grow 0.45s ease, transform 0.35s ease;
+    }
+
+    #{{ section_id }} .image-cards-split__link,
+    #{{ section_id }} .image-cards-split__link--static {
+      min-height: var(--card-min-height-desktop);
+    }
+
+    #{{ section_id }} .image-cards-split__content {
+      padding: 30px;
+    }
+
+    #{{ section_id }} .image-cards-split__title {
+      font-size: var(--title-size-desktop);
+    }
+
+    #{{ section_id }} .image-cards-split__text {
+      font-size: var(--text-size-desktop);
+    }
+
+    #{{ section_id }} .image-cards-split__button {
+      min-height: 48px;
+      padding: 12px 22px;
+      font-size: var(--button-size-desktop);
+    }
+
+    /* 2 cards default */
+    #{{ section_id }} .cards-count-2 .image-cards-split__card.is-featured {
+      flex-basis: 58%;
+    }
+
+    #{{ section_id }} .cards-count-2 .image-cards-split__card:not(.is-featured) {
+      flex-basis: 42%;
+    }
+
+    /* 2 cards hover */
+    #{{ section_id }} .cards-count-2 .image-cards-split__card.is-featured:hover {
+      flex-basis: 58%;
+    }
+
+    #{{ section_id }} .cards-count-2 .image-cards-split__card.is-featured:hover + .image-cards-split__card {
+      flex-basis: 42%;
+    }
+
+    #{{ section_id }} .cards-count-2 .image-cards-split__card:not(.is-featured):hover {
+      flex-basis: 58%;
+    }
+
+    #{{ section_id }} .cards-count-2 .image-cards-split__card.is-featured:has(+ .image-cards-split__card:hover) {
+      flex-basis: 42%;
+    }
+
+    /* 3 / 4 cards */
+    #{{ section_id }} .cards-count-3 .image-cards-split__card,
+    #{{ section_id }} .cards-count-4 .image-cards-split__card {
+      flex: 1 1 0;
+    }
+
+    #{{ section_id }} .cards-count-3 .image-cards-split__card:hover,
+    #{{ section_id }} .cards-count-4 .image-cards-split__card:hover {
+      flex-grow: 1.14;
+    }
+
+    #{{ section_id }} .image-cards-split__card:hover {
+      transform: translateY(-1px);
+    }
+
+    #{{ section_id }} .image-cards-split__card:hover .image-cards-split__image,
+    #{{ section_id }} .image-cards-split__card:hover .image-cards-split__image--placeholder,
+    #{{ section_id }} .image-cards-split__card:hover .placeholder-svg,
+    #{{ section_id }} .image-cards-split__card:focus-within .image-cards-split__image,
+    #{{ section_id }} .image-cards-split__card:focus-within .image-cards-split__image--placeholder,
+    #{{ section_id }} .image-cards-split__card:focus-within .placeholder-svg {
+      transform: scale(1.04);
+      filter: brightness(1.03);
+    }
+
+    #{{ section_id }} .image-cards-split__card:hover .image-cards-split__overlay,
+    #{{ section_id }} .image-cards-split__card:focus-within .image-cards-split__overlay {
+      opacity: var(--overlay-opacity-hover);
+    }
+
+    #{{ section_id }} .image-cards-split__card:hover .image-cards-split__button,
+    #{{ section_id }} .image-cards-split__card:focus-within .image-cards-split__button {
+      transform: translateY(-2px);
+    }
+  }
+
+  @supports not selector(:has(*)) {
+    #{{ section_id }} .cards-count-2 .image-cards-split__card.is-featured:hover,
+    #{{ section_id }} .cards-count-2 .image-cards-split__card:not(.is-featured):hover {
+      flex-basis: 58%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #{{ section_id }} .image-cards-split__card,
+    #{{ section_id }} .image-cards-split__image,
+    #{{ section_id }} .image-cards-split__image--placeholder,
+    #{{ section_id }} .placeholder-svg,
+    #{{ section_id }} .image-cards-split__overlay,
+    #{{ section_id }} .image-cards-split__button {
+      transition: none !important;
+    }
+
+    #{{ section_id }} .image-cards-split__card:hover {
+      transform: none;
+    }
+
+    #{{ section_id }} .image-cards-split__card:hover .image-cards-split__button,
+    #{{ section_id }} .image-cards-split__card:focus-within .image-cards-split__button {
+      transform: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Image cards split",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "label": "Desktop max width",
+      "min": 960,
+      "max": 1600,
+      "step": 10,
+      "default": 1450
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "Desktop card height",
+      "min": 260,
+      "max": 700,
+      "step": 10,
+      "default": 440
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "label": "Mobile card height",
+      "min": 180,
+      "max": 420,
+      "step": 10,
+      "default": 240
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "label": "Desktop gap",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Mobile gap",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity_hover",
+      "label": "Overlay opacity on hover",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 25
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 180,
+      "max": 700,
+      "step": 10,
+      "default": 520
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "label": "Title size desktop",
+      "min": 20,
+      "max": 72,
+      "step": 1,
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "label": "Title size mobile",
+      "min": 16,
+      "max": 40,
+      "step": 1,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "title_line_height",
+      "label": "Title line height (%)",
+      "min": 90,
+      "max": 160,
+      "step": 5,
+      "default": 105
+    },
+    {
+      "type": "range",
+      "id": "text_size_desktop",
+      "label": "Text size desktop",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "Text size mobile",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "text_line_height",
+      "label": "Text line height (%)",
+      "min": 110,
+      "max": 220,
+      "step": 5,
+      "default": 145
+    },
+    {
+      "type": "range",
+      "id": "button_size_desktop",
+      "label": "Button text size desktop",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_size_mobile",
+      "label": "Button text size mobile",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text",
+      "label": "Button text color",
+      "default": "#111111"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Background image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Card heading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Add a short description here.</p>"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Card link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image cards split",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "title": "Explore products",
+            "text": "<p>Showcase a category, collection, or landing page.</p>",
+            "button_label": "Shop now"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "title": "Discover more",
+            "text": "<p>Guide customers to another key destination on your store.</p>",
+            "button_label": "Learn more"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

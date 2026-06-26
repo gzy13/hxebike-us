@@ -1,0 +1,189 @@
+<section id="brand-feature-grid-{{ section.id }}" class="brand-feature-grid-simple"{% if section.settings.heading != blank %} aria-label="{{ section.settings.heading | escape }}"{% endif %}>
+  <div class="brand-feature-grid-simple__inner">
+    {% if section.settings.heading != blank %}
+      <h2 class="brand-feature-grid-simple__heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+      <div class="brand-feature-grid-simple__grid">
+        {% for block in section.blocks %}
+          <div class="brand-feature-grid-simple__item" {{ block.shopify_attributes }}>
+            {% if block.settings.image != blank %}
+              {% assign brand_alt = block.settings.image.alt | default: block.settings.alt_text %}
+
+              <div class="brand-feature-grid-simple__logo">
+                {{
+                  block.settings.image
+                  | image_url: width: 320
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '120, 160, 240, 320',
+                    sizes: '(max-width: 768px) 120px, 220px',
+                    alt: brand_alt,
+                    class: 'brand-feature-grid-simple__logo-image'
+                }}
+              </div>
+            {% endif %}
+
+            {% if block.settings.text != blank %}
+              <div class="brand-feature-grid-simple__text">
+                {{ block.settings.text | newline_to_br }}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <style>
+    #brand-feature-grid-{{ section.id }} {
+      background: {{ section.settings.bg_color }};
+      padding: 70px 20px 80px;
+    }
+
+    #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__inner {
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+
+    #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__heading {
+      margin: 0 0 42px;
+      text-align: center;
+      font-size: 25px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: #111111;
+    }
+
+    #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 40px 34px;
+      align-items: start;
+    }
+
+    #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__item {
+      text-align: center;
+    }
+
+    #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__logo {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__logo-image {
+      display: block;
+      max-width: 100%;
+      max-height: 54px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__text {
+      max-width: 220px;
+      margin: 0 auto;
+      font-size: 16px;
+      line-height: 1.45;
+      color: #111111;
+      word-break: break-word;
+    }
+
+    #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__text p {
+      margin: 0;
+    }
+
+    @media screen and (max-width: 768px) {
+      #brand-feature-grid-{{ section.id }} {
+        padding: 48px 16px 56px;
+      }
+
+      #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__heading {
+        margin-bottom: 34px;
+        font-size: 21px;
+      }
+
+      #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 34px 16px;
+      }
+
+      #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__logo {
+        height: 42px;
+        margin-bottom: 18px;
+      }
+
+      #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__logo-image {
+        max-height: 42px;
+      }
+
+      #brand-feature-grid-{{ section.id }} .brand-feature-grid-simple__text {
+        max-width: 140px;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+    }
+  </style>
+</section>
+
+{% schema %}
+{
+  "name": "Brand feature grid",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "标题",
+      "default": "Built With the Best in the Business"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "背景色",
+      "default": "#f3f3f3"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand_item",
+      "name": "品牌项",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Logo"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "图片替代文字",
+          "default": "Brand logo"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "说明文字",
+          "default": "Smooth, reliable, and powerful ebike motors."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 5,
+  "presets": [
+    {
+      "name": "Brand feature grid",
+      "blocks": [
+        { "type": "brand_item" },
+        { "type": "brand_item" },
+        { "type": "brand_item" },
+        { "type": "brand_item" },
+        { "type": "brand_item" }
+      ]
+    }
+  ]
+}
+{% endschema %}

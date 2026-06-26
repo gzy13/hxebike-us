@@ -1,0 +1,340 @@
+{% comment %}
+  Section: Scrolling Images Marquee
+  - Seamless marquee (duplicates items twice)
+  - Responsive item width for desktop/mobile
+  - “截图同款”卡片效果：固定高度 + object-fit: cover（会裁切）
+{% endcomment %}
+
+<section
+  id="shopify-section-{{ section.id }}"
+  class="si-marquee"
+  style="
+    --si-speed: {{ section.settings.speed }}s;
+    --si-gap: {{ section.settings.gap }}px;
+    --si-item-w-desktop: {{ section.settings.item_width_desktop }}px;
+    --si-item-w-mobile: {{ section.settings.item_width_mobile }}px;
+    --si-max-h-desktop: {{ section.settings.max_height_desktop }}px;
+    --si-max-h-mobile: {{ section.settings.max_height_mobile }}px;
+    --si-padding-y: {{ section.settings.padding_y }}px;
+    --si-radius: {{ section.settings.radius }}px;
+    --si-shadow: {{ section.settings.shadow }};
+    --si-bg: {{ section.settings.card_bg }};
+  "
+>
+  <div class="si-marquee__viewport {% if section.settings.pause_on_hover %}si-marquee--pause{% endif %}">
+    <div
+      class="si-marquee__track si-marquee__track--{{ section.settings.direction }}"
+      aria-label="Scrolling images"
+      role="list"
+    >
+      {%- capture items -%}
+        {%- for block in section.blocks -%}
+          <div class="si-marquee__item" role="listitem" {{ block.shopify_attributes }}>
+            <div class="si-marquee__media">
+              {%- if block.settings.image != blank -%}
+                {%- assign img_alt = block.settings.alt | default: block.settings.caption | default: 'Scrolling image' -%}
+                <img
+                  src="{{ block.settings.image | image_url: width: 900 }}"
+                  srcset="
+                    {{ block.settings.image | image_url: width: 240 }} 240w,
+                    {{ block.settings.image | image_url: width: 360 }} 360w,
+                    {{ block.settings.image | image_url: width: 480 }} 480w,
+                    {{ block.settings.image | image_url: width: 600 }} 600w,
+                    {{ block.settings.image | image_url: width: 800 }} 800w,
+                    {{ block.settings.image | image_url: width: 900 }} 900w,
+                    {{ block.settings.image | image_url: width: 1200 }} 1200w
+                  "
+                  sizes="(max-width: 749px) var(--si-item-w-mobile), var(--si-item-w-desktop)"
+                  loading="lazy"
+                  alt="{{ img_alt | escape }}"
+                >
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag: 'placeholder' }}
+              {%- endif -%}
+            </div>
+
+            {%- if section.settings.show_caption and block.settings.caption != blank -%}
+              <div class="si-marquee__caption">{{ block.settings.caption }}</div>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      {%- endcapture -%}
+
+      {{ items }}
+      {{ items }}
+    </div>
+  </div>
+
+  <style>
+    /* Root */
+    #shopify-section-{{ section.id }}.si-marquee {
+      width: 100%;
+    }
+
+    /* Viewport */
+    #shopify-section-{{ section.id }} .si-marquee__viewport {
+      overflow: hidden;
+      padding: var(--si-padding-y) 0;
+    }
+
+    /* Track */
+    #shopify-section-{{ section.id }} .si-marquee__track {
+      display: flex;
+      align-items: center;
+      gap: var(--si-gap);
+      width: max-content;
+      will-change: transform;
+      animation-duration: var(--si-speed);
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    /* Direction */
+    #shopify-section-{{ section.id }} .si-marquee__track--left {
+      animation-name: si-marquee-left-{{ section.id }};
+    }
+    #shopify-section-{{ section.id }} .si-marquee__track--right {
+      animation-name: si-marquee-right-{{ section.id }};
+    }
+
+    @keyframes si-marquee-left-{{ section.id }} {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    @keyframes si-marquee-right-{{ section.id }} {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
+
+    /* Item sizing */
+    #shopify-section-{{ section.id }} .si-marquee__item {
+      flex: 0 0 auto;
+      width: var(--si-item-w-desktop);
+      text-align: center;
+    }
+
+    /* Media/card: 固定高度 + 裁切（截图同款） */
+    #shopify-section-{{ section.id }} .si-marquee__media {
+      width: 100%;
+      height: var(--si-max-h-desktop);
+      overflow: hidden;
+      border-radius: var(--si-radius);
+      background: var(--si-bg);
+      box-shadow: var(--si-shadow);
+      display: block;
+    }
+
+    /* Image: 铺满卡片（会裁切） */
+    #shopify-section-{{ section.id }} .si-marquee__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Placeholder svg 也保持一致高度 */
+    #shopify-section-{{ section.id }} .si-marquee__media svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #shopify-section-{{ section.id }} .si-marquee__caption {
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.3;
+      opacity: 0.9;
+    }
+
+    /* Pause on hover */
+    #shopify-section-{{ section.id }} .si-marquee--pause:hover .si-marquee__track {
+      animation-play-state: paused;
+    }
+
+    /* Mobile */
+    @media (max-width: 749px) {
+      #shopify-section-{{ section.id }} .si-marquee__item {
+        width: var(--si-item-w-mobile);
+      }
+
+      #shopify-section-{{ section.id }} .si-marquee__media {
+        height: var(--si-max-h-mobile);
+      }
+
+      #shopify-section-{{ section.id }} .si-marquee__caption {
+        font-size: 13px;
+      }
+    }
+
+    /* Reduce motion accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      #shopify-section-{{ section.id }} .si-marquee__track {
+        animation: none;
+        transform: none;
+      }
+    }
+  </style>
+</section>
+
+{% schema %}
+{
+  "name": "Scrolling images marquee",
+  "settings": [
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Direction",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Speed (seconds per loop)",
+      "min": 10,
+      "max": 120,
+      "step": 2,
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between images (px)",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_y",
+      "label": "Top/Bottom padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 20
+    },
+
+    {
+      "type": "header",
+      "content": "Image size"
+    },
+    {
+      "type": "range",
+      "id": "item_width_desktop",
+      "label": "Item width (desktop px)",
+      "min": 80,
+      "max": 520,
+      "step": 10,
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "item_width_mobile",
+      "label": "Item width (mobile px)",
+      "min": 80,
+      "max": 320,
+      "step": 10,
+      "default": 180
+    },
+    {
+      "type": "range",
+      "id": "max_height_desktop",
+      "label": "Card height (desktop px)",
+      "min": 60,
+      "max": 420,
+      "step": 10,
+      "default": 260
+    },
+    {
+      "type": "range",
+      "id": "max_height_mobile",
+      "label": "Card height (mobile px)",
+      "min": 60,
+      "max": 320,
+      "step": 10,
+      "default": 200
+    },
+
+    {
+      "type": "header",
+      "content": "Card style"
+    },
+    {
+      "type": "range",
+      "id": "radius",
+      "label": "Corner radius (px)",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "text",
+      "id": "shadow",
+      "label": "Box shadow (CSS)",
+      "default": "0 6px 18px rgba(0,0,0,.10)"
+    },
+    {
+      "type": "text",
+      "id": "card_bg",
+      "label": "Card background (CSS)",
+      "default": "#f4f4f4"
+    },
+
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_caption",
+      "label": "Show caption under image",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Image item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "Caption (optional)"
+        },
+        {
+          "type": "text",
+          "id": "alt",
+          "label": "Alt text (optional)"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 30,
+  "presets": [
+    {
+      "name": "Scrolling images marquee",
+      "blocks": [
+        { "type": "item" },
+        { "type": "item" },
+        { "type": "item" },
+        { "type": "item" },
+        { "type": "item" },
+        { "type": "item" }
+      ]
+    }
+  ]
+}
+{% endschema %}

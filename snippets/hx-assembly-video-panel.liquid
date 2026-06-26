@@ -1,0 +1,107 @@
+{% comment %}
+  Snippet: hx-assembly-video-panel
+  - Desktop: NOT full width (centered container)
+  - Mobile: full width
+  - Default video: https://www.youtube.com/watch?v=z56akSPBqJQ
+
+  Usage:
+  {% render 'hx-assembly-video-panel', title: 'Assembly Video' %}
+  (optional) {% render 'hx-assembly-video-panel', title: 'Assembly Video', youtube_url: 'https://www.youtube.com/watch?v=z56akSPBqJQ' %}
+{% endcomment %}
+
+{%- assign av_title = title | default: 'Assembly Video' -%}
+{%- assign av_url = youtube_url | default: 'https://www.youtube.com/watch?v=z56akSPBqJQ' -%}
+
+{%- comment %}
+  Extract YouTube ID (supports: watch?v=, youtu.be/, embed/)
+{% endcomment -%}
+{%- assign av_id = av_url | split: 'v=' | last | split: '&' | first -%}
+{%- if av_url contains 'youtu.be/' -%}
+  {%- assign av_id = av_url | split: 'youtu.be/' | last | split: '?' | first | split: '&' | first -%}
+{%- endif -%}
+{%- if av_url contains '/embed/' -%}
+  {%- assign av_id = av_url | split: '/embed/' | last | split: '?' | first | split: '&' | first -%}
+{%- endif -%}
+
+<section class="hxAssembly">
+  <div class="hxAssembly__container">
+    {% comment %} <h3 class="hxAssembly__title">{{ av_title }}</h3> {% endcomment %}
+
+    <div class="hxAssembly__video">
+      <div class="hxAssembly__ratio">
+        <iframe
+          class="hxAssembly__iframe"
+          src="https://www.youtube.com/embed/{{ av_id }}?rel=0&modestbranding=1"
+          title="{{ av_title | escape }}"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .hxAssembly{
+      padding: 28px 0 40px;
+      color: #111;
+      font-family: var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
+    }
+    .hxAssembly *{ box-sizing: border-box; }
+
+    /* ✅ Desktop NOT full width */
+    .hxAssembly__container{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 clamp(16px, 3vw, 56px);
+    }
+
+    .hxAssembly__title{
+      margin: 0 0 16px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .hxAssembly__ratio{
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 */
+      background: rgba(0,0,0,.04);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,.08);
+    }
+
+    .hxAssembly__iframe{
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    /* ✅ Mobile: full width */
+    @media (max-width: 990px){
+      .hxAssembly{
+        padding: 18px 0 28px;
+      }
+      .hxAssembly__container{
+        max-width: 100%;
+        padding: 0; /* edge-to-edge */
+      }
+      .hxAssembly__title{
+        font-size: 22px;
+        margin: 0 0 12px;
+        padding: 0 clamp(16px, 3vw, 24px);
+      }
+      .hxAssembly__ratio{
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+      }
+    }
+  </style>
+</section>

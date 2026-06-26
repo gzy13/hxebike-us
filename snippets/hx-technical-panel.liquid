@@ -1,0 +1,99 @@
+{% comment %}
+  Snippet: hx-technical-panel
+  Usage:
+  {% render 'hx-technical-panel', title: 'Technical' %}
+{% endcomment %}
+
+{%- assign tech_title = title | default: 'Technical' -%}
+
+<section class="hxTech">
+  <div class="hxTech__container">
+
+    <div class="hxTech__grid" role="table" aria-label="Technical parameters">
+      <!-- Left column -->
+      <div class="hxTech__col" role="rowgroup">
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Spokes</div><div class="hxTech__v" role="cell">12-Gauge Stainless Steel</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Seat Post</div><div class="hxTech__v" role="cell">33.9mm Adjustable Aluminum Seat Tube</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Rims</div><div class="hxTech__v" role="cell">27.5&quot; Aluminum Alloy Rims</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Handlebar</div><div class="hxTech__v" role="cell">Aluminum Alloy, 24.4&quot; / 620mm, Ø31.8mm</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Gearing</div><div class="hxTech__v" role="cell">Shimano SL-TX50-7R, 7-Speed Shifter</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Frame</div><div class="hxTech__v" role="cell">6061 Aluminum Alloy</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Derailleur</div><div class="hxTech__v" role="cell">7-Speed Shimano Rear Derailleur</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Crank Set</div><div class="hxTech__v" role="cell">170mm Forged Aluminum Crank, 38T</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Display</div><div class="hxTech__v" role="cell">3.7&quot; LCD Color Smart Display</div></div>
+      </div>
+
+      <!-- Right column -->
+      <div class="hxTech__col" role="rowgroup">
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Sensor</div><div class="hxTech__v" role="cell">85N·m Hall Sensor, 4-Level Pedal Assist</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Saddle</div><div class="hxTech__v" role="cell">Velo Ergonomic Sport Saddle</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Kickstand</div><div class="hxTech__v" role="cell">6061 Aluminum Alloy Kickstand</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Throttle</div><div class="hxTech__v" role="cell">Twist Throttle</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Max Hill Climbing Angle</div><div class="hxTech__v" role="cell">30°</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Front Fork</div><div class="hxTech__v" role="cell">100mm travel with lockout</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Chain</div><div class="hxTech__v" role="cell">KMC Z9 Stainless Steel Chain</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Brakes</div><div class="hxTech__v" role="cell">180mm Hydraulic Disc Brakes</div></div>
+        <div class="hxTech__row" role="row"><div class="hxTech__k" role="cell">Tires</div><div class="hxTech__v" role="cell">CST 27.5&quot; × 2.25&quot; Mountain Tires</div></div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .hxTech{ padding:32px 0; color:#111; font-family:var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif); }
+    .hxTech *{ box-sizing:border-box; }
+
+    .hxTech__container{ max-width:1680px; margin:0 auto; padding:0 clamp(16px,3vw,64px); }
+
+    .hxTech__title{
+      margin:0 0 18px;
+      font-size:28px;
+      line-height:1.15;
+      font-weight:600;
+      letter-spacing:-0.01em;
+    }
+
+    .hxTech__grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(18px, 3vw, 56px);
+      border-top:1px solid rgba(0,0,0,.10);
+    }
+
+    .hxTech__row{
+      display:grid;
+      grid-template-columns: 240px 1fr;
+      gap:16px;
+      padding:16px 0;
+      border-bottom:1px solid rgba(0,0,0,.06);
+      align-items:start;
+    }
+
+    .hxTech__k, .hxTech__v{
+      font-size:15px;
+      line-height:1.5;
+      font-weight:400; /* NOT bold */
+    }
+    .hxTech__k{ color:rgba(0,0,0,.86); }
+    .hxTech__v{ color:rgba(0,0,0,.62); }
+
+    @media (max-width:990px){
+      .hxTech{ padding:20px 0; }
+      .hxTech__container{ max-width:100%; padding:0 clamp(16px,3vw,24px); }
+      .hxTech__title{ font-size:22px; margin:6px 0 14px; }
+
+      .hxTech__grid{ grid-template-columns:1fr; gap:0; }
+
+      .hxTech__row{
+        grid-template-columns: 1fr 1fr;
+        gap:12px;
+        padding:14px 0;
+      }
+      .hxTech__k, .hxTech__v{ font-size:14px; }
+      .hxTech__v{ text-align:right; }
+    }
+
+    @media (max-width:420px){
+      .hxTech__row{ grid-template-columns: 1.2fr 0.8fr; }
+    }
+  </style>
+</section>

@@ -1,0 +1,645 @@
+{% liquid
+  assign section_id = 'two-image-feature-slider-' | append: section.id
+%}
+
+<section id="{{ section_id }}" class="two-image-feature-slider">
+  <div class="two-image-feature-slider__inner page-width">
+    <div class="two-image-feature-slider__viewport" data-slider-viewport>
+      <div class="two-image-feature-slider__track" data-slider-track>
+        {% for block in section.blocks %}
+          <div
+            class="two-image-feature-slider__slide"
+            {{ block.shopify_attributes }}
+            data-slide
+          >
+            <div class="two-image-feature-slider__card">
+              <div class="two-image-feature-slider__content">
+                {% if block.settings.heading != blank %}
+                  <h2 class="two-image-feature-slider__heading">
+                    {{ block.settings.heading }}
+                  </h2>
+                {% endif %}
+
+                {% if block.settings.text != blank %}
+                  <div class="two-image-feature-slider__text">
+                    {{ block.settings.text }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="two-image-feature-slider__image-wrap">
+                {% if block.settings.image != blank %}
+                  {{
+                    block.settings.image
+                    | image_url: width: 1600
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '480, 720, 960, 1200, 1600',
+                      class: 'two-image-feature-slider__image'
+                  }}
+                {% else %}
+                  {{ 'image' | placeholder_svg_tag: 'two-image-feature-slider__image two-image-feature-slider__image--placeholder' }}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="two-image-feature-slider__controls">
+      <div class="two-image-feature-slider__dots" data-slider-dots></div>
+
+      <div class="two-image-feature-slider__arrows">
+        <button
+          type="button"
+          class="two-image-feature-slider__arrow two-image-feature-slider__arrow--prev"
+          aria-label="Previous slide"
+          data-prev
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M14.7 5.3a1 1 0 0 1 0 1.4L10.41 11l4.29 4.3a1 1 0 1 1-1.41 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.41 0Z" fill="currentColor"/>
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="two-image-feature-slider__arrow two-image-feature-slider__arrow--next"
+          aria-label="Next slide"
+          data-next
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M9.3 18.7a1 1 0 0 1 0-1.4L13.59 13 9.3 8.7a1 1 0 1 1 1.41-1.4l5 5a1 1 0 0 1 0 1.4l-5 5a1 1 0 0 1-1.41 0Z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #{{ section_id }} {
+      --page-width: {{ section.settings.page_width }}px;
+      --gap-desktop: {{ section.settings.gap_desktop }}px;
+      --gap-mobile: {{ section.settings.gap_mobile }}px;
+      --radius-image: {{ section.settings.image_radius }}px;
+      --radius-content: {{ section.settings.content_radius }}px;
+      --content-bg: {{ section.settings.content_bg }};
+      --heading-color: {{ section.settings.heading_color }};
+      --text-color: {{ section.settings.text_color }};
+      --section-padding-top: {{ section.settings.padding_top }}px;
+      --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+      --image-ratio-desktop: {{ section.settings.image_height_desktop }}px;
+      --image-ratio-mobile: {{ section.settings.image_height_mobile }}px;
+      padding-top: var(--section-padding-top);
+      padding-bottom: var(--section-padding-bottom);
+    }
+
+    #{{ section_id }} .page-width {
+      max-width: var(--page-width);
+      margin: 0 auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__inner {
+      position: relative;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__viewport {
+      overflow: hidden;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__track {
+      display: flex;
+      gap: var(--gap-desktop);
+      transition: transform 0.45s ease;
+      will-change: transform;
+      touch-action: pan-y;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__slide {
+      flex: 0 0 calc((100% - var(--gap-desktop)) / 2);
+      min-width: 0;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__content {
+      background: var(--content-bg);
+      border-radius: var(--radius-content);
+      padding: 10px 14px 8px;
+      margin-bottom: 14px;
+      min-height: 84px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__heading {
+      margin: 0 0 6px;
+      color: var(--heading-color);
+      font-size: {{ section.settings.heading_size_desktop }}px;
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__text,
+    #{{ section_id }} .two-image-feature-slider__text p {
+      margin: 0;
+      color: var(--text-color);
+      font-size: {{ section.settings.text_size_desktop }}px;
+      line-height: 1.4;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__image-wrap {
+      position: relative;
+      border-radius: var(--radius-image);
+      overflow: hidden;
+      height: var(--image-ratio-desktop);
+      background: #f3f3f3;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__image {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      padding: 0;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__dots {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 0;
+      padding: 0;
+      background: #d6d6d6;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__dot.is-active {
+      background: #2a2a2a;
+      transform: scale(1.05);
+    }
+
+    #{{ section_id }} .two-image-feature-slider__arrows {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__arrow:hover {
+      transform: translateY(-1px);
+    }
+
+    #{{ section_id }} .two-image-feature-slider__arrow:disabled {
+      cursor: default;
+      opacity: 1;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__arrow--prev {
+      background: #d9d9d9;
+      color: #ffffff;
+    }
+
+    #{{ section_id }} .two-image-feature-slider__arrow--next {
+      background: #1f1f1f;
+      color: #ffffff;
+    }
+
+    @media screen and (max-width: 749px) {
+      #{{ section_id }} .page-width {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      #{{ section_id }} .two-image-feature-slider__track {
+        gap: var(--gap-mobile);
+      }
+
+      #{{ section_id }} .two-image-feature-slider__slide {
+        flex: 0 0 100%;
+      }
+
+      #{{ section_id }} .two-image-feature-slider__content {
+        padding: 8px 10px 8px;
+        margin-bottom: 12px;
+        min-height: 76px;
+      }
+
+      #{{ section_id }} .two-image-feature-slider__heading {
+        font-size: {{ section.settings.heading_size_mobile }}px;
+        margin-bottom: 6px;
+      }
+
+      #{{ section_id }} .two-image-feature-slider__text,
+      #{{ section_id }} .two-image-feature-slider__text p {
+        font-size: {{ section.settings.text_size_mobile }}px;
+        line-height: 1.35;
+      }
+
+      #{{ section_id }} .two-image-feature-slider__image-wrap {
+        height: var(--image-ratio-mobile);
+      }
+
+      #{{ section_id }} .two-image-feature-slider__controls {
+        justify-content: center;
+        margin-top: 8px;
+      }
+
+      #{{ section_id }} .two-image-feature-slider__arrows {
+        display: none;
+      }
+
+      #{{ section_id }} .two-image-feature-slider__dots {
+        justify-content: center;
+        min-height: 34px;
+      }
+
+      #{{ section_id }} .two-image-feature-slider__dot {
+        width: 7px;
+        height: 7px;
+      }
+    }
+  </style>
+
+  <script>
+    (function() {
+      const section = document.getElementById('{{ section_id }}');
+      if (!section) return;
+
+      const track = section.querySelector('[data-slider-track]');
+      const slides = Array.from(section.querySelectorAll('[data-slide]'));
+      const dotsWrap = section.querySelector('[data-slider-dots]');
+      const prevBtn = section.querySelector('[data-prev]');
+      const nextBtn = section.querySelector('[data-next]');
+
+      if (!track || slides.length === 0) return;
+
+      let currentPage = 0;
+      let slidesPerPage = window.innerWidth <= 749 ? 1 : 2;
+      let totalPages = Math.max(1, Math.ceil(slides.length / slidesPerPage));
+      let startX = 0;
+      let moveX = 0;
+      let isDragging = false;
+
+      function getGap() {
+        const styles = getComputedStyle(track);
+        return parseFloat(styles.columnGap || styles.gap || 0);
+      }
+
+      function getSlideWidth() {
+        const firstSlide = slides[0];
+        return firstSlide ? firstSlide.getBoundingClientRect().width : 0;
+      }
+
+      function clampPage(index) {
+        return Math.max(0, Math.min(index, totalPages - 1));
+      }
+
+      function buildDots() {
+        dotsWrap.innerHTML = '';
+        for (let i = 0; i < totalPages; i++) {
+          const dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'two-image-feature-slider__dot';
+          dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+          dot.addEventListener('click', () => {
+            goToPage(i);
+          });
+          dotsWrap.appendChild(dot);
+        }
+      }
+
+      function updateDots() {
+        const dots = dotsWrap.querySelectorAll('.two-image-feature-slider__dot');
+        dots.forEach((dot, index) => {
+          dot.classList.toggle('is-active', index === currentPage);
+        });
+      }
+
+      function updateButtons() {
+        if (!prevBtn || !nextBtn) return;
+
+        if (totalPages <= 1) {
+          prevBtn.style.display = 'none';
+          nextBtn.style.display = 'none';
+          return;
+        }
+
+        if (window.innerWidth <= 749) {
+          prevBtn.style.display = 'none';
+          nextBtn.style.display = 'none';
+          return;
+        }
+
+        prevBtn.style.display = '';
+        nextBtn.style.display = '';
+        prevBtn.disabled = currentPage === 0;
+        nextBtn.disabled = currentPage === totalPages - 1;
+      }
+
+      function updateSlider(animate = true) {
+        slidesPerPage = window.innerWidth <= 749 ? 1 : 2;
+        totalPages = Math.max(1, Math.ceil(slides.length / slidesPerPage));
+        currentPage = clampPage(currentPage);
+
+        const slideWidth = getSlideWidth();
+        const gap = getGap();
+        const moveBy = (slideWidth + gap) * (currentPage * slidesPerPage);
+
+        if (!animate) {
+          track.style.transition = 'none';
+        } else {
+          track.style.transition = 'transform 0.45s ease';
+        }
+
+        track.style.transform = 'translate3d(' + (-moveBy) + 'px,0,0)';
+
+        if (dotsWrap.children.length !== totalPages) {
+          buildDots();
+        }
+        updateDots();
+        updateButtons();
+
+        if (!animate) {
+          requestAnimationFrame(() => {
+            track.style.transition = 'transform 0.45s ease';
+          });
+        }
+      }
+
+      function goToPage(index) {
+        currentPage = clampPage(index);
+        updateSlider(true);
+      }
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          goToPage(currentPage - 1);
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          goToPage(currentPage + 1);
+        });
+      }
+
+      track.addEventListener('touchstart', function(e) {
+        if (!e.touches.length) return;
+        startX = e.touches[0].clientX;
+        moveX = 0;
+        isDragging = true;
+      }, { passive: true });
+
+      track.addEventListener('touchmove', function(e) {
+        if (!isDragging || !e.touches.length) return;
+        moveX = e.touches[0].clientX - startX;
+      }, { passive: true });
+
+      track.addEventListener('touchend', function() {
+        if (!isDragging) return;
+        isDragging = false;
+
+        const threshold = 50;
+        if (moveX > threshold) {
+          goToPage(currentPage - 1);
+        } else if (moveX < -threshold) {
+          goToPage(currentPage + 1);
+        }
+      });
+
+      let resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+          updateSlider(false);
+        }, 100);
+      });
+
+      buildDots();
+      updateSlider(false);
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Two image feature slider",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "page_width",
+      "label": "页面最大宽度",
+      "min": 1000,
+      "max": 1800,
+      "step": 20,
+      "default": 1160
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "label": "桌面端卡片间距",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "移动端卡片间距",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "image_height_desktop",
+      "label": "桌面端图片高度",
+      "min": 260,
+      "max": 620,
+      "step": 10,
+      "default": 410
+    },
+    {
+      "type": "range",
+      "id": "image_height_mobile",
+      "label": "移动端图片高度",
+      "min": 180,
+      "max": 420,
+      "step": 10,
+      "default": 250
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "图片圆角",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "content_radius",
+      "label": "文字卡片圆角",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "color",
+      "id": "content_bg",
+      "label": "文字卡片背景",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "标题颜色",
+      "default": "#2b2b2b"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "描述颜色",
+      "default": "#5c5c5c"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "桌面端标题字号",
+      "min": 18,
+      "max": 44,
+      "step": 1,
+      "default": 25
+    },
+    {
+      "type": "range",
+      "id": "text_size_desktop",
+      "label": "桌面端描述字号",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "移动端标题字号",
+      "min": 16,
+      "max": 34,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "移动端描述字号",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "上边距",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "下边距",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 32
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "图片卡片",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "图片"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "标题",
+          "default": "Up to 80 Miles per Charge"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "描述",
+          "default": "<p>Powered by a 730Wh battery, Discover 3 is our leading, long-range commuter eBike.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Two image feature slider",
+      "blocks": [
+        {
+          "type": "slide"
+        },
+        {
+          "type": "slide"
+        },
+        {
+          "type": "slide"
+        },
+        {
+          "type": "slide"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,123 @@
+{% comment %}
+  Snippet: HX-q3-assembly-video
+  - Desktop: centered container
+  - Mobile: full width
+  - Default video: https://youtu.be/jNUSacdNPfo
+
+  Usage:
+  {% render 'HX-q3-assembly-video', title: 'Assembly Video' %}
+  {% render 'HX-q3-assembly-video', title: 'Assembly Video', youtube_url: 'https://youtu.be/jNUSacdNPfo' %}
+{% endcomment %}
+
+{%- assign av_title = title | default: 'Assembly Video' -%}
+{%- assign av_default_url = 'https://youtu.be/jNUSacdNPfo' -%}
+{%- assign av_url = youtube_url | default: av_default_url | strip -%}
+
+{%- if av_url == blank -%}
+  {%- assign av_url = av_default_url -%}
+{%- endif -%}
+
+{%- assign av_id = '' -%}
+
+{%- if av_url contains 'youtu.be/' -%}
+  {%- assign av_id = av_url | split: 'youtu.be/' | last | split: '?' | first | split: '&' | first | split: '/' | first -%}
+{%- elsif av_url contains '/shorts/' -%}
+  {%- assign av_id = av_url | split: '/shorts/' | last | split: '?' | first | split: '&' | first | split: '/' | first -%}
+{%- elsif av_url contains '/embed/' -%}
+  {%- assign av_id = av_url | split: '/embed/' | last | split: '?' | first | split: '&' | first | split: '/' | first -%}
+{%- elsif av_url contains 'watch?v=' -%}
+  {%- assign av_id = av_url | split: 'watch?v=' | last | split: '&' | first | split: '#' | first -%}
+{%- else -%}
+  {%- assign av_id = 'jNUSacdNPfo' -%}
+{%- endif -%}
+
+<section class="hxAssemblyQ3">
+  <div class="hxAssemblyQ3__container">
+
+    <div class="hxAssemblyQ3__video">
+      <div class="hxAssemblyQ3__ratio">
+        <iframe
+          class="hxAssemblyQ3__iframe"
+          src="https://www.youtube.com/embed/{{ av_id }}?rel=0&modestbranding=1"
+          title="{{ av_title | escape }}"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .hxAssemblyQ3{
+      padding:28px 0 40px;
+      color:#111;
+      font-family:var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
+    }
+
+    .hxAssemblyQ3 *{
+      box-sizing:border-box;
+    }
+
+    .hxAssemblyQ3__container{
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 clamp(16px, 3vw, 56px);
+    }
+
+    .hxAssemblyQ3__title{
+      margin:0 0 16px;
+      font-size:28px;
+      line-height:1.15;
+      font-weight:600;
+      letter-spacing:-0.01em;
+    }
+
+    .hxAssemblyQ3__video{
+      width:100%;
+    }
+
+    .hxAssemblyQ3__ratio{
+      position:relative;
+      width:100%;
+      padding-top:56.25%;
+      background:rgba(0,0,0,.04);
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid rgba(0,0,0,.08);
+    }
+
+    .hxAssemblyQ3__iframe{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+    }
+
+    @media (max-width: 990px){
+      .hxAssemblyQ3{
+        padding:18px 0 28px;
+      }
+
+      .hxAssemblyQ3__container{
+        max-width:100%;
+        padding:0;
+      }
+
+      .hxAssemblyQ3__title{
+        font-size:22px;
+        margin:0 0 12px;
+        padding:0 clamp(16px, 3vw, 24px);
+      }
+
+      .hxAssemblyQ3__ratio{
+        border-radius:0;
+        border-left:0;
+        border-right:0;
+      }
+    }
+  </style>
+</section>

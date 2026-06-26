@@ -1,0 +1,167 @@
+{% comment %}
+  Snippet: HX-q3-geometry
+  Usage:
+  {% render 'HX-q3-geometry',
+    title: 'Geometry',
+    image_url: 'https://cdn.shopify.com/s/files/1/0940/2590/8589/files/Q3.webp?v=1767864529',
+    image_alt: 'Q3 Geometry Chart'
+  %}
+{% endcomment %}
+
+{%- assign geo_title = title | default: 'Geometry' -%}
+{%- assign geo_image_alt = image_alt | default: 'Q3 Geometry Chart' -%}
+{%- assign geo_default_img = 'https://cdn.shopify.com/s/files/1/0940/2590/8589/files/Q3.webp?v=1767864529' -%}
+{%- assign geo_img = image_url | default: geo_default_img -%}
+
+<section class="hxGeoQ3">
+  <div class="hxGeoQ3__container">
+    <div class="hxGeoQ3__grid">
+      <!-- Block 1: Parameters -->
+      <div class="hxGeoQ3__block hxGeoQ3__block--params">
+        <h3 class="hxGeoQ3__title">{{ geo_title }}</h3>
+
+        <div class="hxGeoQ3__table" role="table" aria-label="Q3 geometry parameters">
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Rider Height</div><div class="hxGeoQ3__v" role="cell">5'5&quot; ~ 6'3&quot; / 165 ~ 190 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Handlebar Height</div><div class="hxGeoQ3__v" role="cell">41.3&quot; / 105 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Max Saddle Height</div><div class="hxGeoQ3__v" role="cell">41.3&quot; / 105 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Min Saddle Height</div><div class="hxGeoQ3__v" role="cell">33.8&quot; / 86 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Total Length</div><div class="hxGeoQ3__v" role="cell">70.9&quot; / 180 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Wheelbase</div><div class="hxGeoQ3__v" role="cell">48.6&quot; / 124 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Standover Height</div><div class="hxGeoQ3__v" role="cell">28.7&quot; / 73 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Reach</div><div class="hxGeoQ3__v" role="cell">13.8&quot; / 35 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Frame Size</div><div class="hxGeoQ3__v" role="cell">Standard</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Wheel Size</div><div class="hxGeoQ3__v" role="cell">20&quot;</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Seat Tube Length</div><div class="hxGeoQ3__v" role="cell">16.1&quot; / 41 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Top Tube Length (Horizontal)</div><div class="hxGeoQ3__v" role="cell">24.0&quot; / 61 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Bottom Bracket Drop</div><div class="hxGeoQ3__v" role="cell">0.4&quot; / 1.0 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Head Tube Length</div><div class="hxGeoQ3__v" role="cell">6.3&quot; / 16 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Head Tube Angle</div><div class="hxGeoQ3__v" role="cell">72°</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Seat Tube Angle</div><div class="hxGeoQ3__v" role="cell">72°</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Rear Chainstay Length</div><div class="hxGeoQ3__v" role="cell">16.7&quot; / 42.5 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Front Wheel Center</div><div class="hxGeoQ3__v" role="cell">5.3&quot; / 13.5 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Stack Height</div><div class="hxGeoQ3__v" role="cell">20.0&quot; / 50.9 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Fork Length</div><div class="hxGeoQ3__v" role="cell">15.4&quot; / 39.2 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Fork Offset</div><div class="hxGeoQ3__v" role="cell">1.2&quot; / 3.1 cm</div></div>
+          <div class="hxGeoQ3__row" role="row"><div class="hxGeoQ3__k" role="cell">Trail</div><div class="hxGeoQ3__v" role="cell">37.4&quot; / 95.0 cm</div></div>
+        </div>
+      </div>
+
+      <!-- Block 2: Image -->
+      <div class="hxGeoQ3__block hxGeoQ3__block--image">
+        <img class="hxGeoQ3__img" src="{{ geo_img }}" alt="{{ geo_image_alt | escape }}" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .hxGeoQ3{
+      padding:32px 0;
+      color:#111;
+      font-family:var(--font-body-family, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
+    }
+
+    .hxGeoQ3 *{
+      box-sizing:border-box;
+    }
+
+    .hxGeoQ3__container{
+      max-width:1680px;
+      margin:0 auto;
+      padding:0 clamp(16px,3vw,64px);
+    }
+
+    .hxGeoQ3__grid{
+      display:grid;
+      grid-template-columns:1fr 1.1fr;
+      gap:clamp(18px, 3vw, 56px);
+      align-items:start;
+    }
+
+    .hxGeoQ3__title{
+      margin:0 0 18px;
+      font-size:28px;
+      line-height:1.15;
+      font-weight:600;
+      letter-spacing:-0.01em;
+    }
+
+    .hxGeoQ3__table{
+      border-top:1px solid rgba(0,0,0,.10);
+    }
+
+    .hxGeoQ3__row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      padding:16px 0;
+      border-bottom:1px solid rgba(0,0,0,.06);
+    }
+
+    .hxGeoQ3__k,
+    .hxGeoQ3__v{
+      font-size:15px;
+      line-height:1.5;
+      font-weight:400;
+    }
+
+    .hxGeoQ3__k{
+      color:rgba(0,0,0,.86);
+    }
+
+    .hxGeoQ3__v{
+      color:rgba(0,0,0,.62);
+      text-align:right;
+    }
+
+    .hxGeoQ3__img{
+      width:100%;
+      height:auto;
+      display:block;
+      border-radius:12px;
+    }
+
+    @media (max-width:990px){
+      .hxGeoQ3{
+        padding:20px 0;
+      }
+
+      .hxGeoQ3__container{
+        max-width:100%;
+        padding:0;
+      }
+
+      .hxGeoQ3__grid{
+        grid-template-columns:1fr;
+        gap:16px;
+      }
+
+      .hxGeoQ3__block--image{
+        order:0;
+      }
+
+      .hxGeoQ3__block--params{
+        order:1;
+        padding:0 clamp(16px,3vw,24px);
+      }
+
+      .hxGeoQ3__title{
+        font-size:22px;
+        margin:6px 0 14px;
+      }
+
+      .hxGeoQ3__img{
+        border-radius:0;
+        width:100%;
+      }
+
+      .hxGeoQ3__row{
+        padding:14px 0;
+      }
+
+      .hxGeoQ3__k,
+      .hxGeoQ3__v{
+        font-size:14px;
+      }
+    }
+  </style>
+</section>

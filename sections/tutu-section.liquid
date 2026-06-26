@@ -1,0 +1,826 @@
+{%- liquid
+  assign first_block = section.blocks.first
+  assign section_title = section.settings.title | escape
+  assign section_subtitle = section.settings.subtitle | escape
+  assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0
+  assign pill_background_opacity = section.settings.pill_background_opacity | divided_by: 100.0
+  assign desktop_height = section.settings.desktop_height
+  assign mobile_height = section.settings.mobile_height
+-%}
+
+<section
+  id="TutuMileage-{{ section.id }}"
+  class="tutu-mileage"
+  style="
+    --tutu-text: {{ section.settings.text_color }};
+    --tutu-muted: {{ section.settings.muted_color }};
+    --tutu-pill-bg: {{ section.settings.pill_background | color_modify: 'alpha', pill_background_opacity }};
+    --tutu-pill-text: {{ section.settings.pill_text_color }};
+    --tutu-pill-active-bg: {{ section.settings.pill_active_background }};
+    --tutu-pill-active-text: {{ section.settings.pill_active_text_color }};
+    --tutu-accent: {{ section.settings.accent_color }};
+    --tutu-overlay: {{ section.settings.overlay_color | color_modify: 'alpha', overlay_opacity }};
+    --tutu-desktop-height: {{ desktop_height }}px;
+    --tutu-mobile-height: {{ mobile_height }}px;
+  "
+>
+  <div class="tutu-mileage__media">
+    {%- if first_block and first_block.settings.image_desktop != blank -%}
+      <img
+        class="tutu-mileage__image tutu-mileage__image--desktop"
+        src="{{ first_block.settings.image_desktop | image_url: width: 2400 }}"
+        alt="{{ first_block.settings.image_alt | default: first_block.settings.title | escape }}"
+        width="{{ first_block.settings.image_desktop.width }}"
+        height="{{ first_block.settings.image_desktop.height }}"
+        loading="lazy"
+        data-tutu-image-desktop
+      >
+    {%- else -%}
+      <div class="tutu-mileage__placeholder tutu-mileage__placeholder--desktop" data-tutu-image-desktop>
+        {{ 'lifestyle-2' | placeholder_svg_tag: 'tutu-mileage__placeholder-svg' }}
+      </div>
+    {%- endif -%}
+
+    {%- if first_block and first_block.settings.image_mobile != blank -%}
+      <img
+        class="tutu-mileage__image tutu-mileage__image--mobile"
+        src="{{ first_block.settings.image_mobile | image_url: width: 1200 }}"
+        alt="{{ first_block.settings.image_alt | default: first_block.settings.title | escape }}"
+        width="{{ first_block.settings.image_mobile.width }}"
+        height="{{ first_block.settings.image_mobile.height }}"
+        loading="lazy"
+        data-tutu-image-mobile
+      >
+    {%- elsif first_block and first_block.settings.image_desktop != blank -%}
+      <img
+        class="tutu-mileage__image tutu-mileage__image--mobile"
+        src="{{ first_block.settings.image_desktop | image_url: width: 1200 }}"
+        alt="{{ first_block.settings.image_alt | default: first_block.settings.title | escape }}"
+        width="{{ first_block.settings.image_desktop.width }}"
+        height="{{ first_block.settings.image_desktop.height }}"
+        loading="lazy"
+        data-tutu-image-mobile
+      >
+    {%- else -%}
+      <div class="tutu-mileage__placeholder tutu-mileage__placeholder--mobile" data-tutu-image-mobile>
+        {{ 'lifestyle-2' | placeholder_svg_tag: 'tutu-mileage__placeholder-svg' }}
+      </div>
+    {%- endif -%}
+
+    <div class="tutu-mileage__overlay" aria-hidden="true"></div>
+
+    <div class="tutu-mileage__content tutu-mileage__content--{{ section.settings.content_position }}">
+      {%- if section_title != blank or section_subtitle != blank -%}
+        <div class="tutu-mileage__heading">
+          {%- if section_subtitle != blank -%}
+            <p class="tutu-mileage__eyebrow">{{ section_subtitle }}</p>
+          {%- endif -%}
+          {%- if section_title != blank -%}
+            <h2 class="tutu-mileage__title">{{ section_title }}</h2>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="tutu-mileage__panel">
+          <div class="tutu-mileage__tabs" role="tablist" aria-label="{{ section.settings.tabs_label | escape }}">
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign desktop_src = ''
+                assign mobile_src = ''
+
+                if block.settings.image_desktop != blank
+                  assign desktop_src = block.settings.image_desktop | image_url: width: 2400
+                endif
+
+                if block.settings.image_mobile != blank
+                  assign mobile_src = block.settings.image_mobile | image_url: width: 1200
+                elsif block.settings.image_desktop != blank
+                  assign mobile_src = block.settings.image_desktop | image_url: width: 1200
+                endif
+              -%}
+              <button
+                class="tutu-mileage__tab{% if forloop.first %} is-active{% endif %}"
+                type="button"
+                role="tab"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                data-tutu-trigger
+                data-tutu-index="{{ forloop.index0 }}"
+                data-tutu-desktop-src="{{ desktop_src }}"
+                data-tutu-mobile-src="{{ mobile_src }}"
+                data-tutu-alt="{{ block.settings.image_alt | default: block.settings.title | escape }}"
+                data-tutu-title="{{ block.settings.title | escape }}"
+                data-tutu-text="{{ block.settings.text | escape }}"
+                data-tutu-button-label="{{ block.settings.button_label | escape }}"
+                data-tutu-button-url="{{ block.settings.button_link | escape }}"
+                {{ block.shopify_attributes }}
+              >
+                <span class="tutu-mileage__tab-label">{{ block.settings.title | escape }}</span>
+                <span class="tutu-mileage__progress" aria-hidden="true">
+                  <span class="tutu-mileage__progress-bar" data-tutu-progress></span>
+                </span>
+              </button>
+            {%- endfor -%}
+          </div>
+
+          <div class="tutu-mileage__body" aria-live="polite">
+            <p class="tutu-mileage__body-title" data-tutu-title>{{ first_block.settings.title | escape }}</p>
+            <p class="tutu-mileage__body-text" data-tutu-text>{{ first_block.settings.text | escape }}</p>
+            <a
+              class="tutu-mileage__button{% if first_block.settings.button_label == blank or first_block.settings.button_link == blank %} is-hidden{% endif %}"
+              href="{{ first_block.settings.button_link }}"
+              data-tutu-button
+            >
+              <span data-tutu-button-label>{{ first_block.settings.button_label | escape }}</span>
+            </a>
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  #TutuMileage-{{ section.id }} {
+    color: var(--tutu-text);
+    display: block;
+    width: 100%;
+  }
+
+  #TutuMileage-{{ section.id }} * {
+    box-sizing: border-box;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__media {
+    min-height: var(--tutu-desktop-height);
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #121315;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__image,
+  #TutuMileage-{{ section.id }} .tutu-mileage__placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 260ms ease, transform 700ms ease;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__image {
+    display: block;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d9dde0;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #TutuMileage-{{ section.id }}.is-changing .tutu-mileage__image,
+  #TutuMileage-{{ section.id }}.is-changing .tutu-mileage__placeholder {
+    opacity: 0.74;
+    transform: scale(1.012);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__image--mobile,
+  #TutuMileage-{{ section.id }} .tutu-mileage__placeholder--mobile {
+    display: none;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0%, var(--tutu-overlay) 100%),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0) 58%);
+    pointer-events: none;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__content {
+    position: relative;
+    z-index: 2;
+    min-height: var(--tutu-desktop-height);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 28px;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 56px 36px;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__content--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__content--right {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__content--left {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__heading {
+    width: min(100%, 680px);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__eyebrow,
+  #TutuMileage-{{ section.id }} .tutu-mileage__title,
+  #TutuMileage-{{ section.id }} .tutu-mileage__body-title,
+  #TutuMileage-{{ section.id }} .tutu-mileage__body-text {
+    margin: 0;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__eyebrow {
+    color: var(--tutu-muted);
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    margin-bottom: 10px;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__title {
+    color: var(--tutu-text);
+    font-size: clamp(34px, 5vw, 72px);
+    line-height: 1.04;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__panel {
+    width: min(100%, 720px);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__tabs {
+    display: grid;
+    grid-template-columns: repeat({{ section.blocks.size | at_least: 1 }}, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__tab {
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    min-height: 52px;
+    padding: 10px 18px 12px;
+    background: var(--tutu-pill-bg);
+    color: var(--tutu-pill-text);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    text-align: left;
+    font: inherit;
+    font-weight: 700;
+    line-height: 1.2;
+    backdrop-filter: blur(12px);
+    transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__tab:hover,
+  #TutuMileage-{{ section.id }} .tutu-mileage__tab:focus-visible {
+    transform: translateY(-1px);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__tab:focus-visible {
+    outline: 2px solid var(--tutu-accent);
+    outline-offset: 3px;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__tab.is-active {
+    background: var(--tutu-pill-active-bg);
+    color: var(--tutu-pill-active-text);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__tab-label {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__progress {
+    display: block;
+    width: 100%;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.18);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__tab.is-active .tutu-mileage__progress {
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__progress-bar {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--tutu-accent);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__body {
+    width: min(100%, 620px);
+    color: var(--tutu-text);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__body-title {
+    font-size: clamp(22px, 2.4vw, 32px);
+    line-height: 1.12;
+    font-weight: 700;
+    letter-spacing: 0;
+    margin-bottom: 8px;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__body-text {
+    color: var(--tutu-muted);
+    font-size: clamp(15px, 1.5vw, 18px);
+    line-height: 1.55;
+    max-width: 58ch;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    margin-top: 20px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: var(--tutu-accent);
+    color: #121315;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__button:hover,
+  #TutuMileage-{{ section.id }} .tutu-mileage__button:focus-visible {
+    transform: translateY(-1px);
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  #TutuMileage-{{ section.id }} .tutu-mileage__button.is-hidden {
+    display: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    #TutuMileage-{{ section.id }} .tutu-mileage__media,
+    #TutuMileage-{{ section.id }} .tutu-mileage__content {
+      min-height: var(--tutu-mobile-height);
+    }
+
+    #TutuMileage-{{ section.id }} .tutu-mileage__image--desktop,
+    #TutuMileage-{{ section.id }} .tutu-mileage__placeholder--desktop {
+      display: none;
+    }
+
+    #TutuMileage-{{ section.id }} .tutu-mileage__image--mobile,
+    #TutuMileage-{{ section.id }} .tutu-mileage__placeholder--mobile {
+      display: flex;
+    }
+
+    #TutuMileage-{{ section.id }} .tutu-mileage__content {
+      gap: 20px;
+      padding: 34px 16px;
+      justify-content: flex-end;
+      align-items: stretch;
+      text-align: left;
+    }
+
+    #TutuMileage-{{ section.id }} .tutu-mileage__overlay {
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.04) 0%, var(--tutu-overlay) 72%, rgba(0, 0, 0, 0.72) 100%);
+    }
+
+    #TutuMileage-{{ section.id }} .tutu-mileage__title {
+      font-size: clamp(32px, 10vw, 48px);
+    }
+
+    #TutuMileage-{{ section.id }} .tutu-mileage__tabs {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+      scroll-snap-type: x proximity;
+    }
+
+    #TutuMileage-{{ section.id }} .tutu-mileage__tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    #TutuMileage-{{ section.id }} .tutu-mileage__tab {
+      flex: 0 0 min(74vw, 240px);
+      min-height: 50px;
+      scroll-snap-align: start;
+    }
+
+    #TutuMileage-{{ section.id }} .tutu-mileage__body-text {
+      max-width: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #TutuMileage-{{ section.id }} .tutu-mileage__image,
+    #TutuMileage-{{ section.id }} .tutu-mileage__placeholder,
+    #TutuMileage-{{ section.id }} .tutu-mileage__tab,
+    #TutuMileage-{{ section.id }} .tutu-mileage__button {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const sectionId = 'TutuMileage-{{ section.id }}';
+    const autoplay = {{ section.settings.enable_autoplay | json }};
+    const duration = {{ section.settings.autoplay_seconds | times: 1000 | json }};
+
+    function initTutuMileage(root = document) {
+      const section = root.querySelector(`#${sectionId}`);
+      if (!section || section.dataset.tutuReady === 'true') return;
+
+      const triggers = Array.from(section.querySelectorAll('[data-tutu-trigger]'));
+      let desktopImage = section.querySelector('[data-tutu-image-desktop]');
+      let mobileImage = section.querySelector('[data-tutu-image-mobile]');
+      const title = section.querySelector('[data-tutu-title]');
+      const text = section.querySelector('[data-tutu-text]');
+      const button = section.querySelector('[data-tutu-button]');
+      const buttonLabel = section.querySelector('[data-tutu-button-label]');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (!triggers.length) return;
+
+      section.dataset.tutuReady = 'true';
+
+      let activeIndex = Math.max(0, triggers.findIndex((trigger) => trigger.classList.contains('is-active')));
+      let startedAt = performance.now();
+      let frameId = null;
+      let paused = false;
+
+      function swapImage(image, src, alt, target) {
+        if (!image || !src) return image;
+
+        if (image.tagName !== 'IMG') {
+          const replacement = document.createElement('img');
+          replacement.className = image.className
+            .replace('tutu-mileage__placeholder', 'tutu-mileage__image')
+            .replace('tutu-mileage__placeholder--desktop', 'tutu-mileage__image--desktop')
+            .replace('tutu-mileage__placeholder--mobile', 'tutu-mileage__image--mobile');
+          replacement.loading = 'lazy';
+          replacement.setAttribute(target, '');
+          image.replaceWith(replacement);
+          image = replacement;
+        }
+
+        if (image.getAttribute('src') === src) return image;
+
+        image.src = src;
+        image.alt = alt || '';
+        return image;
+      }
+
+      function setActive(index, resetTimer = true) {
+        const next = triggers[index];
+        if (!next) return;
+
+        activeIndex = index;
+        section.classList.add('is-changing');
+        window.setTimeout(() => section.classList.remove('is-changing'), 260);
+
+        triggers.forEach((trigger, triggerIndex) => {
+          const isActive = triggerIndex === index;
+          trigger.classList.toggle('is-active', isActive);
+          trigger.setAttribute('aria-selected', isActive ? 'true' : 'false');
+
+          const progress = trigger.querySelector('[data-tutu-progress]');
+          if (progress) progress.style.width = isActive && !autoplay ? '100%' : '0%';
+        });
+
+        desktopImage = swapImage(desktopImage, next.dataset.tutuDesktopSrc, next.dataset.tutuAlt, 'data-tutu-image-desktop');
+        mobileImage = swapImage(mobileImage, next.dataset.tutuMobileSrc || next.dataset.tutuDesktopSrc, next.dataset.tutuAlt, 'data-tutu-image-mobile');
+
+        if (title) title.textContent = next.dataset.tutuTitle || '';
+        if (text) text.textContent = next.dataset.tutuText || '';
+
+        const buttonUrl = next.dataset.tutuButtonUrl || '';
+        const label = next.dataset.tutuButtonLabel || '';
+        if (button && buttonLabel) {
+          buttonLabel.textContent = label;
+          button.setAttribute('href', buttonUrl || '#');
+          button.classList.toggle('is-hidden', !buttonUrl || !label);
+        }
+
+        if (resetTimer) startedAt = performance.now();
+      }
+
+      function tick(now) {
+        if (!autoplay || reduceMotion || triggers.length < 2) return;
+
+        const activeProgress = triggers[activeIndex]?.querySelector('[data-tutu-progress]');
+        const elapsed = paused ? 0 : now - startedAt;
+        const percent = Math.min(100, (elapsed / duration) * 100);
+
+        if (activeProgress) activeProgress.style.width = `${percent}%`;
+
+        if (!paused && elapsed >= duration) {
+          setActive((activeIndex + 1) % triggers.length);
+        }
+
+        frameId = window.requestAnimationFrame(tick);
+      }
+
+      triggers.forEach((trigger, index) => {
+        trigger.addEventListener('click', () => setActive(index));
+      });
+
+      section.addEventListener('mouseenter', () => {
+        paused = true;
+      });
+
+      section.addEventListener('mouseleave', () => {
+        paused = false;
+        startedAt = performance.now();
+      });
+
+      section.addEventListener('focusin', () => {
+        paused = true;
+      });
+
+      section.addEventListener('focusout', () => {
+        paused = false;
+        startedAt = performance.now();
+      });
+
+      setActive(activeIndex, false);
+
+      if (autoplay && !reduceMotion && triggers.length > 1) {
+        frameId = window.requestAnimationFrame(tick);
+      }
+
+      section.tutuMileageDestroy = () => {
+        if (frameId) window.cancelAnimationFrame(frameId);
+        section.dataset.tutuReady = 'false';
+      };
+    }
+
+    initTutuMileage();
+
+    document.addEventListener('shopify:section:load', (event) => {
+      initTutuMileage(event.target);
+    });
+
+    document.addEventListener('shopify:section:unload', (event) => {
+      const section = event.target.matches?.(`#${sectionId}`)
+        ? event.target
+        : event.target.querySelector(`#${sectionId}`);
+      if (section && section.tutuMileageDestroy) section.tutuMileageDestroy();
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Tutu interactive hero",
+  "tag": "section",
+  "class": "section-tutu-interactive-hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Eyebrow",
+      "default": "Built for everyday range"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Ride further, feel in control"
+    },
+    {
+      "type": "text",
+      "id": "tabs_label",
+      "label": "Tabs accessibility label",
+      "default": "Feature highlights"
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "Content position",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "desktop_height",
+      "label": "Desktop height",
+      "min": 420,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "default": 680
+    },
+    {
+      "type": "range",
+      "id": "mobile_height",
+      "label": "Mobile height",
+      "min": 420,
+      "max": 760,
+      "step": 20,
+      "unit": "px",
+      "default": 620
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_autoplay",
+      "label": "Auto rotate tabs",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_seconds",
+      "label": "Autoplay speed",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "default": 6
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Muted text color",
+      "default": "#e4e4e4"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#fdbd03"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 45
+    },
+    {
+      "type": "color",
+      "id": "pill_background",
+      "label": "Tab background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "pill_background_opacity",
+      "label": "Tab background opacity",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 70
+    },
+    {
+      "type": "color",
+      "id": "pill_text_color",
+      "label": "Tab text color",
+      "default": "#121315"
+    },
+    {
+      "type": "color",
+      "id": "pill_active_background",
+      "label": "Active tab background",
+      "default": "#121315"
+    },
+    {
+      "type": "color",
+      "id": "pill_active_text_color",
+      "label": "Active tab text color",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "highlight",
+      "name": "Highlight",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image_desktop",
+          "label": "Desktop image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Mobile image"
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Image alt text"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Go Further"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Up to 60 miles on a single charge, giving you freedom to commute, cruise, and explore without worrying about battery."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tutu interactive hero",
+      "blocks": [
+        {
+          "type": "highlight",
+          "settings": {
+            "title": "Go Further",
+            "text": "Up to 60 miles on a single charge, giving you freedom to commute, cruise, and explore without worrying about battery."
+          }
+        },
+        {
+          "type": "highlight",
+          "settings": {
+            "title": "Smooth Power",
+            "text": "A quiet motor delivers steady, controlled support for starts, stops, and mild climbs."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
